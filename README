@@ -1,0 +1,21 @@
+Sujet :
+
+*Contexte
+
+Les jeux multi-joueurs en ligne comme World of Warcraft sont devenus une classe d’application très populaire, et constituent une part considérable de l’industrie des loisirs électroniques en termes de revenus. D’un point de vue système, ces applications sont très intéressantes : elles présentent des contraintes très fortes. Par exemple, le système doit être très réactif : si la latence pour l’envoi des mises à jours aux joueurs est trop forte, le jeu ne sera pas utilisable. De plus, il est nécessaire d’assurer à grande échelle la disponibilité du jeu et la cohérence des données tout en évitant la triche.
+
+Les solutions commerciales existantes simplifient le problème en limitant l’échelle pour revenir à des solutions centralisées. L’environnement virtuel est partitionné, soit en découpant un seul et même monde (à la manière les îles de Second Life), soit en créant plusieurs mondes parallèles disjoints (comme les royaumes de World of Warcraft). Chaque partition, gérée selon un mode client/serveur, n’accueille qu’un nombre limité d’utilisateurs (joueurs).
+
+Il existe des travaux de recherche pour réunir tous les joueurs dans un même monde continu. Ces travaux proposent soit des solutions complètement décentralisées basées sur le paradigme pair-à-pair, soit des architectures distribuées passant à l’échelle côté serveur (Cloud Gaming).
+
+*Objectifs du stage
+
+Nous sommes convaincus que la conception d’architectures passant à l’échelle pour les jeux multi-joueurs en ligne est un défi scientifique important. Avec l’avènement des clouds, il devient possible de concevoir des architectures dynamiques dans lesquelles on provisionne des serveurs en fonction de la charge courante. La manière dont on partitionne l’environnement virtuel en zones et la stratégie d’affectation des zones à différents serveurs a un impact important sur le coût (nombre de serveurs alloués) et sur la qualité de jeux. En effet, le nombre de joueurs et la densité de joueurs dans chaque zone varient beaucoup au cours du temps. L’architecture doit donc s’adapter continuellement.
+
+Le but de ce stage est d’étudier l’impact de différentes stratégies de provisionnement de serveurs et d’affectation zone(s)-serveur(s). Pour ce faire, nous proposons de concevoir un environnement de simulation basé sur SimGrid (http://simgrid.gforge.inria.fr/) afin de représenter l’activité des serveurs et les trafics réseaux inter-serveurs et clients-serveurs. Le prototype prendra en entrée des traces de joueurs obtenues sur des jeux réels comme World-of-Warcraft [1] et les paramètres réseaux devront être réalistes, notamment la bande passante utilisée par l’application [2]. Le simulateur permettra de mesurer l’impact des différentes stratégies sur la qualité de jeux (données reçues ou non par les clients) et sur le coût (notamment en nombre de serveurs utilisés).
+
+*Bibliographie
+
+[1] Yeng-Ting Lee, Kuan-Ta Chen, Yun-Maw Cheng, and Chin-Laung Lei. 2011. World of warcraft avatar history dataset. In Proceedings of the second annual ACM conference on Multimedia systems (MMSys’11). ACM, New York, NY, USA, 123-128.
+
+[2] P. Svoboda, W. Karner, and M. Rupp. Traffic Analysis and Modeling for World of Warcraft. In Proc. of ICC, Urbana-Champaign, IL, USA, June 2007.
