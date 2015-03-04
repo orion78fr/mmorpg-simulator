@@ -1,4 +1,6 @@
-Sujet :
+On cloning, use `git submodule init` followed by `git submodule update` to get simgrid repository.
+
+Subject :
 
 *Contexte
 

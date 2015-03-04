@@ -1,0 +1,3 @@
+[submodule "simgrid"]
+	path = simgrid
+	url = https://gforge.inria.fr/git/simgrid/simgrid.git
