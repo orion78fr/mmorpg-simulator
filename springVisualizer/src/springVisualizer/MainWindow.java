@@ -9,19 +9,32 @@ import java.awt.GridLayout;
 import java.awt.RadialGradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneLayout;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -51,10 +64,58 @@ public class MainWindow {
 		}
 	}
 	
+	static private JFrame win;
+	static private JLabel imagelabel;
+	static private BufferedImage fond;
+	static private double zoom = 1;
+
+	private static void refreshImage() {
+        AffineTransform at = new AffineTransform();
+        at.scale(zoom, zoom);
+        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        ImageIcon icon = new ImageIcon(op.filter(fond, null));
+        imagelabel.setIcon(icon);
+	}
 	public static void start(){
-		JFrame win = new JFrame("Visualizer");
+		win = new JFrame();
 		
-		JPanel options = new JPanel(new GridLayout(0, 1));
+		win.setTitle("Visualizer");
+		win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JMenuBar bar = new JMenuBar();
+        generateMenu(bar);
+        win.setJMenuBar(bar);
+        
+        imagelabel = new JLabel();
+        fond = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
+        
+        
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(imagelabel, BorderLayout.NORTH);
+        
+        panel.addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0){
+					System.out.println(e.getWheelRotation());
+					zoom -= e.getWheelRotation();
+					if(zoom <= 0){
+						zoom = 1;
+					}
+					refreshImage();
+				}
+			}
+		});
+		
+        JScrollPane scroll = new JScrollPane(panel);
+        refreshImage();
+        
+        win.getContentPane().add(scroll);
+        
+        win.pack();
+        
+        
+		/*JPanel options = new JPanel(new GridLayout(0, 1));
 		JCheckBox hotspot_chkbx = new JCheckBox("Draw hotspots", true);
 		hotspot_chkbx.addChangeListener(new ChangeListener() {
 			@Override
@@ -93,6 +154,13 @@ public class MainWindow {
 			}
 		});
 		options.add(tricolor);
+			
+		
+		BufferedImage bi = new BufferedImage(Parameters.size, Parameters.size, BufferedImage.TYPE_INT_ARGB);
+		
+		
+		
+		
 		
 		p = new JPanel(){
 			private static final long serialVersionUID = 1L;
@@ -157,8 +225,37 @@ public class MainWindow {
 		contenu.add(conteneurP, BorderLayout.NORTH);
 		contenu.add(options, BorderLayout.SOUTH);
 		win.setContentPane(contenu);
-		win.pack();
+		win.pack();*/
+        
 		win.setVisible(true);
+	}
+
+	private static void generateMenu(JMenuBar bar) {
+		JMenu menu;
+        JMenuItem item;
+
+        menu = new JMenu("Fichier");
+
+        item = new JMenuItem("Charger image de fond...");
+        item.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
+                        int ret = fc.showDialog(win, "Ouvrir");
+                        if (ret == JFileChooser.APPROVE_OPTION) {
+                                try {
+                                        fond = ImageIO.read(fc.getSelectedFile());
+                                        refreshImage();
+                                } catch (Exception ex) {
+                                        actionPerformed(e);
+                                }
+                        }
+                }
+        });
+        menu.add(item);
+        
+        bar.add(menu);
 	}
 
 }
