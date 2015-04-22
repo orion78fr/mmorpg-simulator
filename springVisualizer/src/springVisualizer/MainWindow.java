@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -71,45 +73,79 @@ public class MainWindow {
 	static private JFrame win;
 	static private JLabel imagelabel;
 	static private BufferedImage fond;
-	static private double zoom = 1;
-	static private int posx = 0, posy = 0;
 	static private JScrollBar hBar, vBar;
 	
 	static private boolean moving = false;
 	static private int movingoldx, movingoldy;
 
+	static private double zoom = 1;
+	static private int posx = 0,
+			posy = 0,
+			layoutw = 0,
+			layouth = 0,
+			taillex = 0,
+			tailley = 0;
+	
+	private static void refresh(){
+		refreshDimensions();
+		refreshImage();
+		refreshOverlay();
+		refreshPlayers();
+	}
+	
+	private static void refreshOverlay() {
+		
+	}
+
+	private static void refreshDimensions(){
+		layoutw = imagelabel.getWidth();
+        layouth = imagelabel.getHeight();
+        
+        taillex = (int) (layoutw/zoom) + 1;
+        if(posx + taillex > fond.getWidth()){
+        	//taillex = fond.getWidth() - posx;
+        	posx = fond.getWidth() - taillex;
+        	if(posx < 0){
+        		posx = 0;
+        		taillex = fond.getWidth();
+        	}
+        }
+        tailley = (int) (layouth/zoom) + 1;
+        if(posy + tailley > fond.getHeight()){
+        	//tailley = fond.getHeight() - posy;
+        	posy = fond.getHeight() - tailley;
+        	if(posy < 0){
+        		posy = 0;
+        		tailley = fond.getHeight();
+        	}
+        }
+        if(hBar.getValue() != posx){
+        	hBar.setValue(posx);
+        }
+        if(hBar.getVisibleAmount() != taillex){
+        	hBar.setVisibleAmount(taillex);
+        }
+        if(vBar.getValue() != posy){
+        	vBar.setValue(posy);
+        }
+        if(vBar.getVisibleAmount() != tailley){
+        	vBar.setVisibleAmount(tailley);
+        }
+	}
+	
+	private static void refreshPlayers(){
+		
+	}
+	
 	private static void refreshImage() {
         AffineTransform at = new AffineTransform();
         at.scale(zoom, zoom);
-        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
-        
-        int layoutx = 500;
-        int layouty = 500;
-        
-        int taillex = (int) (layoutx/zoom) + 1;
-        if(posx + taillex > fond.getWidth()){
-        	taillex = fond.getWidth() - posx;
-        }
-        int tailley = (int) (layouty/zoom) + 1;
-        if(posy + tailley > fond.getHeight()){
-        	tailley = fond.getHeight() - posy;
-        }
-        
-        if(taillex == 0 || tailley == 0){
-        	// Too Much Zoom!
-        	System.err.println("STOP ZOOMER PUTAIN");
-        	return;
-        }
+        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         
         BufferedImage sub = fond.getSubimage(posx, posy, taillex, tailley);
         
         ImageIcon icon = new ImageIcon(op.filter(sub, null));
         imagelabel.setIcon(icon);
-        
-        hBar.setValue(posx);
-        hBar.setVisibleAmount(taillex);
-        vBar.setValue(posy);
-        vBar.setVisibleAmount(tailley);
 	}
         
 	public static void start(){
@@ -121,6 +157,8 @@ public class MainWindow {
 		JMenuBar bar = new JMenuBar();
         generateMenu(bar);
         win.setJMenuBar(bar);
+        
+        //win.getLayeredPane()
         
         imagelabel = new JLabel();
         fond = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
@@ -146,7 +184,7 @@ public class MainWindow {
 							zoom = 1.0 / Math.pow(2, 5);
 						}
 					}
-					refreshImage();
+					refresh();
 				}
 			}
 		});
@@ -157,17 +195,17 @@ public class MainWindow {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(moving){
-					posx -= (e.getX() - movingoldx);
+					posx -= (e.getX() - movingoldx) / zoom;
 					if(posx < 0){
 						posx = 0;
 					}
-					posy -= (e.getY() - movingoldy);
+					posy -= (e.getY() - movingoldy) / zoom;
 					if(posy < 0){
 						posy = 0;
 					}
 					movingoldx = e.getX();
 					movingoldy = e.getY();
-					refreshImage();
+					refresh();
 				}
 			}
 		});
@@ -192,6 +230,21 @@ public class MainWindow {
 			public void mouseClicked(MouseEvent e) {}
 		});
         
+        panel.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent e) {}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				refresh();
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {}
+			@Override
+			public void componentHidden(ComponentEvent e) {}
+		});
+        
         
         hBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 500, 0, 500);
         vBar = new JScrollBar(JScrollBar.VERTICAL, 0, 500, 0, 500);
@@ -202,18 +255,18 @@ public class MainWindow {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				posx = e.getValue();
-				refreshImage();
+				refresh();
 			}
 		});
         vBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				posy = e.getValue();
-				refreshImage();
+				refresh();
 			}
 		});
 		
-        refreshImage();
+        refresh();
         
         win.getContentPane().add(panel);
         
@@ -259,12 +312,6 @@ public class MainWindow {
 			}
 		});
 		options.add(tricolor);
-			
-		
-		BufferedImage bi = new BufferedImage(Parameters.size, Parameters.size, BufferedImage.TYPE_INT_ARGB);
-		
-		
-		
 		
 		
 		p = new JPanel(){
@@ -353,7 +400,7 @@ public class MainWindow {
                                         fond = ImageIO.read(fc.getSelectedFile());
                                         hBar.setMaximum(fond.getWidth());
                                         vBar.setMaximum(fond.getHeight());
-                                        refreshImage();
+                                        refresh();
                                 } catch (Exception ex) {
                                 		ex.printStackTrace();
                                         actionPerformed(e);
