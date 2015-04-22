@@ -9,11 +9,14 @@ import java.awt.GridLayout;
 import java.awt.RadialGradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
@@ -33,6 +36,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -68,14 +72,46 @@ public class MainWindow {
 	static private JLabel imagelabel;
 	static private BufferedImage fond;
 	static private double zoom = 1;
+	static private int posx = 0, posy = 0;
+	static private JScrollBar hBar, vBar;
+	
+	static private boolean moving = false;
+	static private int movingoldx, movingoldy;
 
 	private static void refreshImage() {
         AffineTransform at = new AffineTransform();
         at.scale(zoom, zoom);
-        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        ImageIcon icon = new ImageIcon(op.filter(fond, null));
+        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+        
+        int layoutx = 500;
+        int layouty = 500;
+        
+        int taillex = (int) (layoutx/zoom) + 1;
+        if(posx + taillex > fond.getWidth()){
+        	taillex = fond.getWidth() - posx;
+        }
+        int tailley = (int) (layouty/zoom) + 1;
+        if(posy + tailley > fond.getHeight()){
+        	tailley = fond.getHeight() - posy;
+        }
+        
+        if(taillex == 0 || tailley == 0){
+        	// Too Much Zoom!
+        	System.err.println("STOP ZOOMER PUTAIN");
+        	return;
+        }
+        
+        BufferedImage sub = fond.getSubimage(posx, posy, taillex, tailley);
+        
+        ImageIcon icon = new ImageIcon(op.filter(sub, null));
         imagelabel.setIcon(icon);
+        
+        hBar.setValue(posx);
+        hBar.setVisibleAmount(taillex);
+        vBar.setValue(posy);
+        vBar.setVisibleAmount(tailley);
 	}
+        
 	public static void start(){
 		win = new JFrame();
 		
@@ -89,28 +125,97 @@ public class MainWindow {
         imagelabel = new JLabel();
         fond = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
         
-        
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(imagelabel, BorderLayout.NORTH);
+        panel.add(imagelabel, BorderLayout.CENTER);
         
         panel.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				if((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0){
-					System.out.println(e.getWheelRotation());
-					zoom -= e.getWheelRotation();
-					if(zoom <= 0){
-						zoom = 1;
+				if(e.isControlDown()){
+					int rot = e.getWheelRotation();
+					if(rot < 0){
+						zoom *= -(2*e.getWheelRotation());
+						if(zoom > Math.pow(2, 5)){
+							zoom = Math.pow(2, 5);
+						}
+						/*posx += e.getX();
+						posy += e.getY();*/
+					} else {
+						zoom /= (2*e.getWheelRotation());
+						if(zoom < 1.0 / Math.pow(2, 5)){
+							zoom = 1.0 / Math.pow(2, 5);
+						}
 					}
 					refreshImage();
 				}
 			}
 		});
+        panel.addMouseMotionListener(new MouseMotionListener() {
+			@Override
+			public void mouseMoved(MouseEvent e) {}
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if(moving){
+					posx -= (e.getX() - movingoldx);
+					if(posx < 0){
+						posx = 0;
+					}
+					posy -= (e.getY() - movingoldy);
+					if(posy < 0){
+						posy = 0;
+					}
+					movingoldx = e.getX();
+					movingoldy = e.getY();
+					refreshImage();
+				}
+			}
+		});
+        panel.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				moving = false;
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				movingoldx = e.getX();
+				movingoldy = e.getY();
+				moving = true;
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+		});
+        
+        
+        hBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 500, 0, 500);
+        vBar = new JScrollBar(JScrollBar.VERTICAL, 0, 500, 0, 500);
+        panel.add(hBar, BorderLayout.SOUTH);
+        panel.add(vBar, BorderLayout.EAST);
+        
+        hBar.addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				posx = e.getValue();
+				refreshImage();
+			}
+		});
+        vBar.addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				posy = e.getValue();
+				refreshImage();
+			}
+		});
 		
-        JScrollPane scroll = new JScrollPane(panel);
         refreshImage();
         
-        win.getContentPane().add(scroll);
+        win.getContentPane().add(panel);
         
         win.pack();
         
@@ -246,8 +351,11 @@ public class MainWindow {
                         if (ret == JFileChooser.APPROVE_OPTION) {
                                 try {
                                         fond = ImageIO.read(fc.getSelectedFile());
+                                        hBar.setMaximum(fond.getWidth());
+                                        vBar.setMaximum(fond.getHeight());
                                         refreshImage();
                                 } catch (Exception ex) {
+                                		ex.printStackTrace();
                                         actionPerformed(e);
                                 }
                         }
