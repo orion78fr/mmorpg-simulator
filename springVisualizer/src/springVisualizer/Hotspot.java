@@ -5,16 +5,16 @@ import java.awt.Color;
 public class Hotspot {
 	private static Color DEFAULT_COLOR = new Color(0,105,0);
 	private Point p;
-	private float hotness;
+	private double hotness;
 	private Color color;
 	
-	public Hotspot(int x, int y, float hotness, Color color) {
+	public Hotspot(double x, double y, double hotness, Color color) {
 		super();
 		this.p = new Point(x,y);
 		this.hotness = hotness;
 		this.setColor(color);
 	}
-	public Hotspot(int x, int y, float hotness) {
+	public Hotspot(double x, double y, double hotness) {
 		this(x,y,hotness,DEFAULT_COLOR);
 	}
 	
@@ -22,24 +22,24 @@ public class Hotspot {
 		this(p.getX(), p.getY(), hotness); // Defensive copy for the object point
 	}
 	
-	public int getX() {
+	public double getX() {
 		return p.getX();
 	}
-	public void setX(int x) {
+	public void setX(double x) {
 		p.setX(x);
 	}
-	public int getY() {
+	public double getY() {
 		return p.getY();
 	}
-	public void setY(int y) {
+	public void setY(double y) {
 		p.setY(y);
 	}
 
-	public float getHotness() {
+	public double getHotness() {
 		return hotness;
 	}
 
-	public void setHotness(float hotness) {
+	public void setHotness(double hotness) {
 		this.hotness = hotness;
 	}
 	public Color getColor() {

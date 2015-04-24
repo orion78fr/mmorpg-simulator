@@ -16,6 +16,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -34,6 +36,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -50,16 +53,7 @@ public class MainWindow {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void doRepaint(){
-		if(p == null){
-			throw new RuntimeException("can't repaint");
-		}
-		p.repaint();
-	}
-	static JPanel p = null;
-	
-	static JTextField jtf = null;
-	public static int getHotness(){
+	/*public static int getHotness(){
 		if(jtf == null){
 			throw new RuntimeException("can't get hotness");
 		}
@@ -68,42 +62,48 @@ public class MainWindow {
 		} catch (NumberFormatException e){
 			return 50;
 		}
-	}
+	}*/
 	
 	static private JFrame win;
-	static private JLabel imagelabel;
+	static private JMenuBar bar;
+	static private JLabel imagelabel, serverOverlay, playerOverlay;
 	static private BufferedImage fond;
 	static private JScrollBar hBar, vBar;
 	
 	static private boolean moving = false;
 	static private int movingoldx, movingoldy;
 
-	static private double zoom = 1;
+	static private double zoom = 1,
+			ratiox = 0,
+			ratioy = 0;
 	static private int posx = 0,
 			posy = 0,
 			layoutw = 0,
 			layouth = 0,
 			taillex = 0,
-			tailley = 0;
+			tailley = 0,
+			yoffset = 0;
 	
 	private static void refresh(){
 		refreshDimensions();
 		refreshImage();
-		refreshOverlay();
-		refreshPlayers();
+		serverOverlay.setBounds(0, yoffset, layoutw, layouth);
+		playerOverlay.setBounds(0, yoffset, layoutw, layouth);
 	}
 	
-	private static void refreshOverlay() {
-		
-	}
-
 	private static void refreshDimensions(){
 		layoutw = imagelabel.getWidth();
         layouth = imagelabel.getHeight();
         
+        if(zoom > Math.pow(2, 5)){
+			zoom = Math.pow(2, 5);
+		}
+        if(zoom < (1.0 / Math.pow(2, 5))){
+			zoom = 1.0 / Math.pow(2, 5);
+		}
+        
         taillex = (int) (layoutw/zoom) + 1;
         if(posx + taillex > fond.getWidth()){
-        	//taillex = fond.getWidth() - posx;
         	posx = fond.getWidth() - taillex;
         	if(posx < 0){
         		posx = 0;
@@ -112,13 +112,16 @@ public class MainWindow {
         }
         tailley = (int) (layouth/zoom) + 1;
         if(posy + tailley > fond.getHeight()){
-        	//tailley = fond.getHeight() - posy;
         	posy = fond.getHeight() - tailley;
         	if(posy < 0){
         		posy = 0;
         		tailley = fond.getHeight();
         	}
         }
+        
+        ratiox = (double)Parameters.size / fond.getWidth();
+        ratioy = (double)Parameters.size / fond.getHeight();
+        
         if(hBar.getValue() != posx){
         	hBar.setValue(posx);
         }
@@ -131,10 +134,8 @@ public class MainWindow {
         if(vBar.getVisibleAmount() != tailley){
         	vBar.setVisibleAmount(tailley);
         }
-	}
-	
-	private static void refreshPlayers(){
-		
+        
+        yoffset = bar.getHeight();
 	}
 	
 	private static void refreshImage() {
@@ -154,17 +155,92 @@ public class MainWindow {
 		win.setTitle("Visualizer");
 		win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JMenuBar bar = new JMenuBar();
+		bar = new JMenuBar();
         generateMenu(bar);
         win.setJMenuBar(bar);
         
-        //win.getLayeredPane()
-        
         imagelabel = new JLabel();
+        imagelabel.setVerticalAlignment(JLabel.TOP);
         fond = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
         
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(imagelabel, BorderLayout.CENTER);
+        
+        serverOverlay = new JLabel(){
+    			private static final long serialVersionUID = 1L;
+    			@Override
+    			protected void paintComponent(Graphics g){
+    				super.paintComponent(g);
+    				Graphics2D g2d = (Graphics2D) g.create();
+    				g2d.setColor(new Color(255,0,0,20));
+    				g2d.fillRect(0, 0, layoutw, layouth);
+    				
+					for (Hotspot h : State.hotspots) {
+						int radius = (int)(h.getHotness()*2);
+						RadialGradientPaint rgp = new RadialGradientPaint((int)(((h.getX()/ratiox)-posx)*zoom), (int)(((h.getY()/ratioy)-posy)*zoom),
+								radius/2, new float[] { 0f, 1f },
+								new Color[] { h.getColor(), new Color(0,0,0,0) });
+						 g2d.setPaint(rgp);
+						 g2d.fillOval((int)(((h.getX()/ratiox)-posx)*zoom) - radius/2, (int)(((h.getY()/ratioy)-posy)*zoom) - radius/2, radius, radius);
+					}
+    				
+    				g2d.dispose();
+    			}
+        };
+        playerOverlay = new JLabel(){
+			private static final long serialVersionUID = 1L;
+			@Override
+			protected void paintComponent(Graphics g){
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D) g.create();
+				
+				/*if(hotspot_chkbx.isSelected()){
+					for (Hotspot h : State.hotspots) {
+						int radius = (int)(h.getHotness()*2);
+						RadialGradientPaint rgp = new RadialGradientPaint(h.getX(), h.getY(),
+								radius/2, new float[] { 0f, 1f },
+								new Color[] { h.getColor(), new Color(0,0,0,0) });
+						 g2d.setPaint(rgp);
+						 g2d.fillOval(h.getX() - radius/2, h.getY() - radius/2, radius, radius);
+					}
+				}*/
+				
+				
+				for(Player p : State.playerList){
+					g2d.setColor(p.getColor());
+					g2d.fillOval((int)(((p.getX()/ratiox)-posx)*zoom) - 5,
+							(int)(((p.getY()/ratioy)-posy)*zoom)- 5, 10, 10);
+				}
+				
+				g2d.dispose();
+			}
+    };
+        
+        //win.setLayeredPane(new JLayeredPane());
+        //win.getLayeredPane().setLayout(new BorderLayout(1,1));
+        win.getLayeredPane().add(serverOverlay, new Integer(1));
+        win.getLayeredPane().add(playerOverlay, new Integer(2));
+        
+        win.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {}
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_E){
+					zoom *= 2;
+				} else if(e.getKeyCode() == KeyEvent.VK_A){
+					zoom /= 2;
+				} else if(e.getKeyCode() == KeyEvent.VK_R){
+					State.moveAllBetweenHotspots();
+				} else {
+					return;
+				}
+				refresh();
+			}
+		});
         
         panel.addMouseWheelListener(new MouseWheelListener() {
 			@Override
@@ -173,21 +249,16 @@ public class MainWindow {
 					int rot = e.getWheelRotation();
 					if(rot < 0){
 						zoom *= -(2*e.getWheelRotation());
-						if(zoom > Math.pow(2, 5)){
-							zoom = Math.pow(2, 5);
-						}
 						/*posx += e.getX();
 						posy += e.getY();*/
 					} else {
 						zoom /= (2*e.getWheelRotation());
-						if(zoom < 1.0 / Math.pow(2, 5)){
-							zoom = 1.0 / Math.pow(2, 5);
-						}
 					}
 					refresh();
 				}
 			}
 		});
+        
         panel.addMouseMotionListener(new MouseMotionListener() {
 			@Override
 			public void mouseMoved(MouseEvent e) {}
@@ -227,7 +298,12 @@ public class MainWindow {
 			@Override
 			public void mouseEntered(MouseEvent e) {}
 			@Override
-			public void mouseClicked(MouseEvent e) {}
+			public void mouseClicked(MouseEvent e) {
+				int x = (int)(((e.getX()/zoom) + posx)*ratiox);
+				int y = (int)(((e.getY()/zoom) + posy)*ratioy);
+				State.hotspots.add(new Hotspot(x, y, 50));
+				refresh();
+			}
 		});
         
         panel.addComponentListener(new ComponentListener() {
@@ -270,7 +346,9 @@ public class MainWindow {
         
         win.getContentPane().add(panel);
         
-        win.pack();
+        win.setSize(new Dimension(800, 600));
+        
+        win.setMinimumSize(new Dimension(500, 500));
         
         
 		/*JPanel options = new JPanel(new GridLayout(0, 1));

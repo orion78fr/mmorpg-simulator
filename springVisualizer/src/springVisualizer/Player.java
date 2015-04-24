@@ -5,27 +5,34 @@ import java.awt.Color;
 public class Player {
 	private Point p;
 	private Color color;
+	private Point obj;
 	
-	public int getX() {
+	public Point getObj() {
+		return obj;
+	}
+	public void setObj(Point obj) {
+		this.obj = obj;
+	}
+	public double getX() {
 		return p.getX();
 	}
-	public void setX(int x) {
+	public void setX(double x) {
 		p.setX(x);
 	}
-	public int getY() {
+	public double getY() {
 		return p.getY();
 	}
-	public void setY(int y) {
+	public void setY(double y) {
 		p.setY(y);
 	}
 	
-	public Player(int x, int y) {
+	public Player(double x, double y) {
 		super();
 		this.p = new Point(x,y);
-		this.color = null;
+		this.color = Color.RED;
 	}
 	
-	public Player(int x, int y, Color color) {
+	public Player(double x, double y, Color color) {
 		this(x,y);
 		this.color = color;
 	}

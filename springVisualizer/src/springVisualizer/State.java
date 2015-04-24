@@ -12,8 +12,8 @@ public class State {
 	
 	public static void randomMove(){
 		for(Player p : State.playerList){
-			int x = p.getX();
-			int y = p.getY();
+			double x = p.getX();
+			double y = p.getY();
 			
 			x += State.r.nextInt(10) - 5;
 			y += State.r.nextInt(10) - 5;
@@ -32,19 +32,18 @@ public class State {
 	}
 	
 	public static void moveToNearestHotspot(Player p){
-		int x = p.getX();
-		int y = p.getY();
+		double x = p.getX();
+		double y = p.getY();
 		
-		int moveTo = State.r.nextInt(maxMove);
+		int moveTo = State.r.nextInt(maxMove) + 1;
 		
-		
-		double dist = 0, tmp, importance, maximportance = Double.MAX_VALUE;
+		double maxdist = 0, tmpdist, tmpimportance, maximportance = Double.MAX_VALUE;
 		Hotspot nearest = null;
 		// Find nearest hotspot
 		for(Hotspot h : State.hotspots){
-			if((importance = (tmp = p.getPoint().distanceTo(h.getPoint()))/h.getHotness()) < maximportance){
-				maximportance = importance;
-				dist = tmp;
+			if((tmpimportance = (tmpdist = p.getPoint().distanceTo(h.getPoint()))/h.getHotness()) < maximportance){
+				maximportance = tmpimportance;
+				maxdist = tmpdist;
 				nearest = h;
 			}
 		}
@@ -54,8 +53,13 @@ public class State {
 		}
 		
 		// Move toward it
-		x = (int) (moveTo > dist ?  nearest.getX() : ((moveTo / dist) * (nearest.getX() - x) + x));
-		y = (int) (moveTo > dist ?  nearest.getY() : ((moveTo / dist) * (nearest.getY() - y) + y));
+		if(moveTo > maxdist){
+			x = nearest.getX();
+			y = nearest.getY();
+		} else {
+			x += (moveTo / maxdist) * (nearest.getX() - x);
+			y += (moveTo / maxdist) * (nearest.getY() - y);
+		}
 		
 		// Randomise a little
 		double angle = State.r.nextDouble()*2*Math.PI;
@@ -66,6 +70,47 @@ public class State {
 		
 		p.setX(Math.max(0, Math.min(Parameters.size, x)));
 		p.setY(Math.max(0, Math.min(Parameters.size, y)));
+	}
+	
+	public static void moveAllBetweenHotspots(){
+		for(Player p : State.playerList){
+			moveBetweenHotspots(p);
+		}
+	}
+	
+	// BlueBanana
+	public static void moveBetweenHotspots(Player p){
+		if(State.r.nextDouble() < Parameters.bbProbaGoToNewHotspot){
+			if(State.hotspots.size() != 0){
+				int hNbr = State.r.nextInt(State.hotspots.size());
+				p.setObj(State.hotspots.get(hNbr).getPoint());
+			}
+		}
+		
+		double x = p.getX();
+		double y = p.getY();
+		
+		Point obj = p.getObj();
+		
+		if(obj != null){
+			double dist = obj.distanceTo(p.getPoint());
+			// Move toward it
+			if(Parameters.bbBetweenHotspotMoveDistance > dist){
+				x = obj.getX();
+				y = obj.getY();
+				p.setObj(null);
+			} else {
+				x += (Parameters.bbBetweenHotspotMoveDistance / dist) * (obj.getX() - x);
+				y += (Parameters.bbBetweenHotspotMoveDistance / dist) * (obj.getY() - y);
+			}
+		}
+		
+		double angle = State.r.nextDouble()*2*Math.PI;
+		x += Parameters.bbInHotspotRandomMoveDistance * Math.cos(angle);
+		y += Parameters.bbInHotspotRandomMoveDistance * Math.sin(angle);
+		
+		p.setX(Math.max(0, Math.min(Parameters.sizex, x)));
+		p.setY(Math.max(0, Math.min(Parameters.sizey, y)));
 	}
 	
 	public State() {

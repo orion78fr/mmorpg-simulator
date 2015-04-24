@@ -5,7 +5,7 @@ import java.awt.Color;
 public class SpringVisualizer {
 	
 	public static void addPlayer(int x, int y){
-		State.playerList.add(new Player(x, y, Color.BLUE));
+		State.playerList.add(new Player(x, y, new Color(State.r.nextInt(255), State.r.nextInt(255), State.r.nextInt(255))));
 	}
 	
 	public static void addRandomPlayers(int numPlayer){
@@ -27,7 +27,7 @@ public class SpringVisualizer {
 	}
 	
 	public static void main(String args[]){
-		int numPlayer = 10000;
+		int numPlayer = 5000;
 		int maxIter = 100;
 		
 		//State.hotspots.add(new Hotspot(Parameters.size/2, Parameters.size/2, 50, Color.RED));
@@ -37,6 +37,11 @@ public class SpringVisualizer {
 		}*/
 		
 		addPowerLawPlayers(numPlayer);
+		
+		/*addPlayer(10,10);
+		addPlayer(4990,4990);
+		addPlayer(10,4990);
+		addPlayer(4990,10);*/
 		
 		MainWindow.start();
 		
