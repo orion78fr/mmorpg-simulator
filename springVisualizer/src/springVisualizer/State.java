@@ -82,7 +82,7 @@ public class State {
 	public static void moveBetweenHotspots(Player p){
 		if(State.r.nextDouble() < Parameters.bbProbaGoToNewHotspot){
 			if(State.hotspots.size() != 0){
-				int hNbr = State.r.nextInt(State.hotspots.size());
+				int hNbr = pickHotspotWithHotness();
 				p.setObj(State.hotspots.get(hNbr).getPoint());
 			}
 		}
@@ -113,6 +113,25 @@ public class State {
 		p.setY(Math.max(0, Math.min(Parameters.sizey, y)));
 	}
 	
+	public static int pickHotspotWithHotness() {
+		double total = 0;
+		for(Hotspot h : State.hotspots){
+			total += h.getHotness();
+		}
+		
+		double r = State.r.nextDouble() * total;
+		
+		int selected;
+		
+		for(selected = 0; selected < State.hotspots.size(); selected++){
+			r -= State.hotspots.get(selected).getHotness();
+			if(r < 0){
+				break;
+			}
+		}
+		return selected;
+	}
+
 	public State() {
 		// TODO Auto-generated constructor stub
 	}

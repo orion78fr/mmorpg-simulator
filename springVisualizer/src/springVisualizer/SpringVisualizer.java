@@ -14,12 +14,12 @@ public class SpringVisualizer {
 		}
 	}
 	
-	public static void addPowerLawPlayers(int numPlayer){
+	public static void addHaltonPlayers(int numPlayer){
 		HaltonSequence h = new HaltonSequence(2);
 		h.skipTo(State.r.nextInt(1000));
 		for(int i = 0; i < numPlayer; i++){
 			double[] v = h.nextVector();
-			addPlayer((int) (v[0] * Parameters.size), (int)( v[1] * Parameters.size));
+			addPlayer((int) (v[0] * Parameters.sizex), (int)( v[1] * Parameters.sizey));
 		}
 	}
 	
@@ -32,16 +32,11 @@ public class SpringVisualizer {
 		
 		//State.hotspots.add(new Hotspot(Parameters.size/2, Parameters.size/2, 50, Color.RED));
 		
-		/*for(int i = 0; i < 500; i++){
-			State.hotspots.add(new Hotspot(State.r.nextInt(Parameters.size), State.r.nextInt(Parameters.size), State.r.nextInt(50) + 20));
-		}*/
+		for(int i = 0; i < 50; i++){
+			State.hotspots.add(new Hotspot(State.r.nextInt((int)Parameters.sizex), State.r.nextInt((int)Parameters.sizey), State.r.nextInt(50) + 20));
+		}
 		
-		addPowerLawPlayers(numPlayer);
-		
-		/*addPlayer(10,10);
-		addPlayer(4990,4990);
-		addPlayer(10,4990);
-		addPlayer(4990,10);*/
+		addHaltonPlayers(numPlayer);
 		
 		MainWindow.start();
 		
