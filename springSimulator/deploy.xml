@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid.dtd">
+<platform version="3">
+  <process host="A" function="springSimulator.Master">
+     <argument value="10"/>     <!-- Amount of tasks to dispatch -->
+     <argument value="50000"/> <!-- Computation size of each task -->
+     <argument value="10"/>    <!-- Communication size of each one -->
+     <argument value="2"/>     <!-- Amount of slaves waiting for orders -->
+  </process>
+  
+  <process host="B" function="springSimulator.Slave">
+     <argument value="0"/>  <!-- Input mailbox -->
+  </process>
+  <process host="C" function="springSimulator.Slave">
+     <argument value="1"/>  <!-- Input mailbox -->
+  </process>
+</platform>
