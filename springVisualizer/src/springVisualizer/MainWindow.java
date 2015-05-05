@@ -26,7 +26,13 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -40,6 +46,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -464,15 +471,14 @@ public class MainWindow {
 		JMenu menu;
         JMenuItem item;
 
-        menu = new JMenu("Fichier");
+        menu = new JMenu("File");
 
-        item = new JMenuItem("Charger image de fond...");
+        item = new JMenuItem("Load background image");
         item.addActionListener(new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                         JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
-                        int ret = fc.showDialog(win, "Ouvrir");
+                        int ret = fc.showOpenDialog(win);
                         if (ret == JFileChooser.APPROVE_OPTION) {
                                 try {
                                         fond = ImageIO.read(fc.getSelectedFile());
@@ -480,10 +486,58 @@ public class MainWindow {
                                         vBar.setMaximum(fond.getHeight());
                                         refresh();
                                 } catch (Exception ex) {
-                                		ex.printStackTrace();
-                                        actionPerformed(e);
+                                		JOptionPane.showMessageDialog(win, "The image file is invalid", "Error", JOptionPane.ERROR_MESSAGE);
                                 }
                         }
+                }
+        });
+        menu.add(item);
+        
+        bar.add(menu);
+        
+        // -------------------------
+        
+        menu = new JMenu("Generate");
+        
+        item = new JMenuItem("Add players");
+        item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	String num = JOptionPane.showInputDialog(win, "How many players?", "Add players", JOptionPane.QUESTION_MESSAGE);
+                	try {
+                		int numPlayers = Integer.parseInt(num);
+                		if(numPlayers < 0){
+                			JOptionPane.showMessageDialog(win, "The input is negative", "Error", JOptionPane.ERROR_MESSAGE);
+                			return;
+                		}
+                		SpringVisualizer.addHaltonPlayers(numPlayers);
+                		refresh();
+                	} catch (Exception ex) {
+                		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);
+                	}
+                }
+        });
+        menu.add(item);
+        
+        item = new JMenuItem("Export platform");
+        item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
+                    int ret = fc.showSaveDialog(win);
+                    if (ret == JFileChooser.APPROVE_OPTION) {
+                            try {
+                                    Writer w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fc.getSelectedFile()), "utf-8"));
+                                    if(State.exportPlatform(w)){
+                                    	JOptionPane.showMessageDialog(win, "Export successful to " + fc.getSelectedFile(), "Export", JOptionPane.INFORMATION_MESSAGE);
+                                    } else {
+                                    	JOptionPane.showMessageDialog(win, "Something went wrong during export", "Error", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    w.close();
+                            } catch (Exception ex) {
+                            		ex.printStackTrace();
+                            }
+                    }
                 }
         });
         menu.add(item);

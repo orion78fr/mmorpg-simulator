@@ -36,7 +36,7 @@ public class SpringVisualizer {
 			State.hotspots.add(new Hotspot(State.r.nextInt((int)Parameters.sizex), State.r.nextInt((int)Parameters.sizey), State.r.nextInt(50) + 20));
 		}
 		
-		addHaltonPlayers(numPlayer);
+		//addHaltonPlayers(numPlayer);
 		
 		MainWindow.start();
 		

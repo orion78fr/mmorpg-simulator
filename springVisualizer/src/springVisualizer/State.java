@@ -1,8 +1,16 @@
 package springVisualizer;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.xml.crypto.dsig.XMLObject;
+
+import springVisualizer.XML.XMLAttr;
+import springVisualizer.XML.XMLObj;
 
 public class State {
 
@@ -134,6 +142,104 @@ public class State {
 
 	public State() {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public static boolean exportPlatform(Writer w) {
+		try {
+			w.write("<?xml version='1.0'?>\n");
+			w.write("<!DOCTYPE platform SYSTEM \"http://simgrid.gforge.inria.fr/simgrid.dtd\">\n");
+			
+			XMLObj content, thePlatform, as, elem;
+			
+			content = new XMLObj("platform").addAttr("version", "3");
+			thePlatform = new XMLObj("AS").addAttr("id", "theplatform").addAttr("routing", "Full");
+			content.addChild(thePlatform);
+			
+			as = new XMLObj("AS").addAttr("id", "theservers").addAttr("routing", "Full");
+			for(int i = 0; i < 4; i++){
+				elem = new XMLObj("host")
+					.addAttr("id", "server_"+i)
+					.addAttr("power", "100Gf");
+				as.addChild(elem);
+			}
+			for(int i = 0; i < 4; i++){
+				elem = new XMLObj("link")
+					.addAttr("id", "server_"+i+"_link")
+					.addAttr("bandwidth", "10GBps")
+					.addAttr("latency", "50us");
+				as.addChild(elem);
+			}
+			elem = new XMLObj("router").addAttr("id", "server_router");
+			as.addChild(elem);
+			for(int i = 0; i < 4; i++){
+				elem = new XMLObj("route")
+					.addAttr("src", "server_"+i)
+					.addAttr("dst", "server_router")
+					.addAttr("symmetrical", "YES")
+					.addChild(new XMLObj("link_ctn").addAttr("id", "server_"+i+"_link"));
+				as.addChild(elem);
+			}
+			thePlatform.addChild(as);
+			
+			as = new XMLObj("AS").addAttr("id", "theclients").addAttr("routing", "Full");
+			for(int i = 0; i < playerList.size(); i++){
+				elem = new XMLObj("host")
+					.addAttr("id", "client_"+i)
+					.addAttr("power", "50Gf");
+				as.addChild(elem);
+			}
+			for(int i = 0; i < playerList.size(); i++){
+				elem = new XMLObj("link")
+					.addAttr("id", "client_"+i+"_internet_down")
+					.addAttr("bandwidth", "20MBps")
+					.addAttr("latency", "10ms");
+				as.addChild(elem);
+				elem = new XMLObj("link")
+					.addAttr("id", "client_"+i+"_internet_up")
+					.addAttr("bandwidth", "2MBps")
+					.addAttr("latency", "10ms");
+				as.addChild(elem);
+			}
+			elem = new XMLObj("router").addAttr("id", "internet_router");
+			as.addChild(elem);
+			for(int i = 0; i < playerList.size(); i++){
+				elem = new XMLObj("route")
+					.addAttr("src", "client_"+i)
+					.addAttr("dst", "internet_router")
+					.addAttr("symmetrical", "NO")
+					.addChild(new XMLObj("link_ctn").addAttr("id", "client_"+i+"_internet_up"));
+				as.addChild(elem);
+				elem = new XMLObj("route")
+					.addAttr("src", "internet_router")
+					.addAttr("dst", "client_"+i)
+					.addAttr("symmetrical", "NO")
+					.addChild(new XMLObj("link_ctn").addAttr("id", "client_"+i+"_internet_down"));
+				as.addChild(elem);
+			}
+			thePlatform.addChild(as);
+			
+			elem = new XMLObj("link")
+				.addAttr("id", "servers_connection")
+				.addAttr("bandwidth", "1GBps")
+				.addAttr("latency", "1ms");
+			thePlatform.addChild(elem);
+			
+			elem = new XMLObj("ASroute")
+				.addAttr("src", "theservers")
+				.addAttr("dst", "theclients")
+				.addAttr("gw_src", "server_router")
+				.addAttr("gw_dst", "internet_router")
+				.addAttr("symmetrical", "YES")
+				.addChild(new XMLObj("link_ctn").addAttr("id", "servers_connection"));
+			thePlatform.addChild(elem);
+			
+			
+			w.write(content.toString());
+			return true;
+		} catch (Exception e) {
+			
+		}
+		return false;
 	}
 
 }

@@ -1,5 +1,9 @@
 package springSimulator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.simgrid.msg.Comm;
 import org.simgrid.msg.Host;
 import org.simgrid.msg.HostFailureException;
 import org.simgrid.msg.Msg;
@@ -28,11 +32,17 @@ public class Master extends Process {
 
 		Msg.info("Hello! Got "+  slavesCount + " slaves and "+tasksCount+" tasks to process");
 
+		List<Comm> jobs = new ArrayList<Comm>();
+		
 		for (int i = 0; i < tasksCount; i++) {
 			Task task = new Task("Task_" + i, taskComputeSize, taskCommunicateSize); 
 			
 			Msg.info("Sending \"" + task.getName()+ "\" to \"slave_" + i % slavesCount + "\"");
-			task.send("slave_"+(i%slavesCount));
+			jobs.add(task.isend("slave_"+(i%slavesCount)));
+		}
+		
+		for(Comm c : jobs){
+			c.waitCompletion();
 		}
 
 		Msg.info("All tasks have been dispatched. Let's tell everybody the computation is over.");

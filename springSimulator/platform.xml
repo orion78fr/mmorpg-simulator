@@ -1,15 +1,126 @@
 <?xml version='1.0'?>
 <!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid.dtd">
 <platform version="3">
-	<AS  id="AS0"  routing="Full">
-	   <host id="A" power="100Mf"/>
-	   <host id="B" power="50Mf"/>
-	   <host id="C" power="50Mf"/>
-	   <link id="1" bandwidth="100MBps" latency="500us"/>
-	   <link id="2" bandwidth="1000MBps" latency="50us"/>
-	   <route src="A" dst="B" symmetrical="YES"><link_ctn id="1"/></route>
-		<route src="A" dst="C" symmetrical="YES"><link_ctn id="2"/></route>
-
-	   
+	<AS id="theplatform" routing="Full">
+		<AS id="theservers" routing="Full">
+			<host id="server_0" power="100Gf" />
+			<host id="server_1" power="100Gf" />
+			<host id="server_2" power="100Gf" />
+			<host id="server_3" power="100Gf" />
+			<link id="server_0_link" bandwidth="10GBps" latency="50us" />
+			<link id="server_1_link" bandwidth="10GBps" latency="50us" />
+			<link id="server_2_link" bandwidth="10GBps" latency="50us" />
+			<link id="server_3_link" bandwidth="10GBps" latency="50us" />
+			<router id="server_router" />
+			<route src="server_0" dst="server_router" symmetrical="YES">
+				<link_ctn id="server_0_link" />
+			</route>
+			<route src="server_1" dst="server_router" symmetrical="YES">
+				<link_ctn id="server_1_link" />
+			</route>
+			<route src="server_2" dst="server_router" symmetrical="YES">
+				<link_ctn id="server_2_link" />
+			</route>
+			<route src="server_3" dst="server_router" symmetrical="YES">
+				<link_ctn id="server_3_link" />
+			</route>
+		</AS>
+		<AS id="theclients" routing="Full">
+			<host id="client_0" power="50Gf" />
+			<host id="client_1" power="50Gf" />
+			<host id="client_2" power="50Gf" />
+			<host id="client_3" power="50Gf" />
+			<host id="client_4" power="50Gf" />
+			<host id="client_5" power="50Gf" />
+			<host id="client_6" power="50Gf" />
+			<host id="client_7" power="50Gf" />
+			<host id="client_8" power="50Gf" />
+			<host id="client_9" power="50Gf" />
+			<link id="client_0_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_0_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_1_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_1_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_2_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_2_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_3_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_3_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_4_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_4_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_5_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_5_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_6_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_6_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_7_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_7_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_8_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_8_internet_up" bandwidth="2MBps" latency="10ms" />
+			<link id="client_9_internet_down" bandwidth="20MBps" latency="10ms" />
+			<link id="client_9_internet_up" bandwidth="2MBps" latency="10ms" />
+			<router id="internet_router" />
+			<route src="client_0" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_0_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_0" symmetrical="NO">
+				<link_ctn id="client_0_internet_down" />
+			</route>
+			<route src="client_1" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_1_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_1" symmetrical="NO">
+				<link_ctn id="client_1_internet_down" />
+			</route>
+			<route src="client_2" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_2_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_2" symmetrical="NO">
+				<link_ctn id="client_2_internet_down" />
+			</route>
+			<route src="client_3" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_3_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_3" symmetrical="NO">
+				<link_ctn id="client_3_internet_down" />
+			</route>
+			<route src="client_4" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_4_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_4" symmetrical="NO">
+				<link_ctn id="client_4_internet_down" />
+			</route>
+			<route src="client_5" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_5_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_5" symmetrical="NO">
+				<link_ctn id="client_5_internet_down" />
+			</route>
+			<route src="client_6" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_6_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_6" symmetrical="NO">
+				<link_ctn id="client_6_internet_down" />
+			</route>
+			<route src="client_7" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_7_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_7" symmetrical="NO">
+				<link_ctn id="client_7_internet_down" />
+			</route>
+			<route src="client_8" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_8_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_8" symmetrical="NO">
+				<link_ctn id="client_8_internet_down" />
+			</route>
+			<route src="client_9" dst="internet_router" symmetrical="NO">
+				<link_ctn id="client_9_internet_up" />
+			</route>
+			<route src="internet_router" dst="client_9" symmetrical="NO">
+				<link_ctn id="client_9_internet_down" />
+			</route>
+		</AS>
+		<link id="servers_connection" bandwidth="1GBps" latency="1ms" />
+		<ASroute src="theservers" dst="theclients" gw_src="server_router" gw_dst="internet_router" symmetrical="YES">
+			<link_ctn id="servers_connection" />
+		</ASroute>
 	</AS>
 </platform>
