@@ -1,9 +1,17 @@
-package springVisualizer;
+package springVisualizer.model;
 
 import java.awt.Color;
 
+/**
+ * A Hotspot corresponds to something interesting in the world that will attract players.<br />
+ * It's defined by coordinates and a double that corresponds to the attractiveness of the hotspot (hotness).
+ * 
+ * @author Guillaume Turchini
+ */
 public class Hotspot {
+	/** The default color of the hotspot */
 	private static Color DEFAULT_COLOR = new Color(0,105,0);
+	
 	private Point p;
 	private double hotness;
 	private Color color;

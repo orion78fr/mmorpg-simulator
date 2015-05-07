@@ -1,4 +1,3 @@
-// PIQUE D'APACHE COMMONS
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -101,6 +100,9 @@ public class HaltonSequence {
         count = 0;
     }
 
+    /**
+     * @return The next vector of the Halton Sequence
+     */
     public double[] nextVector() {
         final double[] v = new double[dimension];
         for (int i = 0; i < dimension; i++) {
@@ -143,7 +145,6 @@ public class HaltonSequence {
      *
      * @param index the index in the sequence to skip to
      * @return the i-th point in the Halton sequence
-     * @throws NotPositiveException if index &lt; 0
      */
     public double[] skipTo(final int index) {
         count = index;

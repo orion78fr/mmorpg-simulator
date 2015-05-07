@@ -1,4 +1,4 @@
-package springVisualizer;
+package springVisualizer.model;
 
 public class Point {
 	private double x;

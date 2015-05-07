@@ -1,4 +1,4 @@
-package springVisualizer;
+package springVisualizer.model;
 
 import java.awt.Color;
 

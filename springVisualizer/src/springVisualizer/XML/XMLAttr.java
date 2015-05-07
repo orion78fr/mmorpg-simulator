@@ -12,11 +12,15 @@ public class XMLAttr{
 	
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(name);
-		sb.append("=\"");
-		sb.append(value);
-		sb.append("\"");
-		return sb.toString();
+		if(value != null && !value.equals("")){
+			StringBuffer sb = new StringBuffer();
+			sb.append(name);
+			sb.append("=\"");
+			sb.append(value);
+			sb.append("\"");
+			return sb.toString();
+		} else {
+			return name;
+		}
 	}
 }

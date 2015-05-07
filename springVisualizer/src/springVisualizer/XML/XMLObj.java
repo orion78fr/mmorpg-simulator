@@ -3,8 +3,10 @@ package springVisualizer.XML;
 import java.util.ArrayList;
 import java.util.List;
 
+import springVisualizer.Parameters;
+
 public class XMLObj{
-	private String name;
+	protected String name;
 	private List<XMLAttr> attrs = new ArrayList<XMLAttr>();
 	private List<XMLObj> childs = new ArrayList<XMLObj>();
 	
@@ -15,6 +17,11 @@ public class XMLObj{
 
 	public XMLObj addAttr(XMLAttr attr){
 		this.attrs.add(attr);
+		return this;
+	}
+	
+	public XMLObj addAttr(String name){
+		this.attrs.add(new XMLAttr(name, null));
 		return this;
 	}
 	
@@ -31,33 +38,50 @@ public class XMLObj{
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		this.toString(sb, 0);
+		this.buildString(sb, 0);
 		return sb.toString();
 	}
-	private void toString(StringBuffer sb, int nbTab) {
-		appendWithTabs(sb, nbTab, "<");
+	
+	protected void buildString(StringBuffer sb, int nbTab) {
+		if(Parameters.platformFilePrettyXml){
+			appendWithTabs(sb, nbTab, "<");
+		} else {
+			sb.append("<");
+		}
+		
 		sb.append(this.name);
+		
 		for(XMLAttr a : this.attrs){
 			sb.append(" ");
 			sb.append(a.toString());
 		}
 		
 		if(childs.size() != 0){
-			sb.append(">\n");
+			sb.append(">");
 			
-			for(XMLObj c : this.childs){
-				c.toString(sb, nbTab + 1);
+			if(Parameters.platformFilePrettyXml){
 				sb.append("\n");
 			}
 			
-			appendWithTabs(sb, nbTab, "</");
+			for(XMLObj c : this.childs){
+				c.buildString(sb, nbTab + 1);
+				
+				if(Parameters.platformFilePrettyXml){
+					sb.append("\n");
+				}
+			}
+			if(Parameters.platformFilePrettyXml){
+				appendWithTabs(sb, nbTab, "</");
+			} else {
+				sb.append("</");
+			}
 			sb.append(this.name);
 			sb.append(">");
 		} else {
-			sb.append(" />");
+			sb.append("/>");
 		}
 	}
-	private void appendWithTabs(StringBuffer sb, int nbTab, String content){
+	protected void appendWithTabs(StringBuffer sb, int nbTab, String content){
 		for(int i = 0; i < nbTab; i++){
 			sb.append("\t");
 		}

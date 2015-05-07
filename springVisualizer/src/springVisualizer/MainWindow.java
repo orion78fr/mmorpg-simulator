@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.RadialGradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,9 +12,6 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -26,38 +22,37 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import springVisualizer.model.Hotspot;
+import springVisualizer.model.Player;
+
+/**
+ * This is the main window of the application, showing the current state of the world (the State class).<br />
+ * It shows the world, a background image (if selected), the current state of the servers, the hotspots and the players.
+ * 
+ * @author Guillaume Turchini
+ */
 public class MainWindow {
-
-	public MainWindow() {
-		// TODO Auto-generated constructor stub
+	/** */
+	private MainWindow() {
+		throw new RuntimeException("You can't instanciate this class!");
 	}
 
 	/*public static int getHotness(){
@@ -126,8 +121,8 @@ public class MainWindow {
         	}
         }
         
-        ratiox = (double)Parameters.size / fond.getWidth();
-        ratioy = (double)Parameters.size / fond.getHeight();
+        ratiox = (double)Parameters.sizex / fond.getWidth();
+        ratioy = (double)Parameters.sizey / fond.getHeight();
         
         if(hBar.getValue() != posx){
         	hBar.setValue(posx);
@@ -178,9 +173,11 @@ public class MainWindow {
     			@Override
     			protected void paintComponent(Graphics g){
     				super.paintComponent(g);
+    				
     				Graphics2D g2d = (Graphics2D) g.create();
-    				g2d.setColor(new Color(255,0,0,20));
-    				g2d.fillRect(0, 0, layoutw, layouth);
+    				
+    				/*g2d.setColor(new Color(255,0,0,20));
+    				g2d.fillRect(0, 0, layoutw, layouth);*/
     				
 					for (Hotspot h : State.hotspots) {
 						int radius = (int)(h.getHotness()*2);
@@ -201,18 +198,6 @@ public class MainWindow {
 				super.paintComponent(g);
 				Graphics2D g2d = (Graphics2D) g.create();
 				
-				/*if(hotspot_chkbx.isSelected()){
-					for (Hotspot h : State.hotspots) {
-						int radius = (int)(h.getHotness()*2);
-						RadialGradientPaint rgp = new RadialGradientPaint(h.getX(), h.getY(),
-								radius/2, new float[] { 0f, 1f },
-								new Color[] { h.getColor(), new Color(0,0,0,0) });
-						 g2d.setPaint(rgp);
-						 g2d.fillOval(h.getX() - radius/2, h.getY() - radius/2, radius, radius);
-					}
-				}*/
-				
-				
 				for(Player p : State.playerList){
 					g2d.setColor(p.getColor());
 					g2d.fillOval((int)(((p.getX()/ratiox)-posx)*zoom) - 5,
@@ -221,10 +206,8 @@ public class MainWindow {
 				
 				g2d.dispose();
 			}
-    };
+        };
         
-        //win.setLayeredPane(new JLayeredPane());
-        //win.getLayeredPane().setLayout(new BorderLayout(1,1));
         win.getLayeredPane().add(serverOverlay, new Integer(1));
         win.getLayeredPane().add(playerOverlay, new Integer(2));
         
@@ -432,29 +415,6 @@ public class MainWindow {
 			}
 		};
 		
-		p.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseReleased(MouseEvent e) {}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {}
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int x = e.getX();
-				int y = e.getY();
-				
-				State.hotspots.add(new Hotspot(x, y, getHotness()));
-				doRepaint();
-			}
-		});
-		
 		JScrollPane conteneurP = new JScrollPane(p);
 		conteneurP.setPreferredSize(new Dimension(500, 500));
 		
@@ -467,6 +427,10 @@ public class MainWindow {
 		win.setVisible(true);
 	}
 
+	/**
+	 * Generate the menu of the main window
+	 * @param bar The JMenuBar of the main window
+	 */
 	private static void generateMenu(JMenuBar bar) {
 		JMenu menu;
         JMenuItem item;
@@ -510,7 +474,7 @@ public class MainWindow {
                 			JOptionPane.showMessageDialog(win, "The input is negative", "Error", JOptionPane.ERROR_MESSAGE);
                 			return;
                 		}
-                		SpringVisualizer.addHaltonPlayers(numPlayers);
+                		State.addHaltonPlayers(numPlayers);
                 		refresh();
                 	} catch (Exception ex) {
                 		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);

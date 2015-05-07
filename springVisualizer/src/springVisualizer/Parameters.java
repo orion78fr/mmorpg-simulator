@@ -1,20 +1,43 @@
 package springVisualizer;
 
+/**
+ * This is the class containing all the parameters of the simulation
+ * 
+ * @author Guillaume Turchini
+ */
 public class Parameters {
-	static int seed = 1234;
+	/** The seed of the movement of the players */
+	static public int seedMovement = 1234;
 	
-	@Deprecated
-	static int size = 5000;
+	/** Internal x size of the map, stretched when displayed */
+	static public double sizex = 5000;
+	/** Internal y size of the map, stretched when displayed */
+	static public double sizey = 5000;
 	
-	static double sizex = 5000;
-	static double sizey = 5000;
+	/* Moving defaults */
+		/** Standard random move distance */
+		static double defaultRandomMoveDistance = 10;
+		/** Standard move distance to an hotspot */
+		static double defaultToHotspotMoveDistance = 10;
 	
-	static double bbProbaGoToNewHotspot = 0.001;
-	static double bbInHotspotRandomMoveDistance = 10;
-	static double bbBetweenHotspotMoveDistance = 10;
-
-	public Parameters() {
-		// TODO Auto-generated constructor stub
+	/* Configuration of the blue banana model */
+		/** Probability to choose a new hotspot to go to */
+		static public double bbProbaGoToNewHotspot = 0.001;
+		/** Distance when doing random moves inside hotspot */
+		static public double bbInHotspotRandomMoveDistance = 10;
+		/** Distance when going to an hotspot */
+		static public double bbBetweenHotspotMoveDistance = 10;
+		/** Distance to randomize movement between hotspot */
+		static public double bbBetweenHotspotRandomMoveDistance = 5;
+	
+	/* Configuration of the exported platform file */
+		/** Generate comments in the exported platform file */
+		static public boolean platformFileGenerateComments = false;
+		/** Activate tabs and newlines in the exported platform file */
+		static public boolean platformFilePrettyXml = false;
+	
+	/** */
+	private Parameters(){
+		throw new RuntimeException("You can't instanciate this class!");
 	}
-
 }
