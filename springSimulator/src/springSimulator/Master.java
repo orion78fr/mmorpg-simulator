@@ -5,13 +5,9 @@ import java.util.List;
 
 import org.simgrid.msg.Comm;
 import org.simgrid.msg.Host;
-import org.simgrid.msg.HostFailureException;
 import org.simgrid.msg.Msg;
 import org.simgrid.msg.MsgException;
 import org.simgrid.msg.Task;
-import org.simgrid.msg.TaskCancelledException;
-import org.simgrid.msg.TimeoutException;
-import org.simgrid.msg.TransferFailureException;
 import org.simgrid.msg.Process;
 
 public class Master extends Process {

@@ -18,7 +18,7 @@ public class SimulatorTest {
 		Msg.createEnvironment(platf);
 		Msg.deployApplication(deploy);
 
-		/* Execute the simulation. */
+		/* Execute the simulation */
 		Msg.run();
 	}
 }
