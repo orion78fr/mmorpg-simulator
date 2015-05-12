@@ -1,0 +1,14 @@
+To Do List:
+|-- Génération de traces
+|   |-- Mouvement des joueurs
+|   |   |-- Blue/Pink Banana
+|   |   `-- Routes safe
+|   |-- Réseau
+|   |   |-- Déplacement
+|   |   `-- Demande de métadonnées selon l'occupation
+|   `-- Connexions / Déconnexions
+|       |-- Heures de la journée
+|       `-- Profil de joueur
+`-- Système de simulation
+    |-- Chargement d'algos
+    `-- 
