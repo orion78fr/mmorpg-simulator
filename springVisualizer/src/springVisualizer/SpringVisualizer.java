@@ -24,6 +24,7 @@ public class SpringVisualizer {
 		//addHaltonPlayers(numPlayer);
 		
 		MainWindow.start();
+		new ControlDialog().setVisible(true);
 	}
 
 }

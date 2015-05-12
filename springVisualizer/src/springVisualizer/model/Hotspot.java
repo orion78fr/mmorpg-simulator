@@ -11,9 +11,11 @@ import java.awt.Color;
 public class Hotspot {
 	/** The default color of the hotspot */
 	private static Color DEFAULT_COLOR = new Color(0,105,0);
-	
+	/** The coordinates of the hotspot */
 	private Point p;
+	/** The attractiveness of the hotspot */
 	private double hotness;
+	/** The current color of the hotspot */
 	private Color color;
 	
 	public Hotspot(double x, double y, double hotness, Color color) {

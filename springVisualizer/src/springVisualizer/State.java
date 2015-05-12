@@ -118,7 +118,7 @@ public class State {
 			
 			double ratio = distance / distBetween;
 			
-			x += ratio * (coords.getX() / x);
+			x += ratio * (coords.getX() - x);
 			y += ratio * (coords.getY() - y);
 			
 			moveToWithinBouds(p, x, y);

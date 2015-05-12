@@ -22,7 +22,7 @@ public class Parameters {
 	
 	/* Configuration of the blue banana model */
 		/** Probability to choose a new hotspot to go to */
-		static public double bbProbaGoToNewHotspot = 0.001;
+		static public double bbProbaGoToNewHotspot = 0.01;
 		/** Distance when doing random moves inside hotspot */
 		static public double bbInHotspotRandomMoveDistance = 10;
 		/** Distance when going to an hotspot */
@@ -32,9 +32,9 @@ public class Parameters {
 	
 	/* Configuration of the exported platform file */
 		/** Generate comments in the exported platform file */
-		static public boolean platformFileGenerateComments = false;
+		static public boolean platformFileGenerateComments = true;
 		/** Activate tabs and newlines in the exported platform file */
-		static public boolean platformFilePrettyXml = false;
+		static public boolean platformFilePrettyXml = true;
 	
 	/** */
 	private Parameters(){
