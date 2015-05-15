@@ -27,6 +27,8 @@ public class State {
 	/** The RNG for the color */
 	private static Random rcolor = new Random(1234);
 	
+	public static long tickNumber = 0;
+	
 	/** Move all players randomly */
 	public static void moveAllRandom(){
 		for(Player p : State.playerList){
@@ -130,6 +132,7 @@ public class State {
 		for(Player p : State.playerList){
 			moveBetweenHotspots(p);
 		}
+		tickNumber++;
 	}
 	
 	// BlueBanana

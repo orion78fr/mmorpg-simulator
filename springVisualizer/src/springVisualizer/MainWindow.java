@@ -189,7 +189,7 @@ public class MainWindow {
 						int radius = (int)(h.getHotness()*2);
 						RadialGradientPaint rgp = new RadialGradientPaint((int)(((h.getX()/ratiox)-posx)*zoom), (int)(((h.getY()/ratioy)-posy)*zoom),
 								radius/2, new float[] { 0f, 1f },
-								new Color[] { h.getColor(), new Color(0,0,0,0) });
+								new Color[] { h.getColor(), new Color(255,255,255,0) });
 						 g2d.setPaint(rgp);
 						 g2d.fillOval((int)(((h.getX()/ratiox)-posx)*zoom) - radius/2, (int)(((h.getY()/ratioy)-posy)*zoom) - radius/2, radius, radius);
 					}
@@ -297,8 +297,10 @@ public class MainWindow {
 			public void mouseClicked(MouseEvent e) {
 				int x = (int)(((e.getX()/zoom) + posx)*ratiox);
 				int y = (int)(((e.getY()/zoom) + posy)*ratioy);
-				State.hotspots.add(new Hotspot(x, y, 50));
-				refresh();
+				if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
+					State.hotspots.add(new Hotspot(x, y, 50));
+					refresh();
+				}
 			}
 		});
         
@@ -472,7 +474,7 @@ public class MainWindow {
         
         menu = new JMenu("Generate");
         
-        item = new JMenuItem("Add players");
+        item = new JMenuItem("Add distributed players");
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

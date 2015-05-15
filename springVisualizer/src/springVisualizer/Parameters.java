@@ -7,34 +7,42 @@ package springVisualizer;
  */
 public class Parameters {
 	/** The seed of the movement of the players */
-	static public int seedMovement = 1234;
+	static final public int seedMovement = 1234;
 	
 	/** Internal x size of the map, stretched when displayed */
-	static public double sizex = 5000;
+	static final public double sizex = 5000;
 	/** Internal y size of the map, stretched when displayed */
-	static public double sizey = 5000;
+	static final public double sizey = 5000;
 	
 	/* Moving defaults */
 		/** Standard random move distance */
-		static double defaultRandomMoveDistance = 10;
+		static final double defaultRandomMoveDistance = 10;
 		/** Standard move distance to an hotspot */
-		static double defaultToHotspotMoveDistance = 10;
+		static final double defaultToHotspotMoveDistance = 10;
 	
 	/* Configuration of the blue banana model */
 		/** Probability to choose a new hotspot to go to */
-		static public double bbProbaGoToNewHotspot = 0.01;
+		static final public double bbProbaGoToNewHotspot = 0.01;
 		/** Distance when doing random moves inside hotspot */
-		static public double bbInHotspotRandomMoveDistance = 10;
+		static final public double bbInHotspotRandomMoveDistance = 10;
 		/** Distance when going to an hotspot */
-		static public double bbBetweenHotspotMoveDistance = 10;
+		static final public double bbBetweenHotspotMoveDistance = 10;
 		/** Distance to randomize movement between hotspot */
-		static public double bbBetweenHotspotRandomMoveDistance = 5;
+		static final public double bbBetweenHotspotRandomMoveDistance = 5;
 	
 	/* Configuration of the exported platform file */
 		/** Generate comments in the exported platform file */
-		static public boolean platformFileGenerateComments = true;
+		static final public boolean platformFileGenerateComments = true;
 		/** Activate tabs and newlines in the exported platform file */
-		static public boolean platformFilePrettyXml = true;
+		static final public boolean platformFilePrettyXml = true;
+		
+	/* Configuration of the visualizer */
+		/** Default play speed (in tick per second) */
+		static final public int defaultPlaySpeed = 10;
+		/** Minimum play speed (in tick per second) */
+		static final public int minPlaySpeed = 4;
+		/** Maximum play speed (in tick per second) */
+		static final public int maxPlaySpeed = 200;
 	
 	/** */
 	private Parameters(){
