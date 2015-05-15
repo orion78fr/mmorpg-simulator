@@ -61,8 +61,19 @@ public class State {
 	 * @param y Coord y
 	 */
 	private static void moveToWithinBouds(Player p, double x, double y){
-		p.setX(Math.max(0, Math.min(Parameters.sizex, x)));
-		p.setY(Math.max(0, Math.min(Parameters.sizey, y)));
+		moveTo(p, Math.max(0, Math.min(Parameters.sizex, x)), Math.max(0, Math.min(Parameters.sizey, y)));
+	}
+	
+	/**
+	 * Move to coords without checking coordinates
+	 * @param p The player moving
+	 * @param x Coord x
+	 * @param y Coord y
+	 */
+	private static void moveTo(Player p, double x, double y){
+		p.setX(x);
+		p.setY(y);
+		MovementLogger.logMove(p.getId(), x, y);
 	}
 	
 	/**
@@ -110,7 +121,7 @@ public class State {
 	 * @param distance The distance to move
 	 * @param coords The point to move to
 	 */
-	public static void moveTowardsPoint(Player p, double distance, Point coords){
+	private static void moveTowardsPoint(Player p, double distance, Point coords){
 		double distBetween = p.getPoint().distanceTo(coords);
 		if(distance > distBetween){
 			moveToWithinBouds(p, coords);
@@ -139,7 +150,7 @@ public class State {
 	 * Move a player between hotspot following the blue banana model
 	 * @param p
 	 */
-	public static void moveBetweenHotspots(Player p){
+	private static void moveBetweenHotspots(Player p){
 		// Pick a new hotspot to go to
 		if(State.r.nextDouble() < Parameters.bbProbaGoToNewHotspot){
 			if(State.hotspots.size() != 0){

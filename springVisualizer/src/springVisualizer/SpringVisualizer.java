@@ -3,6 +3,7 @@ package springVisualizer;
 public class SpringVisualizer {
 	/** */
 	public SpringVisualizer() {
+		throw new RuntimeException("You can't instanciate this class!");
 	}
 	
 	/**
