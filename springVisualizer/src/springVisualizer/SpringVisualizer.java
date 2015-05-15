@@ -15,5 +15,4 @@ public class SpringVisualizer {
 		MainWindow.start();
 		new ControlDialog().setVisible(true);
 	}
-
 }

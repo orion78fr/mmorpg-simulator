@@ -109,6 +109,9 @@ public class ControlDialog extends JDialog{
 		this.add(new JCheckBox("Draw map", true));
 		this.add(tick);
 		this.pack();
+		
+		this.setResizable(false);
+		this.setLocation(MainWindow.win.getX() + MainWindow.win.getWidth(), MainWindow.win.getY());
 	}
 
 }
