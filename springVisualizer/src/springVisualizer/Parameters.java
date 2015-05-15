@@ -35,6 +35,28 @@ public class Parameters {
 		static final public boolean platformFileGenerateComments = true;
 		/** Activate tabs and newlines in the exported platform file */
 		static final public boolean platformFilePrettyXml = true;
+		/** Speed of the local network between the servers in Mbps (symmetrical) */
+		static final public long serverLocalNetworkSpeed = 10000;
+		/** Latency of the local network between the servers in µs */
+		static final public long serverLocalNetworkLatency = 50;
+		/** Speed of the server gateway download in Mbps */
+		static final public long serverGatewayDownloadSpeed = 1000;
+		/** Speed of the server gateway download in Mbps */
+		static final public long serverGatewayUploadSpeed = 1000;
+		/** Latency of the server gateway in µs */
+		static final public long serverGatewayLatency = 1000;
+		/** Download Speed of the client in Mbps*/
+		static final public long clientDownloadSpeed = 20;
+		/** Upload Speed of the client in Mbps*/
+		static final public long clientUploadSpeed = 2;
+		/** Latency of the clients in ms*/
+		static final public long clientLatency = 10;
+		/** Maximum number of server */
+		static final public long maxNumberOfServer = 100;
+		/** Server processing power in GFlops */
+		static final public long serverProcessingPower = 100;
+		/** Client processing power in GFlops */
+		static final public long clientProcessingPower = 50;
 		
 	/* Configuration of the visualizer */
 		/** Default play speed (in tick per second) */
@@ -43,6 +65,12 @@ public class Parameters {
 		static final public int minPlaySpeed = 4;
 		/** Maximum play speed (in tick per second) */
 		static final public int maxPlaySpeed = 200;
+	
+	/* Configuration of the exported movement file */
+		/** Time in ms between two ticks */
+		static final public long ticktime = 100;
+		/** Exported move file */
+		static final public String exportedMoveFile = "movements"; 
 	
 	/** */
 	private Parameters(){

@@ -135,7 +135,6 @@ public class State {
 		tickNumber++;
 	}
 	
-	// BlueBanana
 	/**
 	 * Move a player between hotspot following the blue banana model
 	 * @param p
@@ -216,19 +215,19 @@ public class State {
 			as = new XMLObj("AS").addAttr("id", "theservers").addAttr("routing", "Full");
 			
 			addComment(as, "Hosts of the server");
-			for(int i = 0; i < 4; i++){
+			for(int i = 0; i < Parameters.maxNumberOfServer; i++){
 				elem = new XMLObj("host")
 					.addAttr("id", "server_"+i)
-					.addAttr("power", "100Gf");
+					.addAttr("power", Parameters.serverProcessingPower + "Gf");
 				as.addChild(elem);
 			}
 			
 			addComment(as, "The physical links of the system");
-			for(int i = 0; i < 4; i++){
+			for(int i = 0; i < Parameters.maxNumberOfServer; i++){
 				elem = new XMLObj("link")
 					.addAttr("id", "server_"+i+"_link")
-					.addAttr("bandwidth", "10GBps")
-					.addAttr("latency", "50us");
+					.addAttr("bandwidth", Parameters.serverLocalNetworkSpeed + "MBps")
+					.addAttr("latency", Parameters.serverLocalNetworkLatency + "us");
 				as.addChild(elem);
 			}
 			
@@ -237,7 +236,7 @@ public class State {
 			as.addChild(elem);
 			
 			addComment(as, "The routes within this system, giving topological informations");
-			for(int i = 0; i < 4; i++){
+			for(int i = 0; i < Parameters.maxNumberOfServer; i++){
 				elem = new XMLObj("route")
 					.addAttr("src", "server_"+i)
 					.addAttr("dst", "server_router")
@@ -254,7 +253,7 @@ public class State {
 			for(int i = 0; i < playerList.size(); i++){
 				elem = new XMLObj("host")
 					.addAttr("id", "client_"+i)
-					.addAttr("power", "50Gf");
+					.addAttr("power", Parameters.clientProcessingPower + "Gf");
 				as.addChild(elem);
 			}
 			
@@ -262,13 +261,13 @@ public class State {
 			for(int i = 0; i < playerList.size(); i++){
 				elem = new XMLObj("link")
 					.addAttr("id", "client_"+i+"_internet_down")
-					.addAttr("bandwidth", "20MBps")
-					.addAttr("latency", "10ms");
+					.addAttr("bandwidth", Parameters.clientDownloadSpeed + "MBps")
+					.addAttr("latency", Parameters.clientLatency + "ms");
 				as.addChild(elem);
 				elem = new XMLObj("link")
 					.addAttr("id", "client_"+i+"_internet_up")
-					.addAttr("bandwidth", "2MBps")
-					.addAttr("latency", "10ms");
+					.addAttr("bandwidth", Parameters.clientUploadSpeed + "MBps")
+					.addAttr("latency", Parameters.clientLatency + "ms");
 				as.addChild(elem);
 			}
 			
@@ -293,11 +292,16 @@ public class State {
 			}
 			thePlatform.addChild(as);
 			
-			addComment(thePlatform, "The server gateway link to the internet");
+			addComment(thePlatform, "The server gateway links to the internet");
 			elem = new XMLObj("link")
-				.addAttr("id", "servers_connection")
-				.addAttr("bandwidth", "1GBps")
-				.addAttr("latency", "1ms");
+				.addAttr("id", "servers_download")
+				.addAttr("bandwidth", Parameters.serverGatewayDownloadSpeed + "MBps")
+				.addAttr("latency", Parameters.serverGatewayLatency + "us");
+			thePlatform.addChild(elem);
+			elem = new XMLObj("link")
+				.addAttr("id", "servers_upload")
+				.addAttr("bandwidth", Parameters.serverGatewayUploadSpeed + "MBps")
+				.addAttr("latency", Parameters.serverGatewayLatency + "us");
 			thePlatform.addChild(elem);
 			
 			elem = new XMLObj("ASroute")
@@ -305,8 +309,16 @@ public class State {
 				.addAttr("dst", "theclients")
 				.addAttr("gw_src", "server_router")
 				.addAttr("gw_dst", "internet_router")
-				.addAttr("symmetrical", "YES")
-				.addChild(new XMLObj("link_ctn").addAttr("id", "servers_connection"));
+				.addAttr("symmetrical", "NO")
+				.addChild(new XMLObj("link_ctn").addAttr("id", "servers_upload"));
+			thePlatform.addChild(elem);
+			elem = new XMLObj("ASroute")
+				.addAttr("src", "theclients")
+				.addAttr("dst", "theservers")
+				.addAttr("gw_src", "internet_router")
+				.addAttr("gw_dst", "server_router")
+				.addAttr("symmetrical", "NO")
+				.addChild(new XMLObj("link_ctn").addAttr("id", "servers_download"));
 			thePlatform.addChild(elem);
 			
 			

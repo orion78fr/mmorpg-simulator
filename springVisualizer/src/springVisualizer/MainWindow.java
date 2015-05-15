@@ -39,7 +39,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import javax.swing.SwingUtilities;
 
 import springVisualizer.model.Hotspot;
 import springVisualizer.model.Player;
@@ -504,20 +503,21 @@ public class MainWindow {
             	JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
                 int ret = fc.showSaveDialog(win);
                 if (ret == JFileChooser.APPROVE_OPTION) {
-                	if(!fc.getSelectedFile().isFile()){
+                	if(fc.getSelectedFile().exists() && !fc.getSelectedFile().isFile()){
                 		JOptionPane.showMessageDialog(win, "This is not a file", "Error", JOptionPane.ERROR_MESSAGE);
+                	} else {
+	                    try {
+	                            Writer w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fc.getSelectedFile()), "utf-8"));
+	                            if(State.exportPlatform(w)){
+	                            	JOptionPane.showMessageDialog(win, "Export successful to " + fc.getSelectedFile(), "Export", JOptionPane.INFORMATION_MESSAGE);
+	                            } else {
+	                            	JOptionPane.showMessageDialog(win, "Something went wrong during export", "Error", JOptionPane.ERROR_MESSAGE);
+	                            }
+	                            w.close();
+	                    } catch (Exception ex) {
+	                    		ex.printStackTrace();
+	                    }
                 	}
-                    try {
-                            Writer w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fc.getSelectedFile()), "utf-8"));
-                            if(State.exportPlatform(w)){
-                            	JOptionPane.showMessageDialog(win, "Export successful to " + fc.getSelectedFile(), "Export", JOptionPane.INFORMATION_MESSAGE);
-                            } else {
-                            	JOptionPane.showMessageDialog(win, "Something went wrong during export", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
-                            w.close();
-                    } catch (Exception ex) {
-                    		ex.printStackTrace();
-                    }
                 }
             }
         });

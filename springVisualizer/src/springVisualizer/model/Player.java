@@ -3,9 +3,12 @@ package springVisualizer.model;
 import java.awt.Color;
 
 public class Player {
+	private static long playerID = 0;
+	
 	private Point p;
 	private Color color;
 	private Point obj;
+	private long id;
 	
 	public Point getObj() {
 		return obj;
@@ -26,10 +29,19 @@ public class Player {
 		p.setY(y);
 	}
 	
+	private synchronized long getNewId(){
+		return playerID++;
+	}
+	
+	public long getId() {
+		return id;
+	}
+
 	public Player(double x, double y) {
 		super();
 		this.p = new Point(x,y);
 		this.color = Color.RED;
+		this.id = getNewId();
 	}
 	
 	public Player(double x, double y, Color color) {
