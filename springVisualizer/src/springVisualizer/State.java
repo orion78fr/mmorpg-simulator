@@ -373,6 +373,21 @@ public class State {
 	}
 	
 	/**
+	 * Removes a certain number of player from the simulation
+	 * @param numPlayer
+	 */
+	public static void removeRandomPlayers(int numPlayer){
+		for(int i = 0; i < numPlayer; i++){
+			removePlayer(playerList.get(r.nextInt(playerList.size())));
+		}
+	}
+	
+	private static void removePlayer(Player p){
+		p.disconnect();
+		playerList.remove(p);
+	}
+	
+	/**
 	 * Adds an hotspot to the simulation
 	 * @param h The hotspot to add
 	 */

@@ -54,17 +54,6 @@ public class MainWindow {
 	private MainWindow() {
 		throw new RuntimeException("You can't instanciate this class!");
 	}
-
-	/*public static int getHotness(){
-		if(jtf == null){
-			throw new RuntimeException("can't get hotness");
-		}
-		try{
-			return Integer.parseInt(jtf.getText());
-		} catch (NumberFormatException e){
-			return 50;
-		}
-	}*/
 	
 	static public JFrame win;
 	static private JMenuBar bar;
@@ -404,6 +393,29 @@ public class MainWindow {
             			return;
             		}
             		State.addHaltonPlayers(numPlayers);
+            		refresh();
+            	} catch (Exception ex) {
+            		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);
+            	}
+            }
+        });
+        menu.add(item);
+        
+        item = new JMenuItem("Remove random players");
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	String num = JOptionPane.showInputDialog(win, "How many players?", "Add players", JOptionPane.QUESTION_MESSAGE);
+            	if(num == null){
+            		return;
+            	}
+            	try {
+            		int numPlayers = Integer.parseInt(num);
+            		if(numPlayers < 0){
+            			JOptionPane.showMessageDialog(win, "The input is negative", "Error", JOptionPane.ERROR_MESSAGE);
+            			return;
+            		}
+            		State.removeRandomPlayers(numPlayers);
             		refresh();
             	} catch (Exception ex) {
             		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);

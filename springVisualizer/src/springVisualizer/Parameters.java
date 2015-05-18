@@ -69,8 +69,8 @@ public class Parameters {
 	/* Configuration of the exported movement file */
 		/** Time in ms between two ticks */
 		static final public long ticktime = 100;
-		/** Exported move file */
-		static final public String exportedMoveFile = "movements"; 
+		/** Exported move folder, containing one move file per player */
+		static final public String exportedMoveFolder = "movements"; 
 	
 	/** */
 	private Parameters(){

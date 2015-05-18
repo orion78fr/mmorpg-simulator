@@ -12,6 +12,8 @@ public class Player {
 	private Point obj;
 	private long id;
 	
+	private boolean connected = false;
+	
 	public Point getObj() {
 		return obj;
 	}
@@ -39,14 +41,25 @@ public class Player {
 		return id;
 	}
 
+	/**
+	 * Creates a player that is connected at coordinates (x,y) with default color
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 */
 	public Player(double x, double y) {
 		super();
 		this.p = new Point(x,y);
 		this.color = Color.RED;
 		this.id = getNewId();
-		MovementLogger.logConnect(id,x,y);
+		connect();
 	}
 	
+	/**
+	 * Creates a player that is connected at coordinates (x,y) with color color
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param color The color
+	 */
 	public Player(double x, double y, Color color) {
 		this(x,y);
 		this.color = color;
@@ -60,5 +73,28 @@ public class Player {
 	}
 	public Point getPoint(){
 		return new Point(p.getX(), p.getY());
+	}
+	
+	public void connect(){
+		assert(!this.connected);
+		
+		this.connected = true;
+		MovementLogger.logConnect(this.id,this.p.getX(),this.p.getY());
+	}
+	
+	public void connect(double x, double y){
+		this.p = new Point(x, y);
+		connect();
+	}
+	
+	public void connect(Point p){
+		connect(p.getX(), p.getY());
+	}
+	
+	public void disconnect(){
+		assert(this.connected);
+		
+		this.connected = false;
+		MovementLogger.logDisonnect(this.id);
 	}
 }

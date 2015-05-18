@@ -12,6 +12,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -103,6 +104,11 @@ public class ControlDialog extends JDialog{
 		t.start();
 		
 		this.add(speed);
+		
+		this.add(new JLabel("Hotness", JLabel.CENTER));
+		
+		this.add(new JTextField("50"));
+		
 		this.add(new JCheckBox("Draw hotspots", true));
 		this.add(new JCheckBox("Draw players", true));
 		this.add(new JCheckBox("Draw servers", true));
