@@ -15,12 +15,35 @@ public class Master extends Process {
 		super(host,name,args);
 	} 
 	public void main(String[] args) throws MsgException {
-		if (args.length < 4) {
-			Msg.info("Master needs 4 arguments");
+		if (args.length != 1) {
+			Msg.info("Args for Master : <tick time in ms>");
 			System.exit(1);
 		}
+		
+		// But in seconds!
+		double ticktime = Integer.valueOf(args[0]).intValue()/1000.0;
+		
+		for(int i = 0; i < 10; i++){
+			Task t = new Task("Tickwait", this.getHost().getSpeed() * ticktime, 0);
+			
+			t.execute();
+			
+			Msg.info("Tick" + i + " !");
+			
+			// Traitement des entrées des autres process
+			
+			/*
+			 * while(probe_message)
+			 * {
+			 * 	traitement_message
+			 * }
+			 * envoi_a_tous(résultats)
+			 * 
+			 * attendre(next_tick - temps_traitement)
+			 */
+		}
 
-		int tasksCount = Integer.valueOf(args[0]).intValue();		
+		/*int tasksCount = Integer.valueOf(args[0]).intValue();		
 		double taskComputeSize = Double.valueOf(args[1]).doubleValue();		
 		double taskCommunicateSize = Double.valueOf(args[2]).doubleValue();
 
@@ -48,6 +71,6 @@ public class Master extends Process {
 			task.send("slave_"+(i%slavesCount));
 		}
 
-		Msg.info("Goodbye now!");
+		Msg.info("Goodbye now!");*/
 	}
 }

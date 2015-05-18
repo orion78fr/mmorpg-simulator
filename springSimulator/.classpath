@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/simgrid-3.11.1.jar" sourcepath="/home/orion/spring-dev/simgrid/src/bindings/java"/>
+	<classpathentry kind="lib" path="lib/simgrid-3.11.1.jar" sourcepath="C:/cygwin64/home/OriOn78fr/spring-dev/simgrid/src/bindings/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -14,7 +14,12 @@ public class Slave extends Process {
 		super(host,name,args);
 	}
 	public void main(String[] args) throws TransferFailureException, HostFailureException, TimeoutException {
-		if (args.length < 1) {
+		/*
+		 * lecture_input
+		 * envoyer_input
+		 */
+		
+		/*if (args.length < 1) {
 			Msg.info("Slave needs 1 argument (its number)");
 			System.exit(1);
 		}
@@ -43,6 +48,6 @@ public class Slave extends Process {
 			}
 		}
 
-		Msg.info("Received Finalize. I'm done. See you!");
+		Msg.info("Received Finalize. I'm done. See you!");*/
 	}
 }
