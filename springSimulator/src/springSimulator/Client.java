@@ -9,8 +9,8 @@ import org.simgrid.msg.TimeoutException;
 import org.simgrid.msg.TransferFailureException;
 import org.simgrid.msg.Process;
 
-public class Slave extends Process {
-	public Slave(Host host, String name, String[]args) {
+public class Client extends Process {
+	public Client(Host host, String name, String[]args) {
 		super(host,name,args);
 	}
 	public void main(String[] args) throws TransferFailureException, HostFailureException, TimeoutException {

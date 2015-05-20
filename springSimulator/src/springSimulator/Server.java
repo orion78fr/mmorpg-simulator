@@ -10,25 +10,43 @@ import org.simgrid.msg.MsgException;
 import org.simgrid.msg.Task;
 import org.simgrid.msg.Process;
 
-public class Master extends Process {
-	public Master(Host host, String name, String[]args) {
+import utils.SimException;
+import utils.SimUtils;
+import utils.SimUtils.MessageReceiver;
+
+public class Server extends Process {
+	public Server(Host host, String name, String[]args) {
 		super(host,name,args);
-	} 
+	}
+	
 	public void main(String[] args) throws MsgException {
-		if (args.length != 1) {
-			Msg.info("Args for Master : <tick time in ms>");
+		if (args.length < 1) {
+			Msg.info("Args for Master : <tickrate>");
 			System.exit(1);
 		}
 		
-		// But in seconds!
-		double ticktime = Integer.valueOf(args[0]).intValue()/1000.0;
+		int tickrate = Integer.valueOf(args[0]).intValue();
+		
+		double nextTick = 1/tickrate;
+		
+		List<MessageReceiver> l = new ArrayList<MessageReceiver>();
 		
 		for(int i = 0; i < 10; i++){
-			Task t = new Task("Tickwait", this.getHost().getSpeed() * ticktime, 0);
+			/*try {
+				SimUtils.wait(1.0 / tickrate, this.getHost().getSpeed());
+			} catch (SimException e) {
+				e.printStackTrace();
+			}*/
 			
-			t.execute();
+			Msg.info("Tick" + i + " begin!");
 			
-			Msg.info("Tick" + i + " !");
+			while(Msg.getClock() < nextTick){
+				l.add(SimUtils.ireceiveUntil(host.getName(), nextTick));
+			}
+			
+			do{
+				
+			} while(true);
 			
 			// Traitement des entrées des autres process
 			

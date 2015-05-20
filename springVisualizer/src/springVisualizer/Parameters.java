@@ -5,7 +5,7 @@ package springVisualizer;
  * 
  * @author Guillaume Turchini
  */
-public class Parameters {
+public final class Parameters {
 	/** The seed of the movement of the players */
 	static final public int seedMovement = 1234;
 	
@@ -67,8 +67,8 @@ public class Parameters {
 		static final public int maxPlaySpeed = 200;
 	
 	/* Configuration of the exported movement file */
-		/** Time in ms between two ticks */
-		static final public long ticktime = 100;
+		/** Number of tick in one second */
+		static final public long tickrate = 64;
 		/** Exported move folder, containing one move file per player */
 		static final public String exportedMoveFolder = "movements"; 
 	
