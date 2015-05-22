@@ -10,7 +10,9 @@ import springVisualizer.XML.XMLComment;
 import springVisualizer.XML.XMLObj;
 import springVisualizer.model.Hotspot;
 import springVisualizer.model.Player;
-import springVisualizer.model.Point;
+import springVisualizer.model.movement.MovementManager;
+import springVisualizer.model.movement.BBMovementManager;
+import springVisualizer.model.movement.RandomMovementManager;
 
 /**
  * The class containing all the state of the simulated world
@@ -34,48 +36,23 @@ public class State {
 		for(Player p : State.playerList){
 			p.move();
 		}
+		tickNumber++;
 	}
 	
 	/** Set all players to move randomly */
 	public static void setAllRandom(){
+		// It can be shared because of no instance fields ;)
+		MovementManager m = new RandomMovementManager();
 		for(Player p : State.playerList){
-			p.setMovement(Player.defaultMovementManager);
+			p.setMovement(m);
 		}
 	}
 	
-	/** Move all players to their nearest hotspot */
-	public static void moveAllToNearestHotspot(){
+	/** Set all players move between hotspots (blue banana model) */
+	public static void setAllBetweenHotspots(){
 		for(Player p : State.playerList){
-			moveToNearestHotspot(p, Parameters.defaultToHotspotMoveDistance);
+			p.setMovement(new BBMovementManager());
 		}
-	}
-	
-	/**
-	 * Move a player to its nearest hotspot 
-	 * @param p The player moving
-	 * @param distance The distance to move
-	 */
-	private static void moveToNearestHotspot(Player p, double distance){
-		// Find nearest hotspot
-		double tmpimportance, maximportance = Double.MAX_VALUE;
-		
-		Hotspot nearest = null;
-		for(Hotspot h : State.hotspots){
-			if((tmpimportance = p.getPoint().distanceTo(h.getPoint()))/h.getHotness() < maximportance){
-				maximportance = tmpimportance;
-				nearest = h;
-			}
-		}
-		
-		moveTowardsPoint(p, distance, nearest.getPoint());
-	}
-	
-	/** Move all players between hotspots (blue banana model) */
-	public static void moveAllBetweenHotspots(){
-		for(Player p : State.playerList){
-			moveBetweenHotspots(p);
-		}
-		tickNumber++;
 	}
 	
 	/**

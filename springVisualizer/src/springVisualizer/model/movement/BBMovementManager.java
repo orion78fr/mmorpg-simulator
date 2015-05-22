@@ -9,8 +9,8 @@ public class BBMovementManager extends AbstractMovementManager {
 	private Hotspot h = null;
 	private double bbProbaGoToNewHotspot;
 	private double bbBetweenHotspotMoveDistance;
-	private double bbBetweenHotspotRandomMoveDistance;
-	private double bbInHotspotRandomMoveDistance;
+	private MovementManager betweenHotspotRandomMovementManager;
+	private MovementManager inHotspotRandomMovementManager;
 	
 	
 	
@@ -18,8 +18,10 @@ public class BBMovementManager extends AbstractMovementManager {
 		super();
 		this.bbProbaGoToNewHotspot = bbProbaGoToNewHotspot;
 		this.bbBetweenHotspotMoveDistance = bbBetweenHotspotMoveDistance;
-		this.bbBetweenHotspotRandomMoveDistance = bbBetweenHotspotRandomMoveDistance;
-		this.bbInHotspotRandomMoveDistance = bbInHotspotRandomMoveDistance;
+		
+		this.betweenHotspotRandomMovementManager = new RandomMovementManager(bbBetweenHotspotRandomMoveDistance);
+		this.inHotspotRandomMovementManager = new RandomMovementManager(bbInHotspotRandomMoveDistance);
+		
 	}
 	
 	public BBMovementManager() {
@@ -44,13 +46,9 @@ public class BBMovementManager extends AbstractMovementManager {
 		
 		if(this.h != null){
 			moveTowardsPoint(p, this.bbBetweenHotspotMoveDistance, h.getPoint());
-			moveRandom(p, this.bbBetweenHotspotRandomMoveDistance);
+			this.betweenHotspotRandomMovementManager.move(p);
 		} else {
-			moveRandom(p, this.bbInHotspotRandomMoveDistance);
+			this.inHotspotRandomMovementManager.move(p);
 		}
-	}
-	
-	private void moveRandom(Player p, double radius){
-		// TODO
 	}
 }

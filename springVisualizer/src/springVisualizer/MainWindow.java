@@ -218,7 +218,7 @@ public class MainWindow {
 				} else if(e.getKeyCode() == KeyEvent.VK_A){
 					zoom /= 2;
 				} else if(e.getKeyCode() == KeyEvent.VK_R){
-					State.moveAllBetweenHotspots();
+					State.moveAll();
 				} else {
 					return;
 				}

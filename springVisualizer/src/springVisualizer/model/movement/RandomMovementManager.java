@@ -1,5 +1,6 @@
 package springVisualizer.model.movement;
 
+import springVisualizer.Parameters;
 import springVisualizer.State;
 import springVisualizer.model.Player;
 
@@ -7,6 +8,10 @@ public class RandomMovementManager extends AbstractMovementManager {
 	private double radius;
 	public RandomMovementManager(double radius) {
 		this.radius = radius;
+	}
+	
+	public RandomMovementManager(){
+		this(Parameters.defaultRandomMoveDistance);
 	}
 	
 	/**

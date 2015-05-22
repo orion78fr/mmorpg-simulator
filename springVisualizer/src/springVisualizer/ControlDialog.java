@@ -38,7 +38,7 @@ public class ControlDialog extends JDialog{
 		nextStep.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				State.moveAllBetweenHotspots();
+				State.moveAll();
 				MainWindow.refresh();
 			}
 		});
@@ -96,7 +96,7 @@ public class ControlDialog extends JDialog{
 			public void actionPerformed(ActionEvent e) {
 				setTick();
 				if(playing){
-					State.moveAllBetweenHotspots();
+					State.moveAll();
 					MainWindow.refresh();
 				}
 			}

@@ -68,9 +68,9 @@ public class Player {
 	public Player(double x, double y, MovementManager movement, Color color){
 		super();
 		this.p = new Point(x,y);
-		this.color = defaultColor;
+		this.color = color;
 		this.id = getNewId();
-		this.movement = defaultMovementManager;
+		this.movement = movement;
 		connect();
 	}
 	
