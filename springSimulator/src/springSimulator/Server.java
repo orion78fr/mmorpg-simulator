@@ -3,22 +3,21 @@ package springSimulator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.simgrid.msg.Comm;
 import org.simgrid.msg.Host;
 import org.simgrid.msg.Msg;
 import org.simgrid.msg.MsgException;
-import org.simgrid.msg.Task;
 import org.simgrid.msg.Process;
 
-import utils.SimException;
+import utils.MessageWaiter;
+import utils.MessageState;
 import utils.SimUtils;
-import utils.SimUtils.MessageReceiver;
 
 public class Server extends Process {
 	public Server(Host host, String name, String[]args) {
 		super(host,name,args);
 	}
 	
+	@Override
 	public void main(String[] args) throws MsgException {
 		if (args.length < 1) {
 			Msg.info("Args for Master : <tickrate>");
@@ -29,7 +28,7 @@ public class Server extends Process {
 		
 		double nextTick = 1/tickrate;
 		
-		List<MessageReceiver> l = new ArrayList<MessageReceiver>();
+		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
 		
 		for(int i = 0; i < 10; i++){
 			/*try {
@@ -38,15 +37,27 @@ public class Server extends Process {
 				e.printStackTrace();
 			}*/
 			
-			Msg.info("Tick" + i + " begin!");
+			Msg.info("Tick " + i + " begin!");
 			
 			while(Msg.getClock() < nextTick){
 				l.add(SimUtils.ireceiveUntil(host.getName(), nextTick));
 			}
 			
-			do{
+			Msg.info("Tick " + i + " ended, " + l.size() + " messages got...");
+			
+			for(int j = 0; j < l.size();){
+				MessageWaiter r = l.get(j);
 				
-			} while(true);
+				if(r.getState() == MessageState.SUCCESS){
+					l.remove(j);
+					// Traitement du message
+				} else {
+					j++;
+				}
+			}
+			
+			
+			Msg.info("Tick " + i + " end.");
 			
 			// Traitement des entrées des autres process
 			

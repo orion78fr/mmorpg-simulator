@@ -2,9 +2,6 @@ package springSimulator;
 
 import org.simgrid.msg.Host;
 import org.simgrid.msg.HostFailureException;
-import org.simgrid.msg.Msg;
-import org.simgrid.msg.Task;
-import org.simgrid.msg.TaskCancelledException;
 import org.simgrid.msg.TimeoutException;
 import org.simgrid.msg.TransferFailureException;
 import org.simgrid.msg.Process;
@@ -13,6 +10,7 @@ public class Client extends Process {
 	public Client(Host host, String name, String[]args) {
 		super(host,name,args);
 	}
+	@Override
 	public void main(String[] args) throws TransferFailureException, HostFailureException, TimeoutException {
 		/*
 		 * lecture_input
