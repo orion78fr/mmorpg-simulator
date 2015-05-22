@@ -16,9 +16,9 @@ public final class Parameters {
 	
 	/* Moving defaults */
 		/** Standard random move distance */
-		static final double defaultRandomMoveDistance = 10;
+		static final public double defaultRandomMoveDistance = 10;
 		/** Standard move distance to an hotspot */
-		static final double defaultToHotspotMoveDistance = 10;
+		static final public double defaultToHotspotMoveDistance = 10;
 	
 	/* Configuration of the blue banana model */
 		/** Probability to choose a new hotspot to go to */

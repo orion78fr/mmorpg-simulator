@@ -3,9 +3,14 @@ package springVisualizer.model;
 import java.awt.Color;
 
 import springVisualizer.MovementLogger;
+import springVisualizer.Parameters;
 import springVisualizer.model.movement.MovementManager;
+import springVisualizer.model.movement.RandomMovementManager;
 
 public class Player {
+	public static final MovementManager defaultMovementManager = new RandomMovementManager(Parameters.defaultRandomMoveDistance);
+	public static final Color defaultColor = Color.RED;
+	
 	private static long playerID = 0;
 	
 	private Point p;
@@ -43,11 +48,7 @@ public class Player {
 	 * @param y The y coordinate
 	 */
 	public Player(double x, double y) {
-		super();
-		this.p = new Point(x,y);
-		this.color = Color.RED;
-		this.id = getNewId();
-		connect();
+		this(x, y, defaultMovementManager, defaultColor);
 	}
 	
 	/**
@@ -57,8 +58,36 @@ public class Player {
 	 * @param color The color
 	 */
 	public Player(double x, double y, Color color) {
-		this(x,y);
-		this.color = color;
+		this(x, y, defaultMovementManager, color);
+	}
+	
+	public Player(double x, double y, MovementManager movement){
+		this(x, y, movement, defaultColor);
+	}
+	
+	public Player(double x, double y, MovementManager movement, Color color){
+		super();
+		this.p = new Point(x,y);
+		this.color = defaultColor;
+		this.id = getNewId();
+		this.movement = defaultMovementManager;
+		connect();
+	}
+	
+	public Player(Point p){
+		this(p.getX(), p.getY());
+	}
+	
+	public Player(Point p, Color color){
+		this(p.getX(), p.getY(), color);
+	}
+	
+	public Player(Point p, MovementManager movement){
+		this(p.getX(), p.getY(), movement);
+	}
+	
+	public Player(Point p, MovementManager movement, Color color){
+		this(p.getX(), p.getY(), movement, color);
 	}
 	
 	public Color getColor() {
@@ -72,10 +101,10 @@ public class Player {
 	}
 	
 	public void connect(){
-		assert(!this.connected);
-		
-		this.connected = true;
-		MovementLogger.logConnect(this.id,this.p.getX(),this.p.getY());
+		if(!this.connected){
+			this.connected = true;
+			MovementLogger.logConnect(this.id,this.p.getX(),this.p.getY());
+		}
 	}
 	
 	public void connect(double x, double y){
@@ -88,10 +117,10 @@ public class Player {
 	}
 	
 	public void disconnect(){
-		assert(this.connected);
-		
-		this.connected = false;
-		MovementLogger.logDisonnect(this.id);
+		if(this.connected){
+			this.connected = false;
+			MovementLogger.logDisonnect(this.id);
+		}
 	}
 	public MovementManager getMovement() {
 		return movement;

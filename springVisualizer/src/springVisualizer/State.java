@@ -36,10 +36,10 @@ public class State {
 		}
 	}
 	
-	/** Move all players randomly */
-	public static void moveAllRandom(){
+	/** Set all players to move randomly */
+	public static void setAllRandom(){
 		for(Player p : State.playerList){
-			moveRandom(p, Parameters.defaultRandomMoveDistance);
+			p.setMovement(Player.defaultMovementManager);
 		}
 	}
 	
@@ -70,57 +70,12 @@ public class State {
 		moveTowardsPoint(p, distance, nearest.getPoint());
 	}
 	
-	/**
-	 * Move a player towards a point.<br />
-	 * If the distance of the point is less than the distance argument, move directly to the point
-	 * 
-	 * @param p The player moving
-	 * @param distance The distance to move
-	 * @param coords The point to move to
-	 */
-	private static void moveTowardsPoint(Player p, double distance, Point coords){
-		double distBetween = p.getPoint().distanceTo(coords);
-		if(distance > distBetween){
-			moveToWithinBouds(p, coords);
-		} else {
-			double x = p.getX();
-			double y = p.getY();
-			
-			double ratio = distance / distBetween;
-			
-			x += ratio * (coords.getX() - x);
-			y += ratio * (coords.getY() - y);
-			
-			moveToWithinBouds(p, x, y);
-		}
-	}
-	
 	/** Move all players between hotspots (blue banana model) */
 	public static void moveAllBetweenHotspots(){
 		for(Player p : State.playerList){
 			moveBetweenHotspots(p);
 		}
 		tickNumber++;
-	}
-	
-	/**
-	 * Move a player between hotspot following the blue banana model
-	 * @param p
-	 */
-	private static void moveBetweenHotspots(Player p){
-		// Pick a new hotspot to go to
-		if(State.r.nextDouble() < Parameters.bbProbaGoToNewHotspot){
-			if(State.hotspots.size() != 0){
-				p.setObj(pickRandomHotspotWithHotness().getPoint());
-			}
-		}
-		
-		if(p.getObj() != null){
-			moveTowardsPoint(p, Parameters.bbBetweenHotspotMoveDistance, p.getObj());
-			moveRandom(p, Parameters.bbBetweenHotspotRandomMoveDistance);
-		} else {
-			moveRandom(p, Parameters.bbInHotspotRandomMoveDistance);
-		}
 	}
 	
 	/**
