@@ -3,23 +3,19 @@ package springVisualizer.model;
 import java.awt.Color;
 
 import springVisualizer.MovementLogger;
+import springVisualizer.model.movement.MovementManager;
 
 public class Player {
 	private static long playerID = 0;
 	
 	private Point p;
 	private Color color;
-	private Point obj;
 	private long id;
 	
 	private boolean connected = false;
 	
-	public Point getObj() {
-		return obj;
-	}
-	public void setObj(Point obj) {
-		this.obj = obj;
-	}
+	private MovementManager movement;
+	
 	public double getX() {
 		return p.getX();
 	}
@@ -96,5 +92,14 @@ public class Player {
 		
 		this.connected = false;
 		MovementLogger.logDisonnect(this.id);
+	}
+	public MovementManager getMovement() {
+		return movement;
+	}
+	public void setMovement(MovementManager movement) {
+		this.movement = movement;
+	}
+	public void move(){
+		this.movement.move(this);
 	}
 }

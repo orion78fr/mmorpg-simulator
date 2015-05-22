@@ -23,11 +23,18 @@ public class State {
 	/** The list of the hotspots */
 	static public List<Hotspot> hotspots = new ArrayList<Hotspot>();
 	/** The common RNG for the movement of players */
-	static private Random r = new Random(Parameters.seedMovement);
+	public static Random r = new Random(Parameters.seedMovement);
 	/** The RNG for the color */
 	private static Random rcolor = new Random(1234);
 	
 	public static long tickNumber = 0;
+	
+	/** Move all players */
+	public static void moveAll(){
+		for(Player p : State.playerList){
+			p.move();
+		}
+	}
 	
 	/** Move all players randomly */
 	public static void moveAllRandom(){
@@ -35,56 +42,6 @@ public class State {
 			moveRandom(p, Parameters.defaultRandomMoveDistance);
 		}
 	}
-	
-	/**
-	 * Do a random move to a certain distance
-	 * @param p The player moving
-	 * @param radius Radius of the circle
-	 */
-	private static void moveRandom(Player p, double radius){
-		double x = p.getX();
-		double y = p.getY();
-		
-		/* Pick a random angle and move to distance "radius" with this angle */ 
-		double angle = State.r.nextDouble()*2*Math.PI;
-		
-		x += radius * Math.cos(angle);
-		y += radius * Math.sin(angle);
-		
-		moveToWithinBouds(p, x, y);
-	}
-	
-	/**
-	 * Move to coords but correct the position to be within the bounds of the world
-	 * @param p The player moving
-	 * @param x Coord x
-	 * @param y Coord y
-	 */
-	private static void moveToWithinBouds(Player p, double x, double y){
-		moveTo(p, Math.max(0, Math.min(Parameters.sizex, x)), Math.max(0, Math.min(Parameters.sizey, y)));
-	}
-	
-	/**
-	 * Move to coords without checking coordinates
-	 * @param p The player moving
-	 * @param x Coord x
-	 * @param y Coord y
-	 */
-	private static void moveTo(Player p, double x, double y){
-		p.setX(x);
-		p.setY(y);
-		MovementLogger.logMove(p.getId(), x, y);
-	}
-	
-	/**
-	 * Move to point but correct the position to be within the bounds of the world
-	 * @param p The player moving
-	 * @param coords The point to move to
-	 */
-	private static void moveToWithinBouds(Player p, Point coords){
-		moveToWithinBouds(p, coords.getX(), coords.getY());
-	}
-	
 	
 	/** Move all players to their nearest hotspot */
 	public static void moveAllToNearestHotspot(){
