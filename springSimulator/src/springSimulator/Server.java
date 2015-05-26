@@ -1,105 +1,87 @@
 package springSimulator;
 
+import java.awt.Polygon;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.simgrid.msg.Host;
-import org.simgrid.msg.Msg;
-import org.simgrid.msg.MsgException;
 import org.simgrid.msg.Process;
 
+import utils.Logger;
 import utils.MessageWaiter;
 import utils.MessageState;
+import utils.SimException;
 import utils.SimUtils;
 
 public class Server extends Process {
+	List<String> clientMailBox = new ArrayList<String>();
+	
 	public Server(Host host, String name, String[]args) {
 		super(host,name,args);
 	}
 	
 	@Override
-	public void main(String[] args) throws MsgException {
+	public void main(String[] args) {
+		if(!this.getHost().getName().equals("server_0")){
+			Logger.logWarning("Master 0 test only");
+			return;
+		}
 		if (args.length < 1) {
-			Msg.info("Args for Master : <tickrate>");
+			Logger.logCritical("Args for Master : <tickrate>");
 			System.exit(1);
 		}
 		
-		int tickrate = Integer.valueOf(args[0]).intValue();
+		for(int i = 0; i < 10; i++){
+			clientMailBox.add("client_" + i);
+		}
+		
+		double tickrate = Double.valueOf(args[0]).doubleValue();
 		
 		double nextTick = 1/tickrate;
 		
 		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
 		
-		for(int i = 0; i < 10; i++){
-			/*try {
-				SimUtils.wait(1.0 / tickrate, this.getHost().getSpeed());
-			} catch (SimException e) {
-				e.printStackTrace();
-			}*/
+		
+		for(int i = 0; i < 1000; i++){
+			Logger.logVerbose("Tick " + i + " begin!");
 			
-			Msg.info("Tick " + i + " begin!");
+			l.addAll(SimUtils.ireceiveAllUntil(this.getHost().getName(), nextTick, 500));
 			
-			while(Msg.getClock() < nextTick){
-				l.add(SimUtils.ireceiveUntil(host.getName(), nextTick));
+			for(MessageWaiter w : l){
+				if(w.getState() == MessageState.SUCCESS){
+					Logger.logInfo("Message : (" + w.getMessage().getType() + "," + w.getMessage().getContent() + ")");// Traitement du message
+				}
 			}
 			
-			Msg.info("Tick " + i + " ended, " + l.size() + " messages got...");
-			
+			/* retirer les messages recus */
 			for(int j = 0; j < l.size();){
-				MessageWaiter r = l.get(j);
-				
-				if(r.getState() == MessageState.SUCCESS){
+				if(l.get(j).getState() != MessageState.PENDING){
 					l.remove(j);
-					// Traitement du message
 				} else {
 					j++;
 				}
 			}
 			
+			for(String c : clientMailBox){
+				SimUtils.isend(c, 100, 1, "" + i);
+			}
 			
-			Msg.info("Tick " + i + " end.");
+			
+			Logger.logDebug("Tick " + i + " end.");
+			
+			nextTick += 1 / tickrate;
 			
 			// Traitement des entrées des autres process
-			
-			/*
-			 * while(probe_message)
-			 * {
-			 * 	traitement_message
-			 * }
-			 * envoi_a_tous(résultats)
-			 * 
-			 * attendre(next_tick - temps_traitement)
-			 */
-		}
-
-		/*int tasksCount = Integer.valueOf(args[0]).intValue();		
-		double taskComputeSize = Double.valueOf(args[1]).doubleValue();		
-		double taskCommunicateSize = Double.valueOf(args[2]).doubleValue();
-
-		int slavesCount = Integer.valueOf(args[3]).intValue();
-
-		Msg.info("Hello! Got "+  slavesCount + " slaves and "+tasksCount+" tasks to process");
-
-		List<Comm> jobs = new ArrayList<Comm>();
-		
-		for (int i = 0; i < tasksCount; i++) {
-			Task task = new Task("Task_" + i, taskComputeSize, taskCommunicateSize); 
-			
-			Msg.info("Sending \"" + task.getName()+ "\" to \"slave_" + i % slavesCount + "\"");
-			jobs.add(task.isend("slave_"+(i%slavesCount)));
 		}
 		
-		for(Comm c : jobs){
-			c.waitCompletion();
+		Logger.logInfo("Simulation Ended");
+		
+		try {
+			SimUtils.waitFor(5);
+		} catch (SimException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		Msg.info("All tasks have been dispatched. Let's tell everybody the computation is over.");
-
-		for (int i = 0; i < slavesCount; i++) {
-			FinalizeTask task = new FinalizeTask();
-			task.send("slave_"+(i%slavesCount));
-		}
-
-		Msg.info("Goodbye now!");*/
 	}
 }

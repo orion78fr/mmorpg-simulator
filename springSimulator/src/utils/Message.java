@@ -1,9 +1,9 @@
 package utils;
 
 public class Message {
-	private Object content;
+	private Object content = null;
 	private long type;
-	
+
 	public Message(long type, Object content) {
 		super();
 		this.content = content;

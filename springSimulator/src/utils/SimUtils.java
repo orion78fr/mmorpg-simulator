@@ -1,8 +1,11 @@
 package utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.simgrid.msg.Comm;
+import org.simgrid.msg.Host;
 import org.simgrid.msg.HostFailureException;
 import org.simgrid.msg.Msg;
 import org.simgrid.msg.Task;
@@ -18,6 +21,20 @@ import org.simgrid.msg.TransferFailureException;
  */
 public class SimUtils {
 	private static HashMap<Long, Message> messages = new HashMap<Long, Message>();
+	 
+	public static double getTime(){
+		return Msg.getClock();
+	}
+	
+	public static void compute(double flops) throws SimException{
+		try {
+			new Task("Compute", flops, 0).execute();
+		} catch(HostFailureException e) {
+			throw new SimException("The host has failed", e);
+		} catch(TaskCancelledException e){
+			throw new SimException("The task has been cancelled", e);
+		}
+	}
 	
 	/**
 	 * Wait until a certain simulation time. If already passed, doesn't wait
@@ -25,8 +42,8 @@ public class SimUtils {
 	 * @param hostPower The power of the host
 	 * @throws SimException
 	 */
-	public static void waitUntil(double simTime, double hostPower) throws SimException{
-		SimUtils.wait(simTime - Msg.getClock(), hostPower);
+	public static void waitUntil(double simTime) throws SimException{
+		SimUtils.waitFor(simTime - Msg.getClock());
 	}
 	
 	/**
@@ -35,9 +52,9 @@ public class SimUtils {
 	 * @param hostPower The power of the host
 	 * @throws SimException
 	 */
-	public static void wait(double simTime, double hostPower) throws SimException{
+	public static void waitFor(double simTime) throws SimException{
 		if(simTime > 0){
-			Task t = new Task("Waiter", simTime * hostPower, 0);
+			Task t = new Task("Waiter", simTime * Host.currentHost().getSpeed(), 0);
 			
 			try{
 				t.execute();
@@ -73,6 +90,9 @@ public class SimUtils {
 	}
 	
 	public static void sendTimeout(String mailbox, double size, long type, Object content, double time) throws SimException{
+		if(time < 0){
+			return;
+		}
 		Task t = new Task(mailbox, 0, size);
 		
 		messages.put(t.getId(), new Message(type, content));
@@ -125,6 +145,9 @@ public class SimUtils {
 	}
 	
 	public static Message receiveTimeout(String name, double time) throws SimException{
+		if(time < 0){
+			return null;
+		}
 		Message m = null;
 		try {
 			Task t = Task.receive(name, time);
@@ -144,14 +167,30 @@ public class SimUtils {
 	}
 	
 	public static MessageWaiter ireceive(String name){
-		Message m = null;
-		
+		if(!Task.listen(name)){
+			return null;
+		}
 		Comm c = Task.irecv(name);
 		
-		// TODO
-		
-		//return new MessageWaiter(c, type, content);
-		
-		return null;
+		return new MessageWaiter(c);
+	}
+	
+	public static List<MessageWaiter> ireceiveAllUntil(String name, double time, long pollFreq){
+		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
+		try {
+			MessageWaiter w;
+			while((w = SimUtils.ireceive(name)) != null){
+				l.add(w);
+			}
+			SimUtils.waitFor(1.0 / pollFreq);
+		} catch (SimException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return l;
+	}
+
+	protected static Message getMessageById(Long id) {
+		 return messages.remove(id);
 	}
 }

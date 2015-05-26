@@ -1,59 +1,47 @@
 <?xml version='1.0'?>
 <!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid.dtd">
 <platform version="3">
-  <process host="server_0" function="springSimulator.Master">
-     <argument value="20"/>     <!-- Amount of tasks to dispatch -->
-     <argument value="200000000"/> <!-- Computation size of each task -->
-     <argument value="50000000"/>    <!-- Communication size of each one -->
-     <argument value="10"/>     <!-- Amount of slaves waiting for orders -->
+  <process host="server_0" function="springSimulator.Server">
+     <argument value="64"/>
   </process>
-  <process host="server_1" function="springSimulator.Master">
-     <argument value="20"/>     <!-- Amount of tasks to dispatch -->
-     <argument value="500000000"/> <!-- Computation size of each task -->
-     <argument value="100000000"/>    <!-- Communication size of each one -->
-     <argument value="10"/>     <!-- Amount of slaves waiting for orders -->
+  <process host="server_1" function="springSimulator.Server">
+     <argument value="64"/>
   </process>
-  <process host="server_2" function="springSimulator.Master">
-     <argument value="20"/>     <!-- Amount of tasks to dispatch -->
-     <argument value="700000000"/> <!-- Computation size of each task -->
-     <argument value="140000000"/>    <!-- Communication size of each one -->
-     <argument value="10"/>     <!-- Amount of slaves waiting for orders -->
+  <process host="server_2" function="springSimulator.Server">
+     <argument value="64"/>
   </process>
-  <process host="server_3" function="springSimulator.Master">
-     <argument value="20"/>     <!-- Amount of tasks to dispatch -->
-     <argument value="500000000"/> <!-- Computation size of each task -->
-     <argument value="120000000"/>    <!-- Communication size of each one -->
-     <argument value="10"/>     <!-- Amount of slaves waiting for orders -->
+  <process host="server_3" function="springSimulator.Server">
+     <argument value="64"/>
   </process>
   
-  <process host="client_0" function="springSimulator.Slave">
-     <argument value="0"/>  <!-- Input mailbox -->
+  <process host="client_0" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_1" function="springSimulator.Slave">
-     <argument value="1"/>  <!-- Input mailbox -->
+  <process host="client_1" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_2" function="springSimulator.Slave">
-     <argument value="2"/>  <!-- Input mailbox -->
+  <process host="client_2" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_3" function="springSimulator.Slave">
-     <argument value="3"/>  <!-- Input mailbox -->
+  <process host="client_3" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_4" function="springSimulator.Slave">
-     <argument value="4"/>  <!-- Input mailbox -->
+  <process host="client_4" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_5" function="springSimulator.Slave">
-     <argument value="5"/>  <!-- Input mailbox -->
+  <process host="client_5" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_6" function="springSimulator.Slave">
-     <argument value="6"/>  <!-- Input mailbox -->
+  <process host="client_6" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_7" function="springSimulator.Slave">
-     <argument value="7"/>  <!-- Input mailbox -->
+  <process host="client_7" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_8" function="springSimulator.Slave">
-     <argument value="8"/>  <!-- Input mailbox -->
+  <process host="client_8" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
-  <process host="client_9" function="springSimulator.Slave">
-     <argument value="9"/>  <!-- Input mailbox -->
+  <process host="client_9" function="springSimulator.Client">
+     <argument value="64"/>
   </process>
 </platform>
