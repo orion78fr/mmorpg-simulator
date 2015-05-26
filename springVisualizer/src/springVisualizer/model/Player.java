@@ -3,12 +3,10 @@ package springVisualizer.model;
 import java.awt.Color;
 
 import springVisualizer.MovementLogger;
-import springVisualizer.Parameters;
+import springVisualizer.model.movement.BBMovementManager;
 import springVisualizer.model.movement.MovementManager;
-import springVisualizer.model.movement.RandomMovementManager;
 
 public class Player {
-	public static final MovementManager defaultMovementManager = new RandomMovementManager(Parameters.defaultRandomMoveDistance);
 	public static final Color defaultColor = Color.RED;
 	
 	private static long playerID = 0;
@@ -34,7 +32,7 @@ public class Player {
 		p.setY(y);
 	}
 	
-	private synchronized long getNewId(){
+	private synchronized static long getNewId(){
 		return playerID++;
 	}
 	
@@ -48,7 +46,7 @@ public class Player {
 	 * @param y The y coordinate
 	 */
 	public Player(double x, double y) {
-		this(x, y, defaultMovementManager, defaultColor);
+		this(x, y, new BBMovementManager(), defaultColor);
 	}
 	
 	/**
@@ -58,7 +56,7 @@ public class Player {
 	 * @param color The color
 	 */
 	public Player(double x, double y, Color color) {
-		this(x, y, defaultMovementManager, color);
+		this(x, y, new BBMovementManager(), color);
 	}
 	
 	public Player(double x, double y, MovementManager movement){
