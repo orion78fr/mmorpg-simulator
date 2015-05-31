@@ -1,4 +1,4 @@
-package springVisualizer;
+package springVisualizer.view;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -16,6 +16,9 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import springVisualizer.Parameters;
+import springVisualizer.State;
 
 public class ControlDialog extends JDialog{
 	private static final long serialVersionUID = 1L;
@@ -119,5 +122,4 @@ public class ControlDialog extends JDialog{
 		this.setResizable(false);
 		this.setLocation(MainWindow.win.getX() + MainWindow.win.getWidth(), MainWindow.win.getY());
 	}
-
 }

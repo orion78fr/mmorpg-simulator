@@ -1,11 +1,7 @@
-package springVisualizer;
+package springVisualizer.view;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RadialGradientPaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -27,8 +23,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.imageio.ImageIO;
+import javax.imageio.ImageIO; 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -40,8 +39,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
+import springVisualizer.Parameters;
+import springVisualizer.State;
 import springVisualizer.model.Hotspot;
-import springVisualizer.model.Player;
+import springVisualizer.view.overlay.AbstractOverlay;
+import springVisualizer.view.overlay.BackgroudOverlay;
+import springVisualizer.view.overlay.HotspotOverlay;
+import springVisualizer.view.overlay.PlayerOverlay;
+import springVisualizer.view.overlay.ServerOverlay;
+import springVisualizer.view.overlay.ZonesOverlay;
 
 /**
  * This is the main window of the application, showing the current state of the world (the State class).<br />
@@ -55,95 +61,123 @@ public class MainWindow {
 		throw new RuntimeException("You can't instanciate this class!");
 	}
 	
+	public static class Dimentions {
+		/** Zoom factor */
+		static public double zoom = 1;
+		
+		/** x position of the scrolling */
+		static public int posx = 0;
+		/** y position of the scrolling */
+		static public int posy = 0;
+		
+		/** x size of the image */
+		static public int xSize = 0;
+		/** y size of the image */
+		static public int ySize = 0;
+		
+		/** x layout size */
+		static public int layoutw = 0;
+		/** y layout size */
+		static public int layouth = 0;
+		
+		/** x view size (shown image pixels) */
+		static public int viewWidth = 0;
+		/** y view size (shown image pixels) */
+		static public int viewHeight = 0;
+		
+		/** x ratio between internal and image */
+		static public double ratiox = 0;
+		/** y ratio between internal and image */
+		static public double ratioy = 0;
+		
+		/** y offset for the drawing */
+		static public int yoffset = 0;
+		
+		static void debugPrint(){
+			for(Field f : Dimentions.class.getDeclaredFields()){
+				try {
+					System.out.println(f.getName() + " = " + f.getDouble(null));
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println("");
+		}
+	}
+	
 	static public JFrame win;
 	static private JMenuBar bar;
-	static private JLabel imagelabel, serverOverlay, playerOverlay;
-	static private BufferedImage fond;
 	static private JScrollBar hBar, vBar;
 	
 	static private boolean moving = false;
 	static private int movingoldx, movingoldy;
 
-	static private double zoom = 1,
-			ratiox = 0,
-			ratioy = 0;
-	static private int posx = 0,
-			posy = 0,
-			layoutw = 0,
-			layouth = 0,
-			taillex = 0,
-			tailley = 0,
-			yoffset = 0;
-	
 	/** Refresh all the drawing of the state in the window */
 	public static void refresh(){
 		refreshDimensions();
-		refreshImage();
-		/* Setting the bounds of these overlays automatically triggers the redrawing */
-		serverOverlay.setBounds(0, yoffset, layoutw, layouth);
-		playerOverlay.setBounds(0, yoffset, layoutw, layouth);
+
+		for(AbstractOverlay o : overlays){
+			o.redraw();
+		}
 	}
 	
 	/** Refresh all the dimensions of the window, useful for the drawing */
 	private static void refreshDimensions(){
-		layoutw = imagelabel.getWidth();
-        layouth = imagelabel.getHeight();
-        
-        if(zoom > Math.pow(2, 5)){
-			zoom = Math.pow(2, 5);
+		/* Size of the viewport */
+		Dimentions.layouth = fakeLabel.getHeight();
+		Dimentions.layoutw = fakeLabel.getWidth();
+		
+		/* To not draw on the menubar */
+		Dimentions.yoffset = bar.getHeight();
+		
+		/* Limits of the zoom factor */
+        if(Dimentions.zoom > Math.pow(2, 5)){
+			Dimentions.zoom = Math.pow(2, 5);
 		}
-        if(zoom < (1.0 / Math.pow(2, 5))){
-			zoom = 1.0 / Math.pow(2, 5);
+        if(Dimentions.zoom < (1.0 / Math.pow(2, 5))){
+			Dimentions.zoom = 1.0 / Math.pow(2, 5);
 		}
         
-        taillex = (int) (layoutw/zoom) + 1;
-        if(posx + taillex > fond.getWidth()){
-        	posx = fond.getWidth() - taillex;
-        	if(posx < 0){
-        		posx = 0;
-        		taillex = fond.getWidth();
+        /* Set the view dimention, ceiling for partial pixel */
+        Dimentions.viewWidth = (int) Math.ceil(Dimentions.layoutw/Dimentions.zoom);
+        Dimentions.viewHeight = (int) Math.ceil(Dimentions.layouth/Dimentions.zoom);
+        
+        /* If the view dimentions exceeds the size, correct the initial position */
+        if(Dimentions.posx + Dimentions.viewWidth > Dimentions.xSize) {
+        	Dimentions.posx = Dimentions.xSize - Dimentions.viewWidth;
+        	/* If this is still too large, the picture is too small to fill the whole window */
+        	if(Dimentions.posx < 0){
+        		Dimentions.posx = 0;
+        		Dimentions.viewWidth = Dimentions.xSize;
         	}
         }
-        tailley = (int) (layouth/zoom) + 1;
-        if(posy + tailley > fond.getHeight()){
-        	posy = fond.getHeight() - tailley;
-        	if(posy < 0){
-        		posy = 0;
-        		tailley = fond.getHeight();
+        if(Dimentions.posy + Dimentions.viewHeight > Dimentions.ySize){
+        	Dimentions.posy = Dimentions.ySize - Dimentions.viewHeight;
+        	if(Dimentions.posy < 0){
+        		Dimentions.posy = 0;
+        		Dimentions.viewHeight = Dimentions.ySize;
         	}
         }
         
-        ratiox = (double)Parameters.sizex / fond.getWidth();
-        ratioy = (double)Parameters.sizey / fond.getHeight();
+        /* Disable bar refresh */
+        barRefresh = false;
+        hBar.setValue(Dimentions.posx);
+        hBar.setVisibleAmount(Dimentions.viewWidth);
+        hBar.setMaximum(Dimentions.xSize);
+        vBar.setValue(Dimentions.posy);
+        vBar.setVisibleAmount(Dimentions.viewHeight);
+        vBar.setMaximum(Dimentions.ySize);
+        barRefresh = true;
         
-        if(hBar.getValue() != posx){
-        	hBar.setValue(posx);
-        }
-        if(hBar.getVisibleAmount() != taillex){
-        	hBar.setVisibleAmount(taillex);
-        }
-        if(vBar.getValue() != posy){
-        	vBar.setValue(posy);
-        }
-        if(vBar.getVisibleAmount() != tailley){
-        	vBar.setVisibleAmount(tailley);
-        }
-        
-        yoffset = bar.getHeight();
+        //Dimentions.debugPrint();
 	}
 	
-	/** Refresh the background image */
-	private static void refreshImage() {
-        AffineTransform at = new AffineTransform();
-        at.scale(zoom, zoom);
-        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        
-        BufferedImage sub = fond.getSubimage(posx, posy, taillex, tailley);
-        
-        ImageIcon icon = new ImageIcon(op.filter(sub, null));
-        imagelabel.setIcon(icon);
-	}
-    
+	static private boolean barRefresh = true;
+	
+	static private BackgroudOverlay background;
+	static private JLabel fakeLabel;
 	
 	public static void start(){
 		win = new JFrame();
@@ -155,55 +189,18 @@ public class MainWindow {
         generateMenu(bar);
         win.setJMenuBar(bar);
         
-        imagelabel = new JLabel();
-        imagelabel.setVerticalAlignment(JLabel.TOP);
-        fond = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
-        
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(imagelabel, BorderLayout.CENTER);
         
-        serverOverlay = new JLabel(){
-    			private static final long serialVersionUID = 1L;
-    			@Override
-    			protected void paintComponent(Graphics g){
-    				super.paintComponent(g);
-    				
-    				Graphics2D g2d = (Graphics2D) g.create();
-    				
-    				/*g2d.setColor(new Color(255,0,0,20));
-    				g2d.fillRect(0, 0, layoutw, layouth);*/
-    				
-					for (Hotspot h : State.hotspots) {
-						int radius = (int)(h.getHotness()*2);
-						RadialGradientPaint rgp = new RadialGradientPaint((int)(((h.getX()/ratiox)-posx)*zoom), (int)(((h.getY()/ratioy)-posy)*zoom),
-								radius/2, new float[] { 0f, 1f },
-								new Color[] { h.getColor(), new Color(255,255,255,0) });
-						 g2d.setPaint(rgp);
-						 g2d.fillOval((int)(((h.getX()/ratiox)-posx)*zoom) - radius/2, (int)(((h.getY()/ratioy)-posy)*zoom) - radius/2, radius, radius);
-					}
-    				
-    				g2d.dispose();
-    			}
-        };
-        playerOverlay = new JLabel(){
-			private static final long serialVersionUID = 1L;
-			@Override
-			protected void paintComponent(Graphics g){
-				super.paintComponent(g);
-				Graphics2D g2d = (Graphics2D) g.create();
-				
-				for(Player p : State.playerList){
-					g2d.setColor(p.getColor());
-					g2d.fillOval((int)(((p.getX()/ratiox)-posx)*zoom) - 5,
-							(int)(((p.getY()/ratioy)-posy)*zoom)- 5, 10, 10);
-				}
-				
-				g2d.dispose();
-			}
-        };
+        fakeLabel = new JLabel();
+        panel.add(fakeLabel, BorderLayout.CENTER);
         
-        win.getLayeredPane().add(serverOverlay, new Integer(1));
-        win.getLayeredPane().add(playerOverlay, new Integer(2));
+        background = new BackgroudOverlay();
+        addOverlay(background);
+        
+        addOverlay(new HotspotOverlay());
+        addOverlay(new PlayerOverlay());
+        addOverlay(new ZonesOverlay());
+        addOverlay(new ServerOverlay());
         
         win.addKeyListener(new KeyListener() {
 			@Override
@@ -214,9 +211,9 @@ public class MainWindow {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(e.getKeyCode() == KeyEvent.VK_E){
-					zoom *= 2;
+					Dimentions.zoom *= 2;
 				} else if(e.getKeyCode() == KeyEvent.VK_A){
-					zoom /= 2;
+					Dimentions.zoom /= 2;
 				} else if(e.getKeyCode() == KeyEvent.VK_R){
 					State.moveAll();
 				} else {
@@ -232,11 +229,11 @@ public class MainWindow {
 				if(e.isControlDown()){
 					int rot = e.getWheelRotation();
 					if(rot < 0){
-						zoom *= -(2*e.getWheelRotation());
+						Dimentions.zoom *= -(2*e.getWheelRotation());
 						/*posx += e.getX();
 						posy += e.getY();*/
 					} else {
-						zoom /= (2*e.getWheelRotation());
+						Dimentions.zoom /= (2*e.getWheelRotation());
 					}
 					refresh();
 				}
@@ -250,13 +247,13 @@ public class MainWindow {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(moving){
-					posx -= (e.getX() - movingoldx) / zoom;
-					if(posx < 0){
-						posx = 0;
+					Dimentions.posx -= (e.getX() - movingoldx) / Dimentions.zoom;
+					if(Dimentions.posx < 0){
+						Dimentions.posx = 0;
 					}
-					posy -= (e.getY() - movingoldy) / zoom;
-					if(posy < 0){
-						posy = 0;
+					Dimentions.posy -= (e.getY() - movingoldy) / Dimentions.zoom;
+					if(Dimentions.posy < 0){
+						Dimentions.posy = 0;
 					}
 					movingoldx = e.getX();
 					movingoldy = e.getY();
@@ -283,8 +280,8 @@ public class MainWindow {
 			public void mouseEntered(MouseEvent e) {}
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int x = (int)(((e.getX()/zoom) + posx)*ratiox);
-				int y = (int)(((e.getY()/zoom) + posy)*ratioy);
+				int x = (int)(((e.getX()/Dimentions.zoom) + Dimentions.posx)*Dimentions.ratiox);
+				int y = (int)(((e.getY()/Dimentions.zoom) + Dimentions.posy)*Dimentions.ratioy);
 				if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
 					State.hotspots.add(new Hotspot(x, y, 50));
 					refresh();
@@ -316,19 +313,23 @@ public class MainWindow {
         hBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				posx = e.getValue();
+				if(!barRefresh){
+					return;
+				}
+				Dimentions.posx = e.getValue();
 				refresh();
 			}
 		});
         vBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				posy = e.getValue();
+				if(!barRefresh){
+					return;
+				}
+				Dimentions.posy = e.getValue();
 				refresh();
 			}
 		});
-		
-        refresh();
         
         win.getContentPane().add(panel);
         
@@ -337,6 +338,16 @@ public class MainWindow {
         win.setMinimumSize(new Dimension(500, 500));
         
 		win.setVisible(true);
+		
+		refresh();
+	}
+	
+	private static int currentIndex = 1;
+	private static List<AbstractOverlay> overlays = new ArrayList<AbstractOverlay>();
+	private static void addOverlay(AbstractOverlay overlay) {
+		overlays.add(overlay);
+		win.getLayeredPane().add(overlay, new Integer(currentIndex));
+		currentIndex++;
 	}
 
 	/**
@@ -360,10 +371,9 @@ public class MainWindow {
                         		JOptionPane.showMessageDialog(win, "This is not a file", "Error", JOptionPane.ERROR_MESSAGE);
                         	}
                             try {
-                                    fond = ImageIO.read(fc.getSelectedFile());
-                                    hBar.setMaximum(fond.getWidth());
-                                    vBar.setMaximum(fond.getHeight());
-                                    refresh();
+                            	background.setImage(ImageIO.read(fc.getSelectedFile()));
+                            	
+                                refresh();
                             } catch (Exception ex) {
                             		JOptionPane.showMessageDialog(win, "The image file is invalid", "Error", JOptionPane.ERROR_MESSAGE);
                             }

@@ -1,5 +1,8 @@
 package springVisualizer;
 
+import springVisualizer.view.ControlDialog;
+import springVisualizer.view.MainWindow;
+
 public class SpringVisualizer {
 	/** */
 	public SpringVisualizer() {
