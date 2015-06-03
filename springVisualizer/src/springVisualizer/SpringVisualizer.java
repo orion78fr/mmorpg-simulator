@@ -2,6 +2,7 @@ package springVisualizer;
 
 import springVisualizer.view.ControlDialog;
 import springVisualizer.view.MainWindow;
+import springVisualizer.view.ViewCommon;
 
 public class SpringVisualizer {
 	/** */
@@ -16,7 +17,8 @@ public class SpringVisualizer {
 	 * @param args
 	 */
 	public static void main(String args[]){
+		ViewCommon.init();
 		MainWindow.start();
-		new ControlDialog().setVisible(true);
+		ControlDialog.start();
 	}
 }

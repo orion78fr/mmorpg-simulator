@@ -6,7 +6,7 @@ import java.awt.RadialGradientPaint;
 
 import springVisualizer.State;
 import springVisualizer.model.Hotspot;
-import springVisualizer.view.MainWindow.Dimentions;
+import springVisualizer.view.ViewCommon.Dimentions;
 
 public class HotspotOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;

@@ -5,13 +5,14 @@ import java.awt.Color;
 import springVisualizer.MovementLogger;
 import springVisualizer.model.movement.BBMovementManager;
 import springVisualizer.model.movement.MovementManager;
+import springVisualizer.util2D.Point2d;
 
 public class Player {
 	public static final Color defaultColor = Color.RED;
 	
 	private static long playerID = 0;
 	
-	private Point p;
+	private Point2d p;
 	private Color color;
 	private long id;
 	
@@ -65,26 +66,26 @@ public class Player {
 	
 	public Player(double x, double y, MovementManager movement, Color color){
 		super();
-		this.p = new Point(x,y);
+		this.p = new Point2d(x,y);
 		this.color = color;
 		this.id = getNewId();
 		this.movement = movement;
 		connect();
 	}
 	
-	public Player(Point p){
+	public Player(Point2d p){
 		this(p.getX(), p.getY());
 	}
 	
-	public Player(Point p, Color color){
+	public Player(Point2d p, Color color){
 		this(p.getX(), p.getY(), color);
 	}
 	
-	public Player(Point p, MovementManager movement){
+	public Player(Point2d p, MovementManager movement){
 		this(p.getX(), p.getY(), movement);
 	}
 	
-	public Player(Point p, MovementManager movement, Color color){
+	public Player(Point2d p, MovementManager movement, Color color){
 		this(p.getX(), p.getY(), movement, color);
 	}
 	
@@ -94,8 +95,8 @@ public class Player {
 	public void setColor(Color color) {
 		this.color = color;
 	}
-	public Point getPoint(){
-		return new Point(p.getX(), p.getY());
+	public Point2d getPoint(){
+		return new Point2d(p.getX(), p.getY());
 	}
 	
 	public void connect(){
@@ -106,11 +107,11 @@ public class Player {
 	}
 	
 	public void connect(double x, double y){
-		this.p = new Point(x, y);
+		this.p = new Point2d(x, y);
 		connect();
 	}
 	
-	public void connect(Point p){
+	public void connect(Point2d p){
 		connect(p.getX(), p.getY());
 	}
 	

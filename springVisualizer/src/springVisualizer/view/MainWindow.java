@@ -15,20 +15,15 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO; 
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,13 +36,13 @@ import javax.swing.JScrollBar;
 
 import springVisualizer.Parameters;
 import springVisualizer.State;
-import springVisualizer.model.Hotspot;
 import springVisualizer.view.overlay.AbstractOverlay;
 import springVisualizer.view.overlay.BackgroudOverlay;
 import springVisualizer.view.overlay.HotspotOverlay;
 import springVisualizer.view.overlay.PlayerOverlay;
 import springVisualizer.view.overlay.ServerOverlay;
 import springVisualizer.view.overlay.ZonesOverlay;
+import springVisualizer.view.ViewCommon.Dimentions;
 
 /**
  * This is the main window of the application, showing the current state of the world (the State class).<br />
@@ -61,123 +56,25 @@ public class MainWindow {
 		throw new RuntimeException("You can't instanciate this class!");
 	}
 	
-	public static class Dimentions {
-		/** Zoom factor */
-		static public double zoom = 1;
-		
-		/** x position of the scrolling */
-		static public int posx = 0;
-		/** y position of the scrolling */
-		static public int posy = 0;
-		
-		/** x size of the image */
-		static public int xSize = 0;
-		/** y size of the image */
-		static public int ySize = 0;
-		
-		/** x layout size */
-		static public int layoutw = 0;
-		/** y layout size */
-		static public int layouth = 0;
-		
-		/** x view size (shown image pixels) */
-		static public int viewWidth = 0;
-		/** y view size (shown image pixels) */
-		static public int viewHeight = 0;
-		
-		/** x ratio between internal and image */
-		static public double ratiox = 0;
-		/** y ratio between internal and image */
-		static public double ratioy = 0;
-		
-		/** y offset for the drawing */
-		static public int yoffset = 0;
-		
-		static void debugPrint(){
-			for(Field f : Dimentions.class.getDeclaredFields()){
-				try {
-					System.out.println(f.getName() + " = " + f.getDouble(null));
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-			System.out.println("");
-		}
-	}
-	
 	static public JFrame win;
-	static private JMenuBar bar;
-	static private JScrollBar hBar, vBar;
+	static JMenuBar bar;
+	static JScrollBar hBar;
+	static JScrollBar vBar;
 	
 	static private boolean moving = false;
 	static private int movingoldx, movingoldy;
 
-	/** Refresh all the drawing of the state in the window */
+	static boolean barRefresh = true;
+	
+	static private BackgroudOverlay background;
+	static private ZonesOverlay zones;
+	static JLabel fakeLabel;
+	
 	public static void refresh(){
-		refreshDimensions();
-
-		for(AbstractOverlay o : overlays){
+		for(AbstractOverlay o : MainWindow.overlays){
 			o.redraw();
 		}
 	}
-	
-	/** Refresh all the dimensions of the window, useful for the drawing */
-	private static void refreshDimensions(){
-		/* Size of the viewport */
-		Dimentions.layouth = fakeLabel.getHeight();
-		Dimentions.layoutw = fakeLabel.getWidth();
-		
-		/* To not draw on the menubar */
-		Dimentions.yoffset = bar.getHeight();
-		
-		/* Limits of the zoom factor */
-        if(Dimentions.zoom > Math.pow(2, 5)){
-			Dimentions.zoom = Math.pow(2, 5);
-		}
-        if(Dimentions.zoom < (1.0 / Math.pow(2, 5))){
-			Dimentions.zoom = 1.0 / Math.pow(2, 5);
-		}
-        
-        /* Set the view dimention, ceiling for partial pixel */
-        Dimentions.viewWidth = (int) Math.ceil(Dimentions.layoutw/Dimentions.zoom);
-        Dimentions.viewHeight = (int) Math.ceil(Dimentions.layouth/Dimentions.zoom);
-        
-        /* If the view dimentions exceeds the size, correct the initial position */
-        if(Dimentions.posx + Dimentions.viewWidth > Dimentions.xSize) {
-        	Dimentions.posx = Dimentions.xSize - Dimentions.viewWidth;
-        	/* If this is still too large, the picture is too small to fill the whole window */
-        	if(Dimentions.posx < 0){
-        		Dimentions.posx = 0;
-        		Dimentions.viewWidth = Dimentions.xSize;
-        	}
-        }
-        if(Dimentions.posy + Dimentions.viewHeight > Dimentions.ySize){
-        	Dimentions.posy = Dimentions.ySize - Dimentions.viewHeight;
-        	if(Dimentions.posy < 0){
-        		Dimentions.posy = 0;
-        		Dimentions.viewHeight = Dimentions.ySize;
-        	}
-        }
-        
-        /* Disable bar refresh */
-        barRefresh = false;
-        hBar.setValue(Dimentions.posx);
-        hBar.setVisibleAmount(Dimentions.viewWidth);
-        hBar.setMaximum(Dimentions.xSize);
-        vBar.setValue(Dimentions.posy);
-        vBar.setVisibleAmount(Dimentions.viewHeight);
-        vBar.setMaximum(Dimentions.ySize);
-        barRefresh = true;
-        
-        //Dimentions.debugPrint();
-	}
-	
-	static private boolean barRefresh = true;
-	
-	static private BackgroudOverlay background;
-	static private JLabel fakeLabel;
 	
 	public static void start(){
 		win = new JFrame();
@@ -194,13 +91,12 @@ public class MainWindow {
         fakeLabel = new JLabel();
         panel.add(fakeLabel, BorderLayout.CENTER);
         
-        background = new BackgroudOverlay();
-        addOverlay(background);
         
+        addOverlay(background = new BackgroudOverlay());
+        addOverlay(zones = new ZonesOverlay());
+        addOverlay(new ServerOverlay());
         addOverlay(new HotspotOverlay());
         addOverlay(new PlayerOverlay());
-        addOverlay(new ZonesOverlay());
-        addOverlay(new ServerOverlay());
         
         win.addKeyListener(new KeyListener() {
 			@Override
@@ -211,15 +107,15 @@ public class MainWindow {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(e.getKeyCode() == KeyEvent.VK_E){
-					Dimentions.zoom *= 2;
+					ViewCommon.Dimentions.zoom *= 2;
 				} else if(e.getKeyCode() == KeyEvent.VK_A){
-					Dimentions.zoom /= 2;
+					ViewCommon.Dimentions.zoom /= 2;
 				} else if(e.getKeyCode() == KeyEvent.VK_R){
 					State.moveAll();
 				} else {
 					return;
 				}
-				refresh();
+				ViewCommon.needsRefresh = true;
 			}
 		});
         
@@ -229,13 +125,11 @@ public class MainWindow {
 				if(e.isControlDown()){
 					int rot = e.getWheelRotation();
 					if(rot < 0){
-						Dimentions.zoom *= -(2*e.getWheelRotation());
-						/*posx += e.getX();
-						posy += e.getY();*/
+						ViewCommon.Dimentions.zoom *= -(2*e.getWheelRotation());
 					} else {
-						Dimentions.zoom /= (2*e.getWheelRotation());
+						ViewCommon.Dimentions.zoom /= (2*e.getWheelRotation());
 					}
-					refresh();
+					ViewCommon.needsRefresh = true;
 				}
 			}
 		});
@@ -247,17 +141,17 @@ public class MainWindow {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(moving){
-					Dimentions.posx -= (e.getX() - movingoldx) / Dimentions.zoom;
-					if(Dimentions.posx < 0){
-						Dimentions.posx = 0;
+					Dimentions.posx -= (e.getX() - movingoldx) / ViewCommon.Dimentions.zoom;
+					if(ViewCommon.Dimentions.posx < 0){
+						ViewCommon.Dimentions.posx = 0;
 					}
-					Dimentions.posy -= (e.getY() - movingoldy) / Dimentions.zoom;
-					if(Dimentions.posy < 0){
-						Dimentions.posy = 0;
+					ViewCommon.Dimentions.posy -= (e.getY() - movingoldy) / ViewCommon.Dimentions.zoom;
+					if(ViewCommon.Dimentions.posy < 0){
+						ViewCommon.Dimentions.posy = 0;
 					}
 					movingoldx = e.getX();
 					movingoldy = e.getY();
-					refresh();
+					ViewCommon.needsRefresh = true;
 				}
 			}
 		});
@@ -280,11 +174,16 @@ public class MainWindow {
 			public void mouseEntered(MouseEvent e) {}
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int x = (int)(((e.getX()/Dimentions.zoom) + Dimentions.posx)*Dimentions.ratiox);
-				int y = (int)(((e.getY()/Dimentions.zoom) + Dimentions.posy)*Dimentions.ratioy);
+				double x = ((e.getX()/ViewCommon.Dimentions.zoom) + ViewCommon.Dimentions.posx)*ViewCommon.Dimentions.ratiox;
+				double y = ((e.getY()/ViewCommon.Dimentions.zoom) + ViewCommon.Dimentions.posy)*ViewCommon.Dimentions.ratioy;
 				if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
-					State.hotspots.add(new Hotspot(x, y, 50));
-					refresh();
+					//State.hotspots.add(new Hotspot(x, y, 50));
+					if(e.getButton() == MouseEvent.BUTTON1){
+						zones.addPoint(x,y);
+					} else {
+						zones.endPoly();
+					}
+					ViewCommon.needsRefresh = true;
 				}
 			}
 		});
@@ -295,7 +194,7 @@ public class MainWindow {
 			
 			@Override
 			public void componentResized(ComponentEvent e) {
-				refresh();
+				ViewCommon.needsRefresh = true;
 			}
 			
 			@Override
@@ -316,8 +215,8 @@ public class MainWindow {
 				if(!barRefresh){
 					return;
 				}
-				Dimentions.posx = e.getValue();
-				refresh();
+				ViewCommon.Dimentions.posx = e.getValue();
+				ViewCommon.needsRefresh = true;
 			}
 		});
         vBar.addAdjustmentListener(new AdjustmentListener() {
@@ -326,8 +225,8 @@ public class MainWindow {
 				if(!barRefresh){
 					return;
 				}
-				Dimentions.posy = e.getValue();
-				refresh();
+				ViewCommon.Dimentions.posy = e.getValue();
+				ViewCommon.needsRefresh = true;
 			}
 		});
         
@@ -339,11 +238,11 @@ public class MainWindow {
         
 		win.setVisible(true);
 		
-		refresh();
+		ViewCommon.needsRefresh = true;
 	}
 	
 	private static int currentIndex = 1;
-	private static List<AbstractOverlay> overlays = new ArrayList<AbstractOverlay>();
+	static List<AbstractOverlay> overlays = new ArrayList<AbstractOverlay>();
 	private static void addOverlay(AbstractOverlay overlay) {
 		overlays.add(overlay);
 		win.getLayeredPane().add(overlay, new Integer(currentIndex));
@@ -373,7 +272,7 @@ public class MainWindow {
                             try {
                             	background.setImage(ImageIO.read(fc.getSelectedFile()));
                             	
-                                refresh();
+                                ViewCommon.needsRefresh = true;
                             } catch (Exception ex) {
                             		JOptionPane.showMessageDialog(win, "The image file is invalid", "Error", JOptionPane.ERROR_MESSAGE);
                             }
@@ -403,9 +302,11 @@ public class MainWindow {
             			return;
             		}
             		State.addHaltonPlayers(numPlayers);
-            		refresh();
+            		ViewCommon.needsRefresh = true;
             	} catch (Exception ex) {
             		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);
+            		ex.printStackTrace();
+            		
             	}
             }
         });
@@ -426,7 +327,7 @@ public class MainWindow {
             			return;
             		}
             		State.removeRandomPlayers(numPlayers);
-            		refresh();
+            		ViewCommon.needsRefresh = true;
             	} catch (Exception ex) {
             		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);
             	}

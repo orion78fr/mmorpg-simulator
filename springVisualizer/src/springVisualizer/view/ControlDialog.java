@@ -20,33 +20,37 @@ import javax.swing.event.ChangeListener;
 import springVisualizer.Parameters;
 import springVisualizer.State;
 
-public class ControlDialog extends JDialog{
-	private static final long serialVersionUID = 1L;
-	private Timer t = null;
-	private boolean playing = false;
-	private JLabel tick = new JLabel();
+public class ControlDialog{
+	private static Timer t = null;
+	private static boolean playing = false;
+	private static JLabel tick = new JLabel();
+	private static JDialog win;
 	
-	private void setTick(){
+	public static void refresh(){
+		setTick();
+	}
+	
+	private static void setTick(){
 		tick.setText("Tick n° " + State.tickNumber);
 	}
 	
-	public ControlDialog() {
-		super(MainWindow.win, "Controls");
+	public static void start() {
+		win = new JDialog(MainWindow.win, "Controls");
 		
 		tick.setHorizontalAlignment(JLabel.CENTER);
 		setTick();
 		
-		this.setLayout(new GridLayout(0,1));
+		win.setLayout(new GridLayout(0,1));
 		JButton nextStep = new JButton("Next Step");
 		nextStep.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				State.moveAll();
-				MainWindow.refresh();
+				ViewCommon.needsRefresh = true;
 			}
 		});
-		this.add(nextStep);
-		this.addComponentListener(new ComponentListener() {
+		win.add(nextStep);
+		win.addComponentListener(new ComponentListener() {
 			@Override
 			public void componentShown(ComponentEvent e) {}
 			@Override
@@ -69,18 +73,18 @@ public class ControlDialog extends JDialog{
 			}
 			private void setText(){
 				if(playing){
-					playPause.setText("\u25AE\u25AE");
+					playPause.setText("\u25AE\u25AE"); // Pause ||
 				} else {
-					playPause.setText("\u25BA");
+					playPause.setText("\u25BA"); // Play |>
 				}
 			}
 		});
 		
-		this.add(playPause);
+		win.add(playPause);
 		
-		this.add(new JButton("\u25BA\u25BA"));
+		win.add(new JButton("\u25BA\u25BA"));
 		
-		this.add(new JLabel("Speed", JLabel.CENTER));
+		win.add(new JLabel("Speed", JLabel.CENTER));
 		
 		
 		JSlider speed = new JSlider(Parameters.minPlaySpeed, Parameters.maxPlaySpeed, Parameters.defaultPlaySpeed);
@@ -97,29 +101,29 @@ public class ControlDialog extends JDialog{
 		t = new Timer(1000/Parameters.defaultPlaySpeed, new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setTick();
 				if(playing){
 					State.moveAll();
-					MainWindow.refresh();
+					ViewCommon.needsRefresh = true;
 				}
 			}
 		});
 		t.start();
 		
-		this.add(speed);
+		win.add(speed);
 		
-		this.add(new JLabel("Hotness", JLabel.CENTER));
+		win.add(new JLabel("Hotness", JLabel.CENTER));
 		
-		this.add(new JTextField("50"));
+		win.add(new JTextField("50"));
 		
-		this.add(new JCheckBox("Draw hotspots", true));
-		this.add(new JCheckBox("Draw players", true));
-		this.add(new JCheckBox("Draw servers", true));
-		this.add(new JCheckBox("Draw map", true));
-		this.add(tick);
-		this.pack();
+		win.add(new JCheckBox("Draw hotspots", true));
+		win.add(new JCheckBox("Draw players", true));
+		win.add(new JCheckBox("Draw servers", true));
+		win.add(new JCheckBox("Draw map", true));
+		win.add(tick);
+		win.pack();
 		
-		this.setResizable(false);
-		this.setLocation(MainWindow.win.getX() + MainWindow.win.getWidth(), MainWindow.win.getY());
+		win.setResizable(false);
+		win.setLocation(MainWindow.win.getX() + MainWindow.win.getWidth(), MainWindow.win.getY());
+		win.setVisible(true);
 	}
 }

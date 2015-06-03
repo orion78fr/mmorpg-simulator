@@ -3,7 +3,7 @@ package springVisualizer.model.movement;
 import springVisualizer.MovementLogger;
 import springVisualizer.Parameters;
 import springVisualizer.model.Player;
-import springVisualizer.model.Point;
+import springVisualizer.util2D.Point2d;
 
 /**
  * This class contains many static useful methods that may be used by your implementation of a movement manager.
@@ -38,7 +38,7 @@ public abstract class AbstractMovementManager implements MovementManager{
 	 * @param p The player moving
 	 * @param coords The point to move to
 	 */
-	protected static void moveToWithinBouds(Player p, Point coords){
+	protected static void moveToWithinBouds(Player p, Point2d coords){
 		moveToWithinBouds(p, coords.getX(), coords.getY());
 	}
 	
@@ -50,8 +50,8 @@ public abstract class AbstractMovementManager implements MovementManager{
 	 * @param distance The distance to move
 	 * @param coords The point to move to
 	 */
-	protected static void moveTowardsPoint(Player p, double distance, Point coords){
-		double distBetween = p.getPoint().distanceTo(coords);
+	protected static void moveTowardsPoint(Player p, double distance, Point2d coords){
+		double distBetween = p.getPoint().distance(coords);
 		if(distance > distBetween){
 			moveToWithinBouds(p, coords);
 		} else {

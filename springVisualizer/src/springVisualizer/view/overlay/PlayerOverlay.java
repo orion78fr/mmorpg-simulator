@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 
 import springVisualizer.State;
 import springVisualizer.model.Player;
-import springVisualizer.view.MainWindow.Dimentions;
+import springVisualizer.view.ViewCommon.Dimentions;
 
 public class PlayerOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;
