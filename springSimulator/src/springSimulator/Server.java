@@ -1,7 +1,5 @@
 package springSimulator;
 
-import java.awt.Polygon;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 

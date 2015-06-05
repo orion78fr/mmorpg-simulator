@@ -27,6 +27,8 @@ public class ZonesOverlay extends AbstractOverlay {
 	public void fillPoly(Graphics2D g2d, Polygon p){
 		g2d.setColor(p.getColor());
 		g2d.fill(p.drawCoords());
+		g2d.setColor(p.getColor().darker());
+		g2d.draw(p.drawCoords());
 	}
 	
 	public void addPoint(double x, double y){

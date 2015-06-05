@@ -5,7 +5,7 @@ import java.awt.Color;
 import springVisualizer.view.ViewCommon.Dimentions;
 
 public class Polygon extends java.awt.Polygon {
-	private Color color = new Color((float)Math.random(), (float)Math.random(), (float)Math.random());
+	private Color color = new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 0.5f);
 	public Polygon() {
 		super();
 	}

@@ -64,7 +64,7 @@ public final class Parameters {
 		/** Minimum play speed (in tick per second) */
 		static final public int minPlaySpeed = 4;
 		/** Maximum play speed (in tick per second) */
-		static final public int maxPlaySpeed = 200;
+		static final public int maxPlaySpeed = 300;
 	
 	/* Configuration of the exported movement file */
 		/** Number of tick in one second */

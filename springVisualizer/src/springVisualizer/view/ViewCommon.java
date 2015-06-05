@@ -76,7 +76,6 @@ public class ViewCommon {
 		
 		MainWindow.refresh();
 		ControlDialog.refresh();
-		//MainWindow.win.revalidate();
 	}
 
 	/** Refresh all the dimensions of the window, useful for the drawing */
