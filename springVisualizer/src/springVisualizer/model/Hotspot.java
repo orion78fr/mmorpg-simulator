@@ -2,7 +2,7 @@ package springVisualizer.model;
 
 import java.awt.Color;
 
-import springVisualizer.util2D.Point2d;
+import springCommon.Point2d;
 
 /**
  * A Hotspot corresponds to something interesting in the world that will attract players.<br />

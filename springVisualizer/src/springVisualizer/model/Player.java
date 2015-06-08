@@ -2,10 +2,10 @@ package springVisualizer.model;
 
 import java.awt.Color;
 
+import springCommon.Point2d;
 import springVisualizer.MovementLogger;
 import springVisualizer.model.movement.BBMovementManager;
 import springVisualizer.model.movement.MovementManager;
-import springVisualizer.util2D.Point2d;
 
 public class Player {
 	public static final Color defaultColor = Color.RED;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import springCommon.Parameters;
 import springVisualizer.XML.XMLComment;
 import springVisualizer.XML.XMLObj;
 import springVisualizer.model.Hotspot;

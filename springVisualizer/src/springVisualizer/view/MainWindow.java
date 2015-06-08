@@ -15,6 +15,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +36,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
-import springVisualizer.Parameters;
+import springCommon.Parameters;
+import springVisualizer.MovementLogger;
 import springVisualizer.State;
 import springVisualizer.view.overlay.AbstractOverlay;
 import springVisualizer.view.overlay.BackgroudOverlay;
@@ -203,7 +206,6 @@ public class MainWindow {
 			public void componentHidden(ComponentEvent e) {}
 		});
         
-        
         hBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 500, 0, 500);
         vBar = new JScrollBar(JScrollBar.VERTICAL, 0, 500, 0, 500);
         panel.add(hBar, BorderLayout.SOUTH);
@@ -237,6 +239,25 @@ public class MainWindow {
         win.setMinimumSize(new Dimension(500, 500));
         
 		win.setVisible(true);
+		
+		win.addWindowListener(new WindowListener() {
+			@Override
+			public void windowOpened(WindowEvent e) {}
+			@Override
+			public void windowIconified(WindowEvent e) {}
+			@Override
+			public void windowDeiconified(WindowEvent e) {}
+			@Override
+			public void windowDeactivated(WindowEvent e) {}
+			@Override
+			public void windowClosing(WindowEvent e) {
+				MovementLogger.clean();
+			}
+			@Override
+			public void windowClosed(WindowEvent e) {}
+			@Override
+			public void windowActivated(WindowEvent e) {}
+		});
 		
 		ViewCommon.needsRefresh = true;
 	}

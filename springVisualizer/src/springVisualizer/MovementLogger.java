@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 
+import springCommon.LogType;
+import springCommon.Parameters;
+import springVisualizer.model.Player;
+
 public class MovementLogger {
 	private static HashMap<Long, Writer> writers = new HashMap<Long, Writer>();
 	
@@ -19,21 +23,6 @@ public class MovementLogger {
 			for(File f : childs){
 				f.delete();
 			}
-		}
-	}
-	
-	private static enum LogType{
-		connect("c"),
-		move("m"),
-		disconnect("d");
-		
-		private String s;
-		private LogType(String s) {
-			this.s = s;
-		}
-		@Override
-		public String toString() {
-			return s;
 		}
 	}
 	
@@ -62,13 +51,30 @@ public class MovementLogger {
 	private static void log(long id, String logMessage){
 		try {
 			if(!writers.containsKey(id)){
-				writers.put(id, new BufferedWriter(new FileWriter(Parameters.exportedMoveFolder + File.separator + id)));
+				writers.put(id, new BufferedWriter(new FileWriter(Parameters.exportedMoveFolder + File.separator + "client_" + id)));
 			}
 			Writer w = writers.get(id);
 			w.write(logMessage);
 			w.write('\n');
 		} catch (IOException e) {
 			throw new RuntimeException("Can't log?!?");
+		}
+	}
+	
+	public static void clean(){
+		/* Disconnect all remaining player */
+		for(Player p : State.playerList){
+			p.disconnect();
+		}
+		
+		/* Close all writers */
+		for(Writer w : writers.values()){
+			try {
+				w.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

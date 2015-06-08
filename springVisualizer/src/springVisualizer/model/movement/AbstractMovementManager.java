@@ -1,9 +1,9 @@
 package springVisualizer.model.movement;
 
+import springCommon.Parameters;
+import springCommon.Point2d;
 import springVisualizer.MovementLogger;
-import springVisualizer.Parameters;
 import springVisualizer.model.Player;
-import springVisualizer.util2D.Point2d;
 
 /**
  * This class contains many static useful methods that may be used by your implementation of a movement manager.

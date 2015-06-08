@@ -5,7 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
-import springVisualizer.Parameters;
+import springCommon.Parameters;
 import springVisualizer.view.ViewCommon.Dimentions;
 
 public class BackgroudOverlay extends AbstractOverlay {

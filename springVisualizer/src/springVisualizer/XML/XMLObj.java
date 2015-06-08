@@ -3,7 +3,7 @@ package springVisualizer.XML;
 import java.util.ArrayList;
 import java.util.List;
 
-import springVisualizer.Parameters;
+import springCommon.Parameters;
 
 public class XMLObj{
 	protected String name;

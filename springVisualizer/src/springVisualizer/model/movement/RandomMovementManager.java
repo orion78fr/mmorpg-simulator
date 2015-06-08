@@ -1,6 +1,6 @@
 package springVisualizer.model.movement;
 
-import springVisualizer.Parameters;
+import springCommon.Parameters;
 import springVisualizer.State;
 import springVisualizer.model.Player;
 

@@ -1,6 +1,6 @@
 package springVisualizer.XML;
 
-import springVisualizer.Parameters;
+import springCommon.Parameters;
 
 public class XMLComment extends XMLObj {
 	public XMLComment(String comment) {
