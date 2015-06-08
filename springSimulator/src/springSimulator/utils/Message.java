@@ -1,10 +1,10 @@
-package utils;
+package springSimulator.utils;
 
 public class Message {
 	private Object content = null;
-	private long type;
+	private MessageType type;
 
-	public Message(long type, Object content) {
+	public Message(MessageType type, Object content) {
 		super();
 		this.content = content;
 		this.type = type;
@@ -14,7 +14,7 @@ public class Message {
 		return content;
 	}
 
-	public long getType() {
+	public MessageType getType() {
 		return type;
 	}
 }

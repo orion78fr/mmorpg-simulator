@@ -1,4 +1,4 @@
-package utils;
+package springSimulator.utils;
 
 public enum MessageState{
 	PENDING,

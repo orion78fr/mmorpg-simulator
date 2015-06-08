@@ -1,4 +1,4 @@
-package utils;
+package springSimulator.utils;
 
 public class SimException extends Exception{
 	private static final long serialVersionUID = 1L;

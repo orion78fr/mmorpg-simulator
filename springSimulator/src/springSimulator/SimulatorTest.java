@@ -3,7 +3,6 @@ package springSimulator;
 import org.simgrid.msg.Msg;
 
 public class SimulatorTest {
-
 	public static void main(String[] args) {
 		/*
 		 * Initialize the MSG simulation. Must be done before anything else

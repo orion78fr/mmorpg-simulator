@@ -1,4 +1,4 @@
-package utils;
+package springSimulator.utils;
 
 import org.simgrid.msg.Comm;
 import org.simgrid.msg.HostFailureException;
@@ -22,7 +22,7 @@ public class MessageWaiter{
 		this.e = null;
 	}
 	
-	protected MessageWaiter(Comm comm, long type, Object content){
+	protected MessageWaiter(Comm comm, MessageType type, Object content){
 		this(comm, new Message(type, content));
 	}
 

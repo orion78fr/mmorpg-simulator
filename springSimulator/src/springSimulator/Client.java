@@ -1,12 +1,20 @@
 package springSimulator;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.simgrid.msg.Host;
 import org.simgrid.msg.Process;
 
-import utils.Logger;
-import utils.Message;
-import utils.SimException;
-import utils.SimUtils;
+import springCommon.LogType;
+import springCommon.Point2d;
+import springSimulator.utils.Logger;
+import springSimulator.utils.Message;
+import springSimulator.utils.MessageType;
+import springSimulator.utils.SimException;
+import springSimulator.utils.SimUtils;
 
 public class Client extends Process {
 	public Client(Host host, String name, String[]args) {
@@ -14,58 +22,66 @@ public class Client extends Process {
 	}
 	@Override
 	public void main(String[] args) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader("../springVisualizer/movements/" + this.getHost().getName()));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		
 		double tickrate = Double.valueOf(args[0]).doubleValue();
-		for(int i = 0; i < 40; i++){
-			SimUtils.isend("server_0", 10, 1, i);
-			
-			try {
-				SimUtils.waitFor(1.0/tickrate);
-			} catch (SimException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				Message m = SimUtils.receive(this.getHost().getName());
-				Logger.logInfo("Message : (" + m.getType() + "," + m.getContent() + ")");// Traitement du message
-			} catch (SimException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		/*
-		 * lecture_input
-		 * envoyer_input
-		 */
+		try {
+			String str;
 		
-		/*if (args.length < 1) {
-			Logger.logInfo("Slave needs 1 argument (its number)");
-			System.exit(1);
-		}
-
-		int num = Integer.valueOf(args[0]).intValue();
-		Logger.logInfo("Receiving on 'slave_"+num+"'");
-
-		int f = 0;
-		
-		while(true) {  
-			Task task = Task.receive("slave_"+num);	
-
-			if (task instanceof FinalizeTask) {
-				f++;
-				if(f == 4)
-					break;
-			} else {
-				Logger.logInfo("Received \"" + task.getName() +  "\". Processing it.");
+			while((str = reader.readLine()) != null){
+				String[] splitStr = str.split(";");
 				try {
-					task.execute();
-				} catch (TaskCancelledException e) {
-	
+					SimUtils.waitUntil(Integer.parseInt(splitStr[0]) * (1 / tickrate));
+				} catch (NumberFormatException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SimException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				
-				Logger.logInfo("\"" + task.getName() + "\" done ");
+				switch(LogType.fromString(splitStr[1])){
+				case connect:
+					SimUtils.isend("server_0", 200, MessageType.MSG_CONNECT, this.getHost().getName()/*new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3]))*/);
+					break;
+				case move:
+					SimUtils.isend("server_0", 50, MessageType.MSG_MOVE, new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3])));
+					break;
+				case disconnect:
+					SimUtils.isend("server_0", 10, MessageType.MSG_DISCONNECT, this.getHost().getName());
+					break;
+				default:
+					System.out.println("Unknown command " + splitStr[1] + " : ignored!");
+					break;
+				}
+				
+				try {
+					Message m = SimUtils.receive(this.getHost().getName());
+					Logger.logInfo("Message : (" + m.getType() + "," + m.getContent() + ")");// Traitement du message
+				} catch (SimException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			
+			Logger.logInfo("Disconnected and no more moves!");
+			
+			try {
+				SimUtils.waitFor(5);
+			} catch (SimException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-
-		Logger.logInfo("Received Finalize. I'm done. See you!");*/
 	}
 }

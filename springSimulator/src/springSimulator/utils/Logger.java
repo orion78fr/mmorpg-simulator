@@ -1,4 +1,4 @@
-package utils;
+package springSimulator.utils;
 
 import org.simgrid.msg.Msg;
 

@@ -6,11 +6,13 @@ import java.util.List;
 import org.simgrid.msg.Host;
 import org.simgrid.msg.Process;
 
-import utils.Logger;
-import utils.MessageWaiter;
-import utils.MessageState;
-import utils.SimException;
-import utils.SimUtils;
+import springCommon.Point2d;
+import springSimulator.utils.Logger;
+import springSimulator.utils.MessageType;
+import springSimulator.utils.MessageWaiter;
+import springSimulator.utils.MessageState;
+import springSimulator.utils.SimException;
+import springSimulator.utils.SimUtils;
 
 public class Server extends Process {
 	List<String> clientMailBox = new ArrayList<String>();
@@ -22,7 +24,7 @@ public class Server extends Process {
 	@Override
 	public void main(String[] args) {
 		if(!this.getHost().getName().equals("server_0")){
-			Logger.logWarning("Master 0 test only");
+			Logger.logWarning("Master 0 test only, stopping...");
 			return;
 		}
 		if (args.length < 1) {
@@ -30,50 +32,70 @@ public class Server extends Process {
 			System.exit(1);
 		}
 		
-		for(int i = 0; i < 10; i++){
-			clientMailBox.add("client_" + i);
-		}
-		
 		double tickrate = Double.valueOf(args[0]).doubleValue();
 		
 		double nextTick = 1/tickrate;
 		
 		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
+		int emptyTick = 0;
 		
-		
-		for(int i = 0; i < 1000; i++){
-			Logger.logVerbose("Tick " + i + " begin!");
+		while(true){
+			Logger.logVerbose("Tick begin!");
+
+			nextTick += 1 / tickrate;
 			
 			l.addAll(SimUtils.ireceiveAllUntil(this.getHost().getName(), nextTick, 500));
 			
-			for(MessageWaiter w : l){
-				if(w.getState() == MessageState.SUCCESS){
-					Logger.logInfo("Message : (" + w.getMessage().getType() + "," + w.getMessage().getContent() + ")");// Traitement du message
+			/* Treatment of messages */
+			for(int j = 0; j < l.size();){
+				if(l.get(j).getState() == MessageState.PENDING){
+					/* Do nothing */
+					j++;
+				} else {
+					/* Remove received and buggy messages */
+					MessageWaiter w = l.remove(j);
+					if(w.getState() == MessageState.SUCCESS){
+						switch(w.getMessage().getType()){
+						case MSG_CONNECT:
+							Logger.logInfo(w.getMessage().getContent().toString() + " connected !");
+							clientMailBox.add(w.getMessage().getContent().toString());
+							break;
+						case MSG_DISCONNECT:
+							Logger.logInfo(w.getMessage().getContent().toString() + " disconnected !");
+							clientMailBox.remove(w.getMessage().getContent().toString());
+							break;
+						case MSG_MOVE:
+							Point2d p = (Point2d) w.getMessage().getContent();
+							Logger.logInfo("Someone moved to (" + p.getX() + ", " + p.getY());// Traitement du message
+							break;
+						case MSG_WORLD_UPDATE:
+							break;
+						default:
+							break;
+						}
+					} else {
+						Logger.logWarning("A message crashed!");
+					}
 				}
 			}
 			
-			/* retirer les messages recus */
-			for(int j = 0; j < l.size();){
-				if(l.get(j).getState() != MessageState.PENDING){
-					l.remove(j);
-				} else {
-					j++;
+			/* To end simulation */
+			if(clientMailBox.size() == 0){
+				emptyTick += 1;
+				if(emptyTick == 10){
+					break;
 				}
+			} else {
+				emptyTick = 0;
 			}
 			
 			for(String c : clientMailBox){
-				SimUtils.isend(c, 100, 1, "" + i);
+				SimUtils.isend(c, 100, MessageType.MSG_WORLD_UPDATE, null);
 			}
 			
 			
-			Logger.logDebug("Tick " + i + " end.");
-			
-			nextTick += 1 / tickrate;
-			
-			// Traitement des entrées des autres process
+			Logger.logDebug("Tick end.");
 		}
-		
-		Logger.logInfo("Simulation Ended");
 		
 		try {
 			SimUtils.waitFor(5);
@@ -81,5 +103,6 @@ public class Server extends Process {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		Logger.logInfo("Simulation Ended");
 	}
 }

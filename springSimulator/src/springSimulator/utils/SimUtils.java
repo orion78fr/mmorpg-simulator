@@ -1,4 +1,4 @@
-package utils;
+package springSimulator.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +73,7 @@ public class SimUtils {
 	 * @param content The data useful in the other
 	 * @throws SimException
 	 */
-	public static void send(String mailbox, double size, long type, Object content) throws SimException{
+	public static void send(String mailbox, double size, MessageType type, Object content) throws SimException{
 		Task t = new Task(mailbox, 0, size);
 		
 		messages.put(t.getId(), new Message(type, content));
@@ -89,7 +89,7 @@ public class SimUtils {
 		}
 	}
 	
-	public static void sendTimeout(String mailbox, double size, long type, Object content, double time) throws SimException{
+	public static void sendTimeout(String mailbox, double size, MessageType type, Object content, double time) throws SimException{
 		if(time < 0){
 			return;
 		}
@@ -107,7 +107,7 @@ public class SimUtils {
 		}
 	}
 	
-	public static void sendUntil(String mailbox, double size, long type, Object content, double time) throws SimException{
+	public static void sendUntil(String mailbox, double size, MessageType type, Object content, double time) throws SimException{
 		sendTimeout(mailbox, size, type, content, time - Msg.getClock());
 	}
 	
@@ -118,7 +118,7 @@ public class SimUtils {
 	 * @param content The data useful in the other 
 	 * @return The watcher of the send
 	 */
-	public static MessageWaiter isend(String name, double size, long type, Object content){
+	public static MessageWaiter isend(String name, double size, MessageType type, Object content){
 		Task t = new Task(name, 0, size);
 		
 		messages.put(t.getId(), new Message(type, content));
@@ -133,7 +133,7 @@ public class SimUtils {
 		Message m = null;
 		try {
 			Task t = Task.receive(name);
-			m = messages.remove(t.getId());
+			m = getMessageById(t.getId());
 		} catch (TransferFailureException e) {
 			throw new SimException("An error has occured during the task transfer", e);
 		} catch (HostFailureException e) {
@@ -151,7 +151,7 @@ public class SimUtils {
 		Message m = null;
 		try {
 			Task t = Task.receive(name, time);
-			m = messages.remove(t.getId());
+			m = getMessageById(t.getId());
 		} catch (TransferFailureException e) {
 			throw new SimException("An error has occured during the task transfer", e);
 		} catch (HostFailureException e) {
@@ -178,11 +178,13 @@ public class SimUtils {
 	public static List<MessageWaiter> ireceiveAllUntil(String name, double time, long pollFreq){
 		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
 		try {
-			MessageWaiter w;
-			while((w = SimUtils.ireceive(name)) != null){
-				l.add(w);
+			while(SimUtils.getTime() < time){
+				MessageWaiter w;
+				while((w = SimUtils.ireceive(name)) != null){
+					l.add(w);
+				}
+				SimUtils.waitFor(1.0 / pollFreq);
 			}
-			SimUtils.waitFor(1.0 / pollFreq);
 		} catch (SimException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -191,6 +193,7 @@ public class SimUtils {
 	}
 
 	protected static Message getMessageById(Long id) {
+		System.out.println(messages.size());
 		 return messages.remove(id);
 	}
 }
