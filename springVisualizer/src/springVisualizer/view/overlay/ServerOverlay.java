@@ -17,4 +17,9 @@ public class ServerOverlay extends AbstractOverlay {
 
 		g2d.fill(a);*/
 	}
+
+	@Override
+	public String getName() {
+		return "Server Zones";
+	}
 }

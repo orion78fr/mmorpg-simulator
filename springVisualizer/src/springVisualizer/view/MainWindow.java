@@ -23,7 +23,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO; 
 import javax.swing.JFileChooser;
@@ -39,6 +41,7 @@ import javax.swing.JScrollBar;
 import springCommon.Parameters;
 import springVisualizer.MovementLogger;
 import springVisualizer.State;
+import springVisualizer.model.Hotspot;
 import springVisualizer.view.overlay.AbstractOverlay;
 import springVisualizer.view.overlay.BackgroudOverlay;
 import springVisualizer.view.overlay.HotspotOverlay;

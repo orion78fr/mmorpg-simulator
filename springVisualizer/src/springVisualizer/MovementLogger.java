@@ -16,12 +16,14 @@ public class MovementLogger {
 	
 	static{
 		File folder = new File(Parameters.exportedMoveFolder);
-		if((folder.exists() && !folder.isDirectory()) && !folder.mkdir()){
+		if((folder.exists() && !folder.isDirectory()) || (!folder.exists() && !folder.mkdir())){
 			throw new RuntimeException("Can't create the export move folder");
 		} else {
 			File[] childs = folder.listFiles();
-			for(File f : childs){
-				f.delete();
+			if(childs != null){
+				for(File f : childs){
+					f.delete();
+				}
 			}
 		}
 	}
@@ -57,7 +59,7 @@ public class MovementLogger {
 			w.write(logMessage);
 			w.write('\n');
 		} catch (IOException e) {
-			throw new RuntimeException("Can't log?!?");
+			throw new RuntimeException("Can't log?!?", e);
 		}
 	}
 	

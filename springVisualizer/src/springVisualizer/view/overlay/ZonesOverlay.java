@@ -1,9 +1,11 @@
 package springVisualizer.view.overlay;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import springCommon.Parameters;
 import springVisualizer.util2D.Polygon;
 
 public class ZonesOverlay extends AbstractOverlay {
@@ -14,7 +16,15 @@ public class ZonesOverlay extends AbstractOverlay {
 	
 	public ZonesOverlay() {
 		super();
-		polys.add(currentPoly);
+		
+		Polygon total = new Polygon();
+		total.addPoint(0, 0);
+		total.addPoint(0, (int)Parameters.sizey);
+		total.addPoint((int)Parameters.sizex, (int)Parameters.sizey);
+		total.addPoint((int)Parameters.sizex, 0);
+		total.setColor(new Color(0, 255, 0, 127));
+		
+		polys.add(total);
 	}
 
 	@Override
@@ -22,6 +32,7 @@ public class ZonesOverlay extends AbstractOverlay {
 		for(Polygon p : polys){
 			fillPoly(g2d, p);
 		}
+		fillPoly(g2d, currentPoly);
 	}
 	
 	public void fillPoly(Graphics2D g2d, Polygon p){
@@ -36,7 +47,15 @@ public class ZonesOverlay extends AbstractOverlay {
 	}
 	
 	public void endPoly(){
-		currentPoly = new Polygon();
 		polys.add(currentPoly);
+		
+		// TODO minus for all
+		
+		currentPoly = new Polygon();
+	}
+
+	@Override
+	public String getName() {
+		return "Moving Zones";
 	}
 }

@@ -24,11 +24,13 @@ public class RandomMovementManager extends AbstractMovementManager {
 		double x = p.getX();
 		double y = p.getY();
 		
+		double distance = State.r.nextDouble()*radius;
+		
 		/* Pick a random angle and move to distance "radius" with this angle */ 
 		double angle = State.r.nextDouble()*2*Math.PI;
 		
-		x += radius * Math.cos(angle);
-		y += radius * Math.sin(angle);
+		x += distance * Math.cos(angle);
+		y += distance * Math.sin(angle);
 		
 		moveToWithinBouds(p, x, y);
 	}

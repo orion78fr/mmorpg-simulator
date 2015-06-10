@@ -38,4 +38,9 @@ public class BackgroudOverlay extends AbstractOverlay {
         
         g2d.drawImage(sub, op, 0, 0);
 	}
+
+	@Override
+	public String getName() {
+		return "Background Image";
+	}
 }

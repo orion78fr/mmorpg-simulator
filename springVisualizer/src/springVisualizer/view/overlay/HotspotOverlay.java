@@ -34,4 +34,9 @@ public class HotspotOverlay extends AbstractOverlay {
 						radius);
 		}
 	}
+
+	@Override
+	public String getName() {
+		return "Hotspots";
+	}
 }

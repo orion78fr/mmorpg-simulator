@@ -13,6 +13,7 @@ public class Polygon extends java.awt.Polygon {
 
 	public Polygon(int[] xpoints, int[] ypoints, int npoints) {
 		super(xpoints, ypoints, npoints);
+		verifyNonReentrant(this);
 	}
 	
 	@Override
@@ -72,24 +73,6 @@ public class Polygon extends java.awt.Polygon {
 				
 				throw new ReentrantPolygonException();
 			}
-		}
-	}
-	
-	public static void main(String[] args){
-		java.awt.Polygon p = new java.awt.Polygon();
-		
-		p.addPoint(1730, 1240);
-		p.addPoint(2500, 3450);
-		p.addPoint(4480, 3220);
-		p.addPoint(4360, 740);
-		p.addPoint(3390, 1870);
-		p.addPoint(4600, 2110);
-		
-		try{
-			verifyNonReentrant(p);
-			System.out.println("non reentrant");
-		} catch (ReentrantPolygonException e) {
-			System.out.println("Polygon reentrant!!!");
 		}
 	}
 	

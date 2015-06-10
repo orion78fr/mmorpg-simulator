@@ -22,7 +22,7 @@ public final class Parameters {
 	
 	/* Configuration of the blue banana model */
 		/** Probability to choose a new hotspot to go to */
-		static final public double bbProbaGoToNewHotspot = 0.01;
+		static final public double bbProbaGoToNewHotspot = 0.05;
 		/** Distance when doing random moves inside hotspot */
 		static final public double bbInHotspotRandomMoveDistance = 10;
 		/** Distance when going to an hotspot */
@@ -72,6 +72,7 @@ public final class Parameters {
 		/** Exported move folder, containing one move file per player */
 		static final public String exportedMoveFolder = "movements"; 
 	
+		static final public int playerOverlayPlayerRadius = 20;
 	/** */
 	private Parameters(){
 		throw new RuntimeException("You can't instanciate this class!");
