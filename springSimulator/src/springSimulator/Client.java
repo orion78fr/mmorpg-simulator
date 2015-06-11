@@ -20,6 +20,9 @@ public class Client extends Process {
 	public Client(Host host, String name, String[]args) {
 		super(host,name,args);
 	}
+	
+	private String currentServer = "server_0";
+	
 	@Override
 	public void main(String[] args) {
 		BufferedReader reader = null;
@@ -46,15 +49,16 @@ public class Client extends Process {
 					e.printStackTrace();
 				}
 				
+				/* Send to the server the action */
 				switch(LogType.fromString(splitStr[1])){
 				case connect:
-					SimUtils.isend("server_0", 200, MessageType.MSG_CONNECT, this.getHost().getName()/*new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3]))*/);
+					SimUtils.isend(this.currentServer, 200, MessageType.MSG_CONNECT, this.getHost().getName()/*new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3]))*/);
 					break;
 				case move:
-					SimUtils.isend("server_0", 50, MessageType.MSG_MOVE, new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3])));
+					SimUtils.isend(this.currentServer, 50, MessageType.MSG_MOVE, new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3])));
 					break;
 				case disconnect:
-					SimUtils.isend("server_0", 10, MessageType.MSG_DISCONNECT, this.getHost().getName());
+					SimUtils.isend(this.currentServer, 10, MessageType.MSG_DISCONNECT, this.getHost().getName());
 					break;
 				default:
 					System.out.println("Unknown command " + splitStr[1] + " : ignored!");
