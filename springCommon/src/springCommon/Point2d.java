@@ -16,5 +16,4 @@ public class Point2d extends Point2D.Double {
 	public void setY(double y) {
 		this.setLocation(this.getX(), y);
 	}
-
 }
