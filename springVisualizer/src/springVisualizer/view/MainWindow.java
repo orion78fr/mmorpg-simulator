@@ -23,10 +23,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import javax.imageio.ImageIO; 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -41,7 +38,6 @@ import javax.swing.JScrollBar;
 import springCommon.Parameters;
 import springVisualizer.MovementLogger;
 import springVisualizer.State;
-import springVisualizer.model.Hotspot;
 import springVisualizer.view.overlay.AbstractOverlay;
 import springVisualizer.view.overlay.BackgroudOverlay;
 import springVisualizer.view.overlay.HotspotOverlay;
@@ -72,7 +68,7 @@ public class MainWindow {
 
 	static boolean barRefresh = true;
 	
-	static private BackgroudOverlay background;
+	static BackgroudOverlay background;
 	static private ZonesOverlay zones;
 	static JLabel fakeLabel;
 	
@@ -89,7 +85,7 @@ public class MainWindow {
 		win.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		bar = new JMenuBar();
-        generateMenu(bar);
+        MenuBarGenerator.generateMenu(bar);
         win.setJMenuBar(bar);
         
         JPanel panel = new JPanel(new BorderLayout());
@@ -180,8 +176,8 @@ public class MainWindow {
 			public void mouseEntered(MouseEvent e) {}
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				double x = ((e.getX()/ViewCommon.Dimentions.zoom) + ViewCommon.Dimentions.posx)*ViewCommon.Dimentions.ratiox;
-				double y = ((e.getY()/ViewCommon.Dimentions.zoom) + ViewCommon.Dimentions.posy)*ViewCommon.Dimentions.ratioy;
+				double x = Dimentions.xDrawToInternal(e.getX());
+				double y = Dimentions.yDrawToInternal(e.getY());
 				if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
 					//State.hotspots.add(new Hotspot(x, y, 50));
 					if(e.getButton() == MouseEvent.BUTTON1){
@@ -273,120 +269,5 @@ public class MainWindow {
 		currentIndex++;
 	}
 
-	/**
-	 * Generate the menu of the main window
-	 * @param bar The JMenuBar of the main window
-	 */
-	private static void generateMenu(JMenuBar bar) {
-		JMenu menu;
-        JMenuItem item;
-
-        menu = new JMenu("File");
-
-        item = new JMenuItem("Load background image");
-        item.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                        JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
-                        int ret = fc.showOpenDialog(win);
-                        if (ret == JFileChooser.APPROVE_OPTION) {
-                        	if(!fc.getSelectedFile().isFile()){
-                        		JOptionPane.showMessageDialog(win, "This is not a file", "Error", JOptionPane.ERROR_MESSAGE);
-                        	}
-                            try {
-                            	background.setImage(ImageIO.read(fc.getSelectedFile()));
-                            	
-                                ViewCommon.needsRefresh = true;
-                            } catch (Exception ex) {
-                            		JOptionPane.showMessageDialog(win, "The image file is invalid", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
-                        }
-                }
-        });
-        menu.add(item);
-        
-        bar.add(menu);
-        
-        // -------------------------
-        
-        menu = new JMenu("Generate");
-        
-        item = new JMenuItem("Add distributed players");
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	String num = JOptionPane.showInputDialog(win, "How many players?", "Add players", JOptionPane.QUESTION_MESSAGE);
-            	if(num == null){
-            		return;
-            	}
-            	try {
-            		int numPlayers = Integer.parseInt(num);
-            		if(numPlayers < 0){
-            			JOptionPane.showMessageDialog(win, "The input is negative", "Error", JOptionPane.ERROR_MESSAGE);
-            			return;
-            		}
-            		State.addHaltonPlayers(numPlayers);
-            		ViewCommon.needsRefresh = true;
-            	} catch (Exception ex) {
-            		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);
-            		ex.printStackTrace();
-            		
-            	}
-            }
-        });
-        menu.add(item);
-        
-        item = new JMenuItem("Remove random players");
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	String num = JOptionPane.showInputDialog(win, "How many players?", "Add players", JOptionPane.QUESTION_MESSAGE);
-            	if(num == null){
-            		return;
-            	}
-            	try {
-            		int numPlayers = Integer.parseInt(num);
-            		if(numPlayers < 0){
-            			JOptionPane.showMessageDialog(win, "The input is negative", "Error", JOptionPane.ERROR_MESSAGE);
-            			return;
-            		}
-            		State.removeRandomPlayers(numPlayers);
-            		ViewCommon.needsRefresh = true;
-            	} catch (Exception ex) {
-            		JOptionPane.showMessageDialog(win, "The input is not a number", "Error", JOptionPane.ERROR_MESSAGE);
-            	}
-            }
-        });
-        menu.add(item);
-        
-        item = new JMenuItem("Export platform");
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
-                int ret = fc.showSaveDialog(win);
-                if (ret == JFileChooser.APPROVE_OPTION) {
-                	if(fc.getSelectedFile().exists() && !fc.getSelectedFile().isFile()){
-                		JOptionPane.showMessageDialog(win, "This is not a file", "Error", JOptionPane.ERROR_MESSAGE);
-                	} else {
-	                    try {
-	                            Writer w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fc.getSelectedFile()), "utf-8"));
-	                            if(State.exportPlatform(w)){
-	                            	JOptionPane.showMessageDialog(win, "Export successful to " + fc.getSelectedFile(), "Export", JOptionPane.INFORMATION_MESSAGE);
-	                            } else {
-	                            	JOptionPane.showMessageDialog(win, "Something went wrong during export", "Error", JOptionPane.ERROR_MESSAGE);
-	                            }
-	                            w.close();
-	                    } catch (Exception ex) {
-	                    		ex.printStackTrace();
-	                    }
-                	}
-                }
-            }
-        });
-        menu.add(item);
-        
-        bar.add(menu);
-	}
-
+	
 }

@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Area;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -149,7 +148,7 @@ public class ControlDialog{
 		
 		JPanel overlays = new JPanel(new GridLayout(0, 1));
 		for(AbstractOverlay o : MainWindow.overlays){
-			JCheckBox chkb = new JCheckBox("Show " + o.getName(), o.isShown());
+			JCheckBox chkb = new JCheckBox("Show " + o.getDisplayName(), o.isShown());
 			chkb.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

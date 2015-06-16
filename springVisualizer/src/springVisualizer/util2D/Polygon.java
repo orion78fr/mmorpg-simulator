@@ -1,7 +1,6 @@
 package springVisualizer.util2D;
 
 import java.awt.Color;
-import java.awt.geom.Area;
 
 import springVisualizer.view.ViewCommon.Dimentions;
 
@@ -97,8 +96,8 @@ public class Polygon extends java.awt.Polygon {
 		int[] y = ypoints.clone();
 		
 		for(int i = 0; i < npoints; i++){
-			x[i] = (int)(((x[i]/Dimentions.ratiox)-Dimentions.posx)*Dimentions.zoom);
-			y[i] = (int)(((y[i]/Dimentions.ratioy)-Dimentions.posy)*Dimentions.zoom);
+			x[i] = Dimentions.xToDrawCoords(x[i]);
+			y[i] = Dimentions.yToDrawCoords(y[i]);
 		}
 		
 		return new Polygon(x, y, npoints);

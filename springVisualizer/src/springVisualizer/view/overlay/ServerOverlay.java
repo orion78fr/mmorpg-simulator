@@ -2,8 +2,6 @@ package springVisualizer.view.overlay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.geom.Area;
 
 public class ServerOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;
@@ -19,7 +17,7 @@ public class ServerOverlay extends AbstractOverlay {
 	}
 
 	@Override
-	public String getName() {
+	public String getDisplayName() {
 		return "Server Zones";
 	}
 }

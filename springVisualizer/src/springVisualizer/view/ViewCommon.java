@@ -39,6 +39,23 @@ public class ViewCommon {
 		/** y offset for the drawing */
 		static public int yoffset = 0;
 		
+
+		public static int xToDrawCoords(double x){
+			return (int)(((x/ratiox)-posx)*zoom);
+		}
+		
+		public static int yToDrawCoords(double y){
+			return (int)(((y/ratioy)-posy)*zoom);
+		}
+		
+		public static double xDrawToInternal(double x){
+			return ((x/zoom) + posx)*ratiox;
+		}
+		
+		public static double yDrawToInternal(double y){
+			return ((y/zoom) + posy)*ratioy;
+		}
+		
 		static void debugPrint(){
 			for(Field f : Dimentions.class.getDeclaredFields()){
 				try {

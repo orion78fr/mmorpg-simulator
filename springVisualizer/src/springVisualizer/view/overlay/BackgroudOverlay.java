@@ -40,7 +40,7 @@ public class BackgroudOverlay extends AbstractOverlay {
 	}
 
 	@Override
-	public String getName() {
+	public String getDisplayName() {
 		return "Background Image";
 	}
 }

@@ -22,7 +22,7 @@ public class PlayerOverlay extends AbstractOverlay {
 	}
 
 	@Override
-	public String getName() {
+	public String getDisplayName() {
 		return "Players";
 	}
 }

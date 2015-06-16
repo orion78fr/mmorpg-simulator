@@ -12,7 +12,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;
 	
 	Polygon currentPoly = new Polygon();
-	List<Polygon> polys = new ArrayList<Polygon>();
+	List<Polygon> zones = new ArrayList<Polygon>();
 	
 	public ZonesOverlay() {
 		super();
@@ -24,12 +24,12 @@ public class ZonesOverlay extends AbstractOverlay {
 		total.addPoint((int)Parameters.sizex, 0);
 		total.setColor(new Color(0, 255, 0, 127));
 		
-		polys.add(total);
+		zones.add(total);
 	}
 
 	@Override
 	public void draw(Graphics2D g2d) {
-		for(Polygon p : polys){
+		for(Polygon p : zones){
 			fillPoly(g2d, p);
 		}
 		fillPoly(g2d, currentPoly);
@@ -47,7 +47,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	}
 	
 	public void endPoly(){
-		polys.add(currentPoly);
+		zones.add(currentPoly);
 		
 		// TODO minus for all
 		
@@ -55,7 +55,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	}
 
 	@Override
-	public String getName() {
+	public String getDisplayName() {
 		return "Moving Zones";
 	}
 }

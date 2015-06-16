@@ -36,7 +36,7 @@ public class HotspotOverlay extends AbstractOverlay {
 	}
 
 	@Override
-	public String getName() {
+	public String getDisplayName() {
 		return "Hotspots";
 	}
 }

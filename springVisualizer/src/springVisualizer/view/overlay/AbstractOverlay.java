@@ -39,7 +39,7 @@ public abstract class AbstractOverlay extends JPanel {
 
 	public abstract void draw(Graphics2D g2d);
 	
-	public abstract String getName();
+	public abstract String getDisplayName();
 	
 	public final void redraw(){
 		// Triggers the paintComponent method
