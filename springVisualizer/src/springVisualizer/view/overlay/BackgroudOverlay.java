@@ -12,8 +12,12 @@ public class BackgroudOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;
 	
 	private BufferedImage img;
+	
+	private double oldzoom = -1;
+	private AffineTransformOp op;
 
 	public BackgroudOverlay() {
+		super();
 		this.setImage(new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB));
 	}
 
@@ -27,16 +31,20 @@ public class BackgroudOverlay extends AbstractOverlay {
         Dimentions.ratioy = Parameters.sizey / Dimentions.ySize;
 	}
 	
-	@Override
-	public void draw(Graphics2D g2d) {
-		//System.out.println("redraw");
+	private void refreshOp(){
+		this.oldzoom = Dimentions.zoom;
 		AffineTransform at = new AffineTransform();
         at.scale(Dimentions.zoom, Dimentions.zoom);
-        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        this.op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+	}
+	
+	@Override
+	public void draw(Graphics2D g2d) {
+		if(oldzoom != Dimentions.zoom){
+			refreshOp();
+		}
         
-        BufferedImage sub = this.img.getSubimage(Dimentions.posx, Dimentions.posy, Dimentions.viewWidth, Dimentions.viewHeight);
-        
-        g2d.drawImage(sub, op, 0, 0);
+        g2d.drawImage(img, op, (int)(-Dimentions.posx*Dimentions.zoom), (int)(-Dimentions.posy*Dimentions.zoom));
 	}
 
 	@Override
