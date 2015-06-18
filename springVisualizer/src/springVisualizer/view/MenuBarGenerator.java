@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
