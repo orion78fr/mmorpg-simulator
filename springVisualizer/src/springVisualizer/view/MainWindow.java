@@ -170,6 +170,8 @@ public class MainWindow {
 					//State.hotspots.add(new Hotspot(x, y, 50));
 					if(e.getButton() == MouseEvent.BUTTON1){
 						zones.addPoint(x,y);
+					} else if(e.getButton() == MouseEvent.BUTTON2){
+						zones.toggle(x,y);
 					} else {
 						zones.endPoly();
 					}

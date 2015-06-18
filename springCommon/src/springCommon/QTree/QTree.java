@@ -1,11 +1,17 @@
 package springCommon.QTree;
 
 import java.awt.Shape;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.DelayQueue;
 
 public class QTree {
 	private boolean isLeaf;
 	private boolean traversable;
 	private double centerx, centery, width, height, x, y;
+	private QTree parent;
 	
 	private QTree ne = null,
 				nw = null,
@@ -15,6 +21,10 @@ public class QTree {
 	//private int owner;
 	
 	public QTree(double x, double y, double w, double h, boolean traversable){
+		this(x, y, w, h, traversable, null);
+	}
+	
+	public QTree(double x, double y, double w, double h, boolean traversable, QTree parent){
 		this.x = x;
 		this.y = y;
 		this.centerx = x + w/2;
@@ -23,6 +33,7 @@ public class QTree {
 		this.height = h;
 		this.traversable = traversable;
 		this.isLeaf = true;
+		this.parent = parent;
 	}
 	
 	public boolean isTraversable() {
@@ -31,6 +42,32 @@ public class QTree {
 
 	public void setTraversable(boolean traversable) {
 		this.traversable = traversable;
+	}
+	
+	public void toggleTraversableZone(double x, double y){
+		ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
+		queue.addLast(this.getContainingNode(x, y));
+		
+		QTree current;
+		
+		while((current = queue.pollFirst()) != null){
+			for(QTree e : current.getNeighbors()){
+				queue.addLast(e);
+			}
+
+			current.toggleTraversable();
+		}
+		
+		this.consolidate();
+	}
+
+	private List<QTree> getNeighbors() {
+		// TODO Auto-generated method stub
+		return new ArrayList<QTree>();
+	}
+
+	private void toggleTraversable() {
+		this.traversable ^= true; // Black magic, don't touch :D
 	}
 
 	public boolean isLeaf() {
@@ -61,16 +98,16 @@ public class QTree {
 		return y;
 	}
 
-	public void split(){
+	private void split(){
 		this.isLeaf = false;
 		
 		double demiwidth = this.width / 2;
 		double demiheight = this.height / 2;
 		
-		this.ne = new QTree(this.centerx, this.centery - demiheight, demiwidth, demiheight, this.isTraversable());
-		this.se = new QTree(this.centerx, this.centery, demiwidth, demiheight, this.isTraversable());
-		this.nw = new QTree(this.centerx - demiwidth, this.centery - demiheight, demiwidth, demiheight, this.isTraversable());
-		this.sw = new QTree(this.centerx - demiwidth, this.centery, demiwidth, demiheight, this.isTraversable());
+		this.ne = new QTree(this.centerx, this.centery - demiheight, demiwidth, demiheight, this.isTraversable(), this);
+		this.se = new QTree(this.centerx, this.centery, demiwidth, demiheight, this.isTraversable(), this);
+		this.nw = new QTree(this.centerx - demiwidth, this.centery - demiheight, demiwidth, demiheight, this.isTraversable(), this);
+		this.sw = new QTree(this.centerx - demiwidth, this.centery, demiwidth, demiheight, this.isTraversable(), this);
 	}
 	
 	public double getCenterx() {
@@ -101,7 +138,7 @@ public class QTree {
 		}
 	}
 
-	public QTree getDirectedNode(double x, double y){
+	private QTree getDirectedNode(double x, double y){
 		if(this.isLeaf){ 
 			return null;
 		} else if(x > this.centerx && y > this.centery){
@@ -116,9 +153,14 @@ public class QTree {
 	}
 	
 	public void setShape(Shape s, boolean traversable){
+		this._setShape(s, traversable);
+		this.consolidate();
+	}
+	
+	private void _setShape(Shape s, boolean traversable){
 		if(!this.isLeaf){
 			for(QTree tree : this.getChildrens()){
-				tree.setShape(s, traversable);
+				tree._setShape(s, traversable);
 			}
 		} else {
 			if(this.traversable == traversable){
@@ -130,10 +172,10 @@ public class QTree {
 					} else {
 						if(this.canSplit()){
 							this.split();
-							this.ne.setShape(s, traversable);
-							this.nw.setShape(s, traversable);
-							this.se.setShape(s, traversable);
-							this.sw.setShape(s, traversable);
+							this.ne._setShape(s, traversable);
+							this.nw._setShape(s, traversable);
+							this.se._setShape(s, traversable);
+							this.sw._setShape(s, traversable);
 						} else {
 							this.traversable = traversable;
 						}
@@ -143,7 +185,7 @@ public class QTree {
 		}
 	}
 	
-	public boolean consolidate(){
+	private boolean consolidate(){
 		if(this.isLeaf){
 			return true;
 		} else {

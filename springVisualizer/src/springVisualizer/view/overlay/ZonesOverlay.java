@@ -90,11 +90,14 @@ public class ZonesOverlay extends AbstractOverlay {
 	
 	public void endPoly(){
 		tree.setShape(currentPoly, traversable);
-		tree.consolidate();
 		
 		firstPoint = true;
 		
 		currentPoly = new Polygon();
+	}
+	
+	public void toggle(double x, double y){
+		tree.toggleTraversableZone(x, y);
 	}
 
 	@Override
