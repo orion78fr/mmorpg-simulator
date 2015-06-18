@@ -26,7 +26,7 @@ public final class Parameters {
 		/** Distance when doing random moves inside hotspot */
 		static final public double bbInHotspotRandomMoveDistance = 10;
 		/** Distance when going to an hotspot */
-		static final public double bbBetweenHotspotMoveDistance = 10;
+		static final public double bbBetweenHotspotMoveDistance = 20;
 		/** Distance to randomize movement between hotspot */
 		static final public double bbBetweenHotspotRandomMoveDistance = 5;
 	
