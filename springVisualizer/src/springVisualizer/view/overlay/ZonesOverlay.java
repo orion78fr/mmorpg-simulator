@@ -4,9 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 
+import javax.swing.JOptionPane;
+
 import springCommon.Parameters;
 import springCommon.QTree.QTree;
 import springVisualizer.util2D.Polygon;
+import springVisualizer.util2D.Polygon.ReentrantPolygonException;
+import springVisualizer.view.MainWindow;
 import springVisualizer.view.ViewCommon.Dimentions;
 
 public class ZonesOverlay extends AbstractOverlay {
@@ -89,11 +93,24 @@ public class ZonesOverlay extends AbstractOverlay {
 	}
 	
 	public void endPoly(){
-		tree.setShape(currentPoly, traversable);
-		
-		firstPoint = true;
-		
-		currentPoly = new Polygon();
+		try {
+			Polygon.verifyNonReentrant(currentPoly, true);
+			
+			tree.setShape(currentPoly, traversable);
+			
+			firstPoint = true;
+			
+			currentPoly = new Polygon();
+		} catch (ReentrantPolygonException e){
+			String[] options = {"Discard", "Continue"};
+			int result = JOptionPane.showOptionDialog(MainWindow.win,
+					"The polygon is reentrant.\n Do you want to discard the polygon or add points?",
+					"Polygon problem", 0, JOptionPane.WARNING_MESSAGE, null, options, null);
+			
+			if(result == 0){
+				currentPoly = new Polygon();
+			}
+		}
 	}
 	
 	public void toggle(double x, double y){

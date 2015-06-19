@@ -12,7 +12,7 @@ public class Polygon extends java.awt.Polygon {
 
 	public Polygon(int[] xpoints, int[] ypoints, int npoints) {
 		super(xpoints, ypoints, npoints);
-		verifyNonReentrant(this);
+		verifyNonReentrant(this, false);
 	}
 	
 	@Override
@@ -21,18 +21,18 @@ public class Polygon extends java.awt.Polygon {
 		java.awt.Polygon p2 = this.awtClone();
 		p2.addPoint(x, y);
 		
-		verifyNonReentrant(p2);
+		verifyNonReentrant(p2, false);
 		
 		super.addPoint(x, y);
 	}
 	
-	public static void verifyNonReentrant(java.awt.Polygon p) {
+	public static void verifyNonReentrant(java.awt.Polygon p, boolean close) {
 		if(p.npoints <= 3){
 			return;
 		}
 		
 		for(int i = 0; i < p.npoints - 1; i++){
-			for(int j = i+2; j < p.npoints; j++){
+			for(int j = i+2; j < p.npoints - (close ? 0 : 1); j++){
 				if(i == 0 && j == p.npoints - 1){
 					continue; // Adjascent, so intersect at vertex
 				}

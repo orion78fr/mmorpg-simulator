@@ -161,6 +161,9 @@ public class ControlDialog{
 		overlays.setAlignmentX(Component.CENTER_ALIGNMENT);
 		win.add(overlays);
 		
+		tmpLabel = new MultiLineJLabel("\nA / E or Ctrl + Wheel : Zoom\nR : Next Step\n\nLeft Click : Add point to polygon\nRight Click : Finish polygon\nMiddle Click : Toggle zone");
+		tmpLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		win.add(tmpLabel);
 		
 		win.addComponentListener(new ComponentListener() {
 			@Override

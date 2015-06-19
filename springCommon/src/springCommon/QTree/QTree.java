@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.DelayQueue;
 
+import springCommon.Parameters;
+
 public class QTree implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private boolean isLeaf;
@@ -48,28 +50,120 @@ public class QTree implements Serializable {
 	
 	public void toggleTraversableZone(double x, double y){
 		// Début d'implem, mais risque d'être compliqué, donc repoussé a plus tard
-		/*ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
-		queue.addLast(this.getContainingNode(x, y));
+		ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
+		QTree current = this.getContainingNode(x, y);
+		queue.addLast(current);
 		
-		QTree current;
+		
+		boolean trav = current.isTraversable();
 		
 		while((current = queue.pollFirst()) != null){
-			for(QTree e : current.getNeighbors()){
-				queue.addLast(e);
+			for(QTree e : current.getNeighbors(this)){
+				if(e.isTraversable() == trav && !queue.contains(e)){
+					queue.addLast(e);
+				}
 			}
 
+			System.out.println("lol");
 			current.toggleTraversable();
-		}*/
-		this.getContainingNode(x, y).toggleTraversable();
+		}
 		
 		this.consolidate();
 	}
 
-	private List<QTree> getNeighbors() {
-		// TODO Auto-generated method stub
-		return new ArrayList<QTree>();
+	private List<QTree> getNeighbors(QTree root) {
+		List<QTree> result = new ArrayList<QTree>();
+		
+		List<QTree> a = getTopNeighbors(root);
+		result.addAll(a);
+		List<QTree> b = getBottomNeighbors(root);
+		result.addAll(b);
+		List<QTree> c = getLeftNeighbors(root);
+		result.addAll(c);
+		List<QTree> d = getRightNeighbors(root);
+		result.addAll(d);
+		
+		return result;
 	}
+	
+	private List<QTree> getTopNeighbors(QTree root) {
+		List<QTree> result = new ArrayList<QTree>();
+		
+		double y = this.getY() - 1;
+		
+		if(y >= 0){
+			double x = this.getX();
+			double maxX = this.getX() + this.getWidth();
+			
+			QTree temptree;
+			while(x < maxX){
+				temptree = root.getContainingNode(x, y);
+				result.add(temptree);
+				x += temptree.getWidth();
+			}
+		}
+		return result;
+	}
+	
+	private List<QTree> getBottomNeighbors(QTree root) {
+		List<QTree> result = new ArrayList<QTree>();
+		
+		double y = this.getY() + this.getHeight();
+		
+		if(y < Parameters.sizey){
+			double x = this.getX();
+			double maxX = this.getX() + this.getWidth();
+			
+			QTree temptree;
+			while(x < maxX){
+				temptree = root.getContainingNode(x, y);
+				result.add(temptree);
+				x += temptree.getWidth();
+			}
+		}
+		
+		return result;
+	}
+	
+	private List<QTree> getLeftNeighbors(QTree root) {
+		List<QTree> result = new ArrayList<QTree>();
 
+		double x = this.getX() - 1;
+		
+		if(x >= 0){
+			double y = this.getY();
+			double maxY = this.getY() + this.getHeight();
+			
+			QTree temptree;
+			while(y < maxY){
+				temptree = root.getContainingNode(x, y);
+				result.add(temptree);
+				y += temptree.getHeight();
+			}
+		}
+		return result;
+	}
+	
+	private List<QTree> getRightNeighbors(QTree root) {
+		List<QTree> result = new ArrayList<QTree>();
+		
+		double x = this.getX() + this.getWidth();
+		
+		if(x < Parameters.sizex){
+			double y = this.getY();
+			double maxY = this.getY() + this.getHeight();
+			
+			QTree temptree;
+			while(y < maxY){
+				temptree = root.getContainingNode(x, y);
+				result.add(temptree);
+				y += temptree.getHeight();
+			}
+		}
+		
+		return result;
+	}
+	
 	private void toggleTraversable() {
 		this.traversable ^= true; // Black magic, don't touch :D
 	}
@@ -147,9 +241,9 @@ public class QTree implements Serializable {
 			return null;
 		} else if(x < this.centerx && y < this.centery){
 			return nw;
-		} else if(x < this.centerx && y > this.centery){
+		} else if(x < this.centerx && y >= this.centery){
 			return sw;
-		} else if(x > this.centerx && y < this.centery){
+		} else if(x >= this.centerx && y < this.centery){
 			return ne;
 		} else {
 			return se;
