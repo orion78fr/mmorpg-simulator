@@ -13,7 +13,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;
 	
 	private Polygon currentPoly = new Polygon();
-	private QTree tree;
+	public static QTree tree;
 	
 	private Color green, dgreen, red, dred, poly, dpoly;
 	

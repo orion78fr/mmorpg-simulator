@@ -1,17 +1,19 @@
 package springCommon.QTree;
 
 import java.awt.Shape;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.DelayQueue;
 
-public class QTree {
+public class QTree implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private boolean isLeaf;
 	private boolean traversable;
 	private double centerx, centery, width, height, x, y;
-	private QTree parent;
+	//private QTree parent;
 	
 	private QTree ne = null,
 				nw = null,
@@ -33,7 +35,7 @@ public class QTree {
 		this.height = h;
 		this.traversable = traversable;
 		this.isLeaf = true;
-		this.parent = parent;
+		//this.parent = parent;
 	}
 	
 	public boolean isTraversable() {
@@ -45,7 +47,8 @@ public class QTree {
 	}
 	
 	public void toggleTraversableZone(double x, double y){
-		ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
+		// Début d'implem, mais risque d'être compliqué, donc repoussé a plus tard
+		/*ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
 		queue.addLast(this.getContainingNode(x, y));
 		
 		QTree current;
@@ -56,7 +59,8 @@ public class QTree {
 			}
 
 			current.toggleTraversable();
-		}
+		}*/
+		this.getContainingNode(x, y).toggleTraversable();
 		
 		this.consolidate();
 	}
@@ -141,14 +145,14 @@ public class QTree {
 	private QTree getDirectedNode(double x, double y){
 		if(this.isLeaf){ 
 			return null;
-		} else if(x > this.centerx && y > this.centery){
-			return se;
+		} else if(x < this.centerx && y < this.centery){
+			return nw;
 		} else if(x < this.centerx && y > this.centery){
 			return sw;
 		} else if(x > this.centerx && y < this.centery){
 			return ne;
 		} else {
-			return nw;
+			return se;
 		}
 	}
 	

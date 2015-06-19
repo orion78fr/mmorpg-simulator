@@ -4,7 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
@@ -15,7 +18,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import springCommon.QTree.QTree;
 import springVisualizer.State;
+import springVisualizer.view.overlay.ZonesOverlay;
 
 public class MenuBarGenerator {
 	/**
@@ -67,6 +72,56 @@ public class MenuBarGenerator {
                 		
                 	}
                 }
+        });
+        menu.add(item);
+        
+        item = new JMenuItem("Load zones");
+        item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
+                        int ret = fc.showOpenDialog(MainWindow.win);
+                        if (ret == JFileChooser.APPROVE_OPTION) {
+                        	if(!fc.getSelectedFile().isFile()){
+                        		JOptionPane.showMessageDialog(MainWindow.win, "This is not a file", "Error", JOptionPane.ERROR_MESSAGE);
+                        	}
+                            try {
+                            	ObjectInputStream is = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
+                            	
+                            	ZonesOverlay.tree = (QTree) is.readObject();
+                            	
+                            	is.close();
+                                ViewCommon.needsRefresh = true;
+                            } catch (Exception ex) {
+                            		JOptionPane.showMessageDialog(MainWindow.win, "The file is invalid", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                }
+        });
+        menu.add(item);
+        
+        item = new JMenuItem("Save zones");
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	JFileChooser fc = new JFileChooser(new File("").getAbsolutePath());
+                int ret = fc.showSaveDialog(MainWindow.win);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                	if(fc.getSelectedFile().exists() && !fc.getSelectedFile().isFile()){
+                		JOptionPane.showMessageDialog(MainWindow.win, "This is not a file", "Error", JOptionPane.ERROR_MESSAGE);
+                	} else {
+	                    try {
+	                    	ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
+                            
+	                    	os.writeObject(ZonesOverlay.tree);
+	                    	
+	                    	os.close();
+	                    } catch (Exception ex) {
+	                    		ex.printStackTrace();
+	                    }
+                	}
+                }
+            }
         });
         menu.add(item);
         
