@@ -7,7 +7,10 @@ import java.awt.Shape;
 import javax.swing.JOptionPane;
 
 import springCommon.Parameters;
+import springCommon.Point2d;
 import springCommon.QTree.QTree;
+import springCommon.QTree.QTree.TravelPath;
+import springVisualizer.State;
 import springVisualizer.util2D.Polygon;
 import springVisualizer.util2D.Polygon.ReentrantPolygonException;
 import springVisualizer.view.MainWindow;
@@ -43,6 +46,43 @@ public class ZonesOverlay extends AbstractOverlay {
 		drawQTree(g2d, tree);
 		
 		fillShape(g2d, currentPoly.toDrawCoords(), poly, dpoly);
+		
+		if(fromx != tox || fromy != toy){
+			debugDraw(g2d);
+		}
+	}
+	
+	private TravelPath path = null;
+	void debugDraw(Graphics2D g2d){
+		if(path == null || !path.getFrom().equals(new Point2d((long)fromx + 0.5, (long)fromy + 0.5)) || !path.getTo().equals(new Point2d((long)tox + 0.5, (long)toy + 0.5))){
+			path = tree.findPath(fromx, fromy, tox, toy);
+		}
+		
+		long i = 0;
+		
+		int beginx = Dimentions.xToDrawCoords(path.getFrom().getX());
+		int beginy = Dimentions.yToDrawCoords(path.getFrom().getY());
+		
+		int endx, endy;
+		
+		for(Point2d p : path.getPath()){
+			endx = Dimentions.xToDrawCoords(p.getX());
+			endy = Dimentions.yToDrawCoords(p.getY());
+			
+			i++;
+			if(i % 32 == 0){
+				g2d.setColor(new Color(State.r.nextFloat(), State.r.nextFloat(), State.r.nextFloat()));
+			}
+			
+			g2d.drawLine(beginx, beginy, endx, endy);
+			
+			beginx = endx;
+			beginy = endy;
+		}
+		
+		endx = Dimentions.xToDrawCoords(path.getTo().getX());
+		endy = Dimentions.yToDrawCoords(path.getTo().getY());
+		g2d.drawLine(beginx, beginy, endx, endy);
 	}
 	
 	void drawQTree(Graphics2D g2d, QTree tree){
@@ -71,8 +111,6 @@ public class ZonesOverlay extends AbstractOverlay {
 				g2d.setColor(dred);
 				g2d.drawRect(x, y, w, h);
 			}
-			
-			
 		}
 	}
 	
@@ -122,4 +160,20 @@ public class ZonesOverlay extends AbstractOverlay {
 	public String getDisplayName() {
 		return "Moving Zones";
 	}
+
+	
+	double fromx = 0, fromy = 0, tox = 0, toy = 0;
+	public void setBegin(double x, double y) {
+		// TODO Debug
+		fromx = x;
+		fromy = y;
+	}
+
+	public void setEnd(double x, double y) {
+		// TODO Debug
+		tox = x;
+		toy = y;
+	}
+	
+	
 }

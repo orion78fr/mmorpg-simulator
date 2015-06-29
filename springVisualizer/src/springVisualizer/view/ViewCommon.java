@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 
 import javax.swing.Timer;
 
+import springCommon.Parameters;
+
 public class ViewCommon {
 	public static class Dimentions {
 		/** Zoom factor */
@@ -105,11 +107,11 @@ public class ViewCommon {
 		Dimentions.yoffset = MainWindow.bar.getHeight();
 		
 		/* Limits of the zoom factor */
-	    if(Dimentions.zoom > Math.pow(2, 5)){
-			Dimentions.zoom = Math.pow(2, 5);
+	    if(Dimentions.zoom > Math.pow(2, Parameters.maxDezoomFactor)){
+			Dimentions.zoom = Math.pow(2, Parameters.maxDezoomFactor);
 		}
-	    if(Dimentions.zoom < (1.0 / Math.pow(2, 5))){
-			Dimentions.zoom = 1.0 / Math.pow(2, 5);
+	    if(Dimentions.zoom < (1.0 / Math.pow(2, Parameters.maxZoomFactor))){
+			Dimentions.zoom = 1.0 / Math.pow(2, Parameters.maxZoomFactor);
 		}
 	    
 	    /* Set the view dimention, ceiling for partial pixel */

@@ -73,6 +73,9 @@ public final class Parameters {
 		static final public String exportedMoveFolder = "movements"; 
 	
 		static final public int playerOverlayPlayerRadius = 20;
+		
+		static final public int maxZoomFactor = 10;
+		static final public int maxDezoomFactor = 5;
 	/** */
 	private Parameters(){
 		throw new RuntimeException("You can't instanciate this class!");

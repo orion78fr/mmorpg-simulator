@@ -172,8 +172,12 @@ public class MainWindow {
 						zones.addPoint(x,y);
 					} else if(e.getButton() == MouseEvent.BUTTON2){
 						zones.toggle(x,y);
-					} else {
+					} else if(e.getButton() == MouseEvent.BUTTON3){
 						zones.endPoly();
+					} else if(e.getButton() == 4){
+						zones.setBegin(x,y);
+					} else if(e.getButton() == 5){
+						zones.setEnd(x,y);
 					}
 					ViewCommon.needsRefresh = true;
 				}

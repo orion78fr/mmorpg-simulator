@@ -410,15 +410,66 @@ public class QTree implements Serializable {
 	}
 	
 	private static enum Directions{
-		NE, N, NW, W, SW, S, SE, E, NONE;
+		NE(Math.sqrt(2)), N(1), NW(Math.sqrt(2)), W(1), SW(Math.sqrt(2)), S(1), SE(Math.sqrt(2)), E(1);
+		
+		public static Directions getOpposite(Directions d){
+			if(d == null){
+				return null;
+			}
+			switch(d){
+			case E:
+				return W;
+			case N:
+				return S;
+			case NE:
+				return SW;
+			case NW:
+				return SE;
+			case S:
+				return N;
+			case SE:
+				return NW;
+			case SW:
+				return NE;
+			case W:
+				return E;
+			default:
+				return null;
+			}
+		}
+		
+		private double distance;
+		
+		private Directions(double distance) {
+			this.distance = distance;
+		}
+
+		public double getDistance() {
+			return distance;
+		}
 	}
 	
 	private static class PathValue {
 		private Directions from;
 		private double distanceFrom;
+		public PathValue(){
+			this(null, Double.MAX_VALUE);
+		}
 		public PathValue(Directions from, double distanceFrom) {
 			super();
 			this.from = from;
+			this.distanceFrom = distanceFrom;
+		}
+		public Directions getFrom() {
+			return from;
+		}
+		public double getDistanceFrom() {
+			return distanceFrom;
+		}
+		public void setFrom(Directions from) {
+			this.from = from;
+		}
+		public void setDistanceFrom(double distanceFrom) {
 			this.distanceFrom = distanceFrom;
 		}
 	}
@@ -436,27 +487,108 @@ public class QTree implements Serializable {
 		// We add them to a sorted list for the heuristic and take the first out.
 		// Then we recurse on this.
 		
-		TravelPath path = new TravelPath(fromx, fromy, tox, toy);
-		
+
 		double currentx = (long)fromx + 0.5, currenty = (long)fromy + 0.5;
 		
-		boolean finished = false;
+		TravelPath path = new TravelPath(currentx, currenty, (long)tox + 0.5, (long)toy + 0.5);
 		
-		List<Point2d> nextPoints = new ArrayList<Point2d>();
+		ArrayList<Point2d> nextPoints = new ArrayList<Point2d>();
 		nextPoints.add(new Point2d(currentx, currenty));
+		
 		Hashtable<Point2d, PathValue> explored = new Hashtable<Point2d, PathValue>();
-		explored.put(new Point2d(currentx, currenty),
-					new PathValue(Directions.NONE, Math.pow(currentx - tox, 2) + Math.pow(currenty - toy, 2)));
+		explored.put(new Point2d(currentx, currenty), new PathValue(null, 0));
 		
-		
-		while(!finished){
+		Point2d currentp;
+		while((currentp = nextPoints.remove(0)) != null){
+			PathValue currentValue = explored.get(currentp);
 			
+			for(Directions d : Directions.values()){
+				Point2d neighbor = getDirectedPoint(currentp, d);
+				
+				if(neighbor.getX() < 0 || neighbor.getX() >= Parameters.sizex || neighbor.getY() < 0 || neighbor.getY() >= Parameters.sizey){
+					// Outside map
+					continue;
+				}
+				
+				if(!getContainingNode(neighbor.getX(), neighbor.getY()).isTraversable()){
+					continue;
+				}
+				
+				// Get the current value or add it
+				PathValue value = explored.get(neighbor);
+				if(value == null){
+					value = new PathValue();
+					explored.put(neighbor, value);
+				}
+				
+				if(value.getDistanceFrom() > currentValue.getDistanceFrom() + d.getDistance()){
+					// This is a new better path
+					value.setDistanceFrom(currentValue.getDistanceFrom() + d.getDistance());
+					value.setFrom(d);
+					
+					// Add it in distance order
+					// TODO dichotomize
+					int i;
+					for(i = 0; i < nextPoints.size(); i++){
+						if(neighbor.distance(path.getTo()) < nextPoints.get(i).distance(path.getTo())){
+							break;
+						}
+					}
+					nextPoints.add(i, neighbor);
+					
+					if(neighbor.equals(path.getTo())){
+						// To exit the outer loop
+						nextPoints = new ArrayList<Point2d>();
+						break;
+					}
+				}
+			}
+			if(nextPoints.size() == 0){
+				break;
+			}
+		}
+		
+		System.out.println(explored.size());
+		
+		// So now we have found a path, iterate backwards and push it to the
+		currentp = path.getTo();
+		Directions d;
+		while((d = Directions.getOpposite(explored.get(currentp).getFrom())) != null){
+			currentp = getDirectedPoint(currentp, d);
+			if(!currentp.equals(path.getFrom())){
+				path.addPoint(currentp);
+			}
 		}
 		
 		return path;
 	}
 	
-	private Point2d[] get8ConnexityNeighbors(Point2d p){
+	private static Point2d getDirectedPoint(Point2d p, Directions d){
+		double x = p.getX();
+		double y = p.getY();
+		switch(d){
+		case E:
+			return new Point2d(x+1,y);
+		case N:
+			return new Point2d(x,y-1);
+		case NE:
+			return new Point2d(x+1,y-1);
+		case NW:
+			return new Point2d(x-1,y-1);
+		case S:
+			return new Point2d(x,y+1);
+		case SE:
+			return new Point2d(x+1,y+1);
+		case SW:
+			return new Point2d(x-1,y+1);
+		case W:
+			return new Point2d(x-1,y);
+		default:
+			return null;
+		}
+	}
+	
+	/*private static Point2d[] get8ConnexityNeighbors(Point2d p){
 		double x = p.getX();
 		double y = p.getY();
 		return new Point2d[] {new Point2d(x,y+1),
@@ -468,7 +600,7 @@ public class QTree implements Serializable {
 				new Point2d(x-1,y),
 				new Point2d(x-1,y+1)
 		};
-	}
+	}*/
 	
 	// TODO
 	public static class TravelPath{
@@ -492,8 +624,13 @@ public class QTree implements Serializable {
 			return path;
 		}
 
-		public void addPoint(double x, double y){
-			path.add(new Point2d(x, y));
+		public void addPointReverse(double x, double y){
+			addPoint(new Point2d(x, y));
+		}
+		
+		public void addPoint(Point2d p){
+			// Reverse adding
+			path.add(0, p);
 		}
 		
 		@Override
