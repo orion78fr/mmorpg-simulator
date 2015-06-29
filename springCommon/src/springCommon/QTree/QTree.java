@@ -4,11 +4,14 @@ import java.awt.Shape;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.DelayQueue;
 
 import springCommon.Parameters;
+import springCommon.Point2d;
 
 public class QTree implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -49,7 +52,6 @@ public class QTree implements Serializable {
 	}
 	
 	public void toggleTraversableZone(double x, double y){
-		// Début d'implem, mais risque d'être compliqué, donc repoussé a plus tard
 		ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
 		QTree current = this.getContainingNode(x, y);
 		queue.addLast(current);
@@ -63,30 +65,28 @@ public class QTree implements Serializable {
 					queue.addLast(e);
 				}
 			}
-
-			System.out.println("lol");
 			current.toggleTraversable();
 		}
 		
 		this.consolidate();
 	}
 
-	private List<QTree> getNeighbors(QTree root) {
+	private List<QTree> getNeighbors(QTree node) {
 		List<QTree> result = new ArrayList<QTree>();
 		
-		List<QTree> a = getTopNeighbors(root);
+		List<QTree> a = getTopNeighbors(node);
 		result.addAll(a);
-		List<QTree> b = getBottomNeighbors(root);
+		List<QTree> b = getBottomNeighbors(node);
 		result.addAll(b);
-		List<QTree> c = getLeftNeighbors(root);
+		List<QTree> c = getLeftNeighbors(node);
 		result.addAll(c);
-		List<QTree> d = getRightNeighbors(root);
+		List<QTree> d = getRightNeighbors(node);
 		result.addAll(d);
 		
 		return result;
 	}
 	
-	private List<QTree> getTopNeighbors(QTree root) {
+	private List<QTree> getTopNeighbors(QTree node) {
 		List<QTree> result = new ArrayList<QTree>();
 		
 		double y = this.getY() - 1;
@@ -97,7 +97,7 @@ public class QTree implements Serializable {
 			
 			QTree temptree;
 			while(x < maxX){
-				temptree = root.getContainingNode(x, y);
+				temptree = node.getContainingNode(x, y);
 				result.add(temptree);
 				x += temptree.getWidth();
 			}
@@ -105,7 +105,7 @@ public class QTree implements Serializable {
 		return result;
 	}
 	
-	private List<QTree> getBottomNeighbors(QTree root) {
+	private List<QTree> getBottomNeighbors(QTree node) {
 		List<QTree> result = new ArrayList<QTree>();
 		
 		double y = this.getY() + this.getHeight();
@@ -116,7 +116,7 @@ public class QTree implements Serializable {
 			
 			QTree temptree;
 			while(x < maxX){
-				temptree = root.getContainingNode(x, y);
+				temptree = node.getContainingNode(x, y);
 				result.add(temptree);
 				x += temptree.getWidth();
 			}
@@ -125,7 +125,7 @@ public class QTree implements Serializable {
 		return result;
 	}
 	
-	private List<QTree> getLeftNeighbors(QTree root) {
+	private List<QTree> getLeftNeighbors(QTree node) {
 		List<QTree> result = new ArrayList<QTree>();
 
 		double x = this.getX() - 1;
@@ -136,7 +136,7 @@ public class QTree implements Serializable {
 			
 			QTree temptree;
 			while(y < maxY){
-				temptree = root.getContainingNode(x, y);
+				temptree = node.getContainingNode(x, y);
 				result.add(temptree);
 				y += temptree.getHeight();
 			}
@@ -144,7 +144,7 @@ public class QTree implements Serializable {
 		return result;
 	}
 	
-	private List<QTree> getRightNeighbors(QTree root) {
+	private List<QTree> getRightNeighbors(QTree node) {
 		List<QTree> result = new ArrayList<QTree>();
 		
 		double x = this.getX() + this.getWidth();
@@ -155,7 +155,7 @@ public class QTree implements Serializable {
 			
 			QTree temptree;
 			while(y < maxY){
-				temptree = root.getContainingNode(x, y);
+				temptree = node.getContainingNode(x, y);
 				result.add(temptree);
 				y += temptree.getHeight();
 			}
@@ -250,14 +250,26 @@ public class QTree implements Serializable {
 		}
 	}
 	
+	/**
+	 * Set a shape to a certain state
+	 * @param s
+	 * @param traversable
+	 */
 	public void setShape(Shape s, boolean traversable){
 		this._setShape(s, traversable);
 		this.consolidate();
 	}
 	
+	/**
+	 * Helper method for setShape
+	 * @param s
+	 * @param traversable
+	 */
 	private void _setShape(Shape s, boolean traversable){
+		// Verify that a leaf is fully inside the shape. If so, set the state.
+		// If not, split it if possible, and recurse to the children
 		if(!this.isLeaf){
-			for(QTree tree : this.getChildrens()){
+			for(QTree tree : this.getChildren()){
 				tree._setShape(s, traversable);
 			}
 		} else {
@@ -321,15 +333,182 @@ public class QTree implements Serializable {
 		}
 	}
 	
-	public long size(){
+	public long nbLeaf(){
 		if(this.isLeaf){
 			return 1;
 		} else {
-			return ne.size() + nw.size() + se.size() + sw.size();
+			return ne.nbLeaf() + nw.nbLeaf() + se.nbLeaf() + sw.nbLeaf();
 		}
 	}
 	
-	public QTree[] getChildrens(){
+	public QTree[] getChildren(){
 		return new QTree[] {ne, se, sw, nw};
+	}
+	
+	public List<QTree> getAllLeaves(){
+		// Use a unique list that I pass to the recursion to avoid creating and merging multiple lists
+		List<QTree> result = new ArrayList<QTree>();
+		
+		this._getAllLeaves(result);
+		
+		return result;
+	}
+	
+	public void _getAllLeaves(List<QTree> result){
+		if(this.isLeaf()){
+			result.add(this);
+		} else {
+			for(QTree t : this.getChildren()){
+				t._getAllLeaves(result);
+			}
+		}
+	}
+	
+	/**
+	 * If everything is connected, we may be able to find a path!
+	 * @return true if everything is connected
+	 */
+	public boolean isEverythingConnected(){
+		// The algorithm add all the nodes of the QTree to a list and then removes only connected nodes, starting from (0,0).
+		// All non traversable nodes are always connected.
+		// From the first traversable node, all his neighbors are connected.
+		
+		boolean firstTraversable = true;
+		
+		List<QTree> l = new ArrayList<QTree>();
+		l.addAll(this.getAllLeaves());
+
+		ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
+		QTree current = this.getContainingNode(0, 0);
+		queue.addLast(current);
+		
+		l.remove(current);
+		
+		if(current.isTraversable()){
+			firstTraversable = false;
+		}
+		
+		while((current = queue.pollFirst()) != null){
+			for(QTree e : current.getNeighbors(this)){
+				if(l.contains(e)){
+					if(!e.isTraversable() || current.isTraversable()){
+						// If not traversable, doesn't count so remove it
+						// If traversable, remove only if the current node is traversable
+						queue.addLast(e);
+						l.remove(e);
+					} else if(firstTraversable) {
+						// If it's the *first* traversable node, continue
+						firstTraversable = false;
+						queue.addLast(e);
+						l.remove(e);
+					}
+				}
+			}
+		}
+		
+		return l.size() == 0;
+	}
+	
+	private static enum Directions{
+		NE, N, NW, W, SW, S, SE, E, NONE;
+	}
+	
+	private static class PathValue {
+		private Directions from;
+		private double distanceFrom;
+		public PathValue(Directions from, double distanceFrom) {
+			super();
+			this.from = from;
+			this.distanceFrom = distanceFrom;
+		}
+	}
+	
+	/**
+	 * Find a path that do not cross any forbidden zone. Not especially the best path.
+	 * @param fromx
+	 * @param fromy
+	 * @param tox
+	 * @param toy
+	 * @return A path between from and to
+	 */
+	public TravelPath findPath(double fromx, double fromy, double tox, double toy){
+		// We start from (fromx, fromy) then we explore from this every possibilities.
+		// We add them to a sorted list for the heuristic and take the first out.
+		// Then we recurse on this.
+		
+		TravelPath path = new TravelPath(fromx, fromy, tox, toy);
+		
+		double currentx = (long)fromx + 0.5, currenty = (long)fromy + 0.5;
+		
+		boolean finished = false;
+		
+		List<Point2d> nextPoints = new ArrayList<Point2d>();
+		nextPoints.add(new Point2d(currentx, currenty));
+		Hashtable<Point2d, PathValue> explored = new Hashtable<Point2d, PathValue>();
+		explored.put(new Point2d(currentx, currenty),
+					new PathValue(Directions.NONE, Math.pow(currentx - tox, 2) + Math.pow(currenty - toy, 2)));
+		
+		
+		while(!finished){
+			
+		}
+		
+		return path;
+	}
+	
+	private Point2d[] get8ConnexityNeighbors(Point2d p){
+		double x = p.getX();
+		double y = p.getY();
+		return new Point2d[] {new Point2d(x,y+1),
+				new Point2d(x+1,y+1),
+				new Point2d(x+1,y),
+				new Point2d(x+1,y-1),
+				new Point2d(x,y-1),
+				new Point2d(x-1,y-1),
+				new Point2d(x-1,y),
+				new Point2d(x-1,y+1)
+		};
+	}
+	
+	// TODO
+	public static class TravelPath{
+		private Point2d from, to;
+		private List<Point2d> path = new ArrayList<Point2d>();
+		
+		public TravelPath(double fromx, double fromy, double tox, double toy) {
+			this.from = new Point2d(fromx, fromy);
+			this.to = new Point2d(tox, toy);
+		}
+		
+		public Point2d getFrom() {
+			return from;
+		}
+
+		public Point2d getTo() {
+			return to;
+		}
+
+		public List<Point2d> getPath() {
+			return path;
+		}
+
+		public void addPoint(double x, double y){
+			path.add(new Point2d(x, y));
+		}
+		
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			
+			sb.append(from.toString());
+			
+			for(Point2d p : path){
+				sb.append(" -> ").append(p.toString());
+			}
+			
+			sb.append(" -> ").append(to.toString());
+			
+			return sb.toString();
+		}
 	}
 }

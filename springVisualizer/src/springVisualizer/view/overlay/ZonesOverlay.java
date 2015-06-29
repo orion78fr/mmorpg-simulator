@@ -52,7 +52,7 @@ public class ZonesOverlay extends AbstractOverlay {
 		
 		// Iterate over childrens
 		if(!tree.isLeaf()){
-			for(QTree child : tree.getChildrens()){
+			for(QTree child : tree.getChildren()){
 				drawQTree(g2d, child);
 			}
 		} else {
@@ -114,7 +114,8 @@ public class ZonesOverlay extends AbstractOverlay {
 	}
 	
 	public void toggle(double x, double y){
-		tree.toggleTraversableZone(x, y);
+		//tree.toggleTraversableZone(x, y);
+		System.out.println(tree.isEverythingConnected());
 	}
 
 	@Override
