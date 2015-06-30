@@ -71,7 +71,7 @@ public class ZonesOverlay extends AbstractOverlay {
 			
 			i++;
 			if(i % 32 == 0){
-				g2d.setColor(new Color(State.r.nextFloat(), State.r.nextFloat(), State.r.nextFloat()));
+				g2d.setColor(new Color((float)Math.random(), (float)Math.random(), (float)Math.random()));
 			}
 			
 			g2d.drawLine(beginx, beginy, endx, endy);

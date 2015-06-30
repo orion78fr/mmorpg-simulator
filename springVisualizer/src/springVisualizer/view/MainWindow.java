@@ -171,7 +171,8 @@ public class MainWindow {
 					if(e.getButton() == MouseEvent.BUTTON1){
 						zones.addPoint(x,y);
 					} else if(e.getButton() == MouseEvent.BUTTON2){
-						zones.toggle(x,y);
+						//zones.toggle(x,y);
+						zones.setBegin(x,y);
 					} else if(e.getButton() == MouseEvent.BUTTON3){
 						zones.endPoly();
 					} else if(e.getButton() == 4){

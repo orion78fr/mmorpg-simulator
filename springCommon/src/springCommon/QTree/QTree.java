@@ -475,7 +475,7 @@ public class QTree implements Serializable {
 	}
 	
 	/**
-	 * Find a path that do not cross any forbidden zone. Not especially the best path.
+	 * Find a path that do not cross any forbidden zone. Not especially the best path?
 	 * @param fromx
 	 * @param fromy
 	 * @param tox
@@ -486,7 +486,6 @@ public class QTree implements Serializable {
 		// We start from (fromx, fromy) then we explore from this every possibilities.
 		// We add them to a sorted list for the heuristic and take the first out.
 		// Then we recurse on this.
-		
 
 		double currentx = (long)fromx + 0.5, currenty = (long)fromy + 0.5;
 		
@@ -504,6 +503,10 @@ public class QTree implements Serializable {
 			
 			for(Directions d : Directions.values()){
 				Point2d neighbor = getDirectedPoint(currentp, d);
+				
+				if(explored.containsValue(neighbor)){
+					continue;
+				}
 				
 				if(neighbor.getX() < 0 || neighbor.getX() >= Parameters.sizex || neighbor.getY() < 0 || neighbor.getY() >= Parameters.sizey){
 					// Outside map
@@ -587,20 +590,6 @@ public class QTree implements Serializable {
 			return null;
 		}
 	}
-	
-	/*private static Point2d[] get8ConnexityNeighbors(Point2d p){
-		double x = p.getX();
-		double y = p.getY();
-		return new Point2d[] {new Point2d(x,y+1),
-				new Point2d(x+1,y+1),
-				new Point2d(x+1,y),
-				new Point2d(x+1,y-1),
-				new Point2d(x,y-1),
-				new Point2d(x-1,y-1),
-				new Point2d(x-1,y),
-				new Point2d(x-1,y+1)
-		};
-	}*/
 	
 	// TODO
 	public static class TravelPath{
