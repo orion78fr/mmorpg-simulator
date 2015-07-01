@@ -23,4 +23,8 @@ public class Point2d extends Point2D.Double {
 		sb.append("(").append(x).append(",").append(y).append(")");
 		return super.toString();
 	}
+
+	public boolean isInside() {
+		return this.x >= 0 && this.x < Parameters.sizex && this.y >= 0 && this.y < Parameters.sizey;
+	}
 }

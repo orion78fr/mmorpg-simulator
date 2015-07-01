@@ -5,9 +5,11 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.DelayQueue;
 
 import springCommon.Parameters;
@@ -451,26 +453,35 @@ public class QTree implements Serializable {
 	
 	private static class PathValue {
 		private Directions from;
-		private double distanceFrom;
+		private double g_score;
+		private double f_score;
+		
 		public PathValue(){
-			this(null, Double.MAX_VALUE);
-		}
-		public PathValue(Directions from, double distanceFrom) {
-			super();
-			this.from = from;
-			this.distanceFrom = distanceFrom;
+			this(null, Double.MAX_VALUE, Double.MAX_VALUE);
 		}
 		public Directions getFrom() {
 			return from;
 		}
-		public double getDistanceFrom() {
-			return distanceFrom;
-		}
 		public void setFrom(Directions from) {
 			this.from = from;
 		}
-		public void setDistanceFrom(double distanceFrom) {
-			this.distanceFrom = distanceFrom;
+		public double getG_score() {
+			return g_score;
+		}
+		public void setG_score(double g_score) {
+			this.g_score = g_score;
+		}
+		public double getF_score() {
+			return f_score;
+		}
+		public void setF_score(double f_score) {
+			this.f_score = f_score;
+		}
+		public PathValue(Directions from, double g_score, double f_score) {
+			super();
+			this.from = from;
+			this.g_score = g_score;
+			this.f_score = f_score;
 		}
 	}
 	
@@ -486,84 +497,103 @@ public class QTree implements Serializable {
 		// We start from (fromx, fromy) then we explore from this every possibilities.
 		// We add them to a sorted list for the heuristic and take the first out.
 		// Then we recurse on this.
-
-		double currentx = (long)fromx + 0.5, currenty = (long)fromy + 0.5;
+		TravelPath path = new TravelPath((long)fromx + 0.5, (long)fromy + 0.5, (long)tox + 0.5, (long)toy + 0.5);
 		
-		TravelPath path = new TravelPath(currentx, currenty, (long)tox + 0.5, (long)toy + 0.5);
+		List<Point2d> openSet = new ArrayList<Point2d>();
+		openSet.add(path.getFrom());
 		
-		ArrayList<Point2d> nextPoints = new ArrayList<Point2d>();
-		nextPoints.add(new Point2d(currentx, currenty));
+		List<Point2d> closedSet = new ArrayList<Point2d>();
 		
-		Hashtable<Point2d, PathValue> explored = new Hashtable<Point2d, PathValue>();
-		explored.put(new Point2d(currentx, currenty), new PathValue(null, 0));
+		HashMap<Point2d, PathValue> values = new HashMap<Point2d, PathValue>();
+		values.put(path.getFrom(), new PathValue(null, 0, path.getFrom().distance(path.getTo())));
 		
 		Point2d currentp;
-		while((currentp = nextPoints.remove(0)) != null){
-			PathValue currentValue = explored.get(currentp);
+		
+		Directions[] directionsValues = Directions.values();
+		
+		while((currentp = openSet.remove(0)) != null){
+			if(currentp.equals(path.getTo())){
+				backward_construct(path, values);
+				return path;
+			}
 			
-			for(Directions d : Directions.values()){
+			closedSet.add(currentp);
+			
+			PathValue currentpValue = values.get(currentp);
+			
+			for(Directions d : directionsValues){
 				Point2d neighbor = getDirectedPoint(currentp, d);
 				
-				if(explored.containsValue(neighbor)){
-					continue;
-				}
-				
-				if(neighbor.getX() < 0 || neighbor.getX() >= Parameters.sizex || neighbor.getY() < 0 || neighbor.getY() >= Parameters.sizey){
+				if(!neighbor.isInside()){
 					// Outside map
 					continue;
 				}
 				
-				if(!getContainingNode(neighbor.getX(), neighbor.getY()).isTraversable()){
+				if(closedSet.contains(neighbor)){
+					// It has already been explored and expanded
 					continue;
 				}
 				
-				// Get the current value or add it
-				PathValue value = explored.get(neighbor);
-				if(value == null){
-					value = new PathValue();
-					explored.put(neighbor, value);
+				if(!getContainingNode(neighbor.getX(), neighbor.getY()).isTraversable()){
+					// Not traversable
+					continue;
 				}
 				
-				if(value.getDistanceFrom() > currentValue.getDistanceFrom() + d.getDistance()){
-					// This is a new better path
-					value.setDistanceFrom(currentValue.getDistanceFrom() + d.getDistance());
-					value.setFrom(d);
+				double tentative_g_score = currentpValue.getG_score() + d.getDistance();
+				
+				// Get the current value or add it
+				PathValue neighborValue = values.get(neighbor);
+				if(neighborValue == null){
+					neighborValue = new PathValue();
+					values.put(neighbor, neighborValue);
+				}
+				
+				if(!openSet.contains(neighbor) || tentative_g_score < neighborValue.getG_score()){
+					neighborValue.setFrom(d);
+					neighborValue.setG_score(tentative_g_score);
+					neighborValue.setF_score(tentative_g_score + neighbor.distance(path.getTo()));
 					
-					// Add it in distance order
-					// TODO dichotomize
-					int i;
-					for(i = 0; i < nextPoints.size(); i++){
-						if(neighbor.distance(path.getTo()) < nextPoints.get(i).distance(path.getTo())){
-							break;
-						}
-					}
-					nextPoints.add(i, neighbor);
+					openSet.remove(neighbor);
 					
-					if(neighbor.equals(path.getTo())){
-						// To exit the outer loop
-						nextPoints = new ArrayList<Point2d>();
-						break;
-					}
+					add_f_order(neighbor, openSet, values);
 				}
 			}
-			if(nextPoints.size() == 0){
+			
+			if(openSet.size() == 0){
 				break;
 			}
 		}
 		
-		System.out.println(explored.size());
 		
-		// So now we have found a path, iterate backwards and push it to the
-		currentp = path.getTo();
+		// No path found
+		System.out.println("exploration ended, no path found");
+		return null;
+	}
+	
+	private static void add_f_order(Point2d neighbor, List<Point2d> openSet, Map<Point2d, PathValue> values){
+		// Add it in distance order
+		// TODO dichotomize
+		int i;
+		double neighbor_f_score = values.get(neighbor).getF_score();
+		for(i = 0; i < openSet.size(); i++){
+			if(neighbor_f_score < values.get(openSet.get(i)).getF_score()){
+				break;
+			}
+		}
+		openSet.add(i, neighbor);
+	}
+	
+	private static void backward_construct(TravelPath path, HashMap<Point2d, PathValue> values){
+		// So now we have found a path, iterate backwards and push it in the path
+		Point2d currentp = path.getTo();
 		Directions d;
-		while((d = Directions.getOpposite(explored.get(currentp).getFrom())) != null){
+		
+		while((d = Directions.getOpposite(values.get(currentp).getFrom())) != null){
 			currentp = getDirectedPoint(currentp, d);
 			if(!currentp.equals(path.getFrom())){
 				path.addPoint(currentp);
 			}
 		}
-		
-		return path;
 	}
 	
 	private static Point2d getDirectedPoint(Point2d p, Directions d){
