@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.DelayQueue;
 
 import springCommon.Parameters;
@@ -43,6 +44,14 @@ public class QTree implements Serializable {
 		this.traversable = traversable;
 		this.isLeaf = true;
 		//this.parent = parent;
+	}
+	
+	public boolean isTraversable(double x, double y){
+		return this.getContainingNode(x, y).isTraversable();
+	}
+	
+	public boolean isTraversable(Point2d p){
+		return this.isTraversable(p.getX(), p.getY());
 	}
 	
 	public boolean isTraversable() {
@@ -411,7 +420,7 @@ public class QTree implements Serializable {
 		return l.size() == 0;
 	}
 	
-	private static enum Directions{
+	public static enum Directions{
 		NE(Math.sqrt(2)), N(1), NW(Math.sqrt(2)), W(1), SW(Math.sqrt(2)), S(1), SE(Math.sqrt(2)), E(1);
 		
 		public static Directions getOpposite(Directions d){
@@ -493,7 +502,7 @@ public class QTree implements Serializable {
 	 * @param toy
 	 * @return A path between from and to
 	 */
-	public TravelPath findPath(double fromx, double fromy, double tox, double toy){
+	/*public TravelPath findPath(double fromx, double fromy, double tox, double toy){
 		// We start from (fromx, fromy) then we explore from this every possibilities.
 		// We add them to a sorted list for the heuristic and take the first out.
 		// Then we recurse on this.
@@ -594,32 +603,13 @@ public class QTree implements Serializable {
 				path.addPoint(currentp);
 			}
 		}
-	}
+	}*/
 	
-	private static Point2d getDirectedPoint(Point2d p, Directions d){
-		double x = p.getX();
-		double y = p.getY();
-		switch(d){
-		case E:
-			return new Point2d(x+1,y);
-		case N:
-			return new Point2d(x,y-1);
-		case NE:
-			return new Point2d(x+1,y-1);
-		case NW:
-			return new Point2d(x-1,y-1);
-		case S:
-			return new Point2d(x,y+1);
-		case SE:
-			return new Point2d(x+1,y+1);
-		case SW:
-			return new Point2d(x-1,y+1);
-		case W:
-			return new Point2d(x-1,y);
-		default:
-			return null;
-		}
-	}
+	
+	
+	
+	
+	
 	
 	// TODO
 	public static class TravelPath{

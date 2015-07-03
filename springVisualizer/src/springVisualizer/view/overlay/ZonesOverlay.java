@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 
 import springCommon.Parameters;
 import springCommon.Point2d;
+import springCommon.QTree.AStar_JPS;
 import springCommon.QTree.QTree;
 import springCommon.QTree.QTree.TravelPath;
 import springVisualizer.State;
@@ -55,7 +56,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	private TravelPath path = null;
 	void debugDraw(Graphics2D g2d){
 		if(path == null || !path.getFrom().equals(new Point2d((long)fromx + 0.5, (long)fromy + 0.5)) || !path.getTo().equals(new Point2d((long)tox + 0.5, (long)toy + 0.5))){
-			path = tree.findPath(fromx, fromy, tox, toy);
+			path = new AStar_JPS(tree).findPath(fromx, fromy, tox, toy);
 		}
 		
 		long i = 0;
