@@ -10,7 +10,7 @@ import springCommon.Parameters;
 import springCommon.Point2d;
 import springCommon.QTree.AStar_JPS;
 import springCommon.QTree.QTree;
-import springCommon.QTree.QTree.TravelPath;
+import springCommon.QTree.TravelPath;
 import springVisualizer.State;
 import springVisualizer.util2D.Polygon;
 import springVisualizer.util2D.Polygon.ReentrantPolygonException;

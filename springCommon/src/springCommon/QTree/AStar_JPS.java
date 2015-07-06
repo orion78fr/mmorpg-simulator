@@ -7,8 +7,6 @@ import javax.management.RuntimeErrorException;
 
 import springCommon.Parameters;
 import springCommon.Point2d;
-import springCommon.QTree.QTree.Directions;
-import springCommon.QTree.QTree.TravelPath;
 
 public class AStar_JPS {
 	private Directions[] ancesters;
@@ -16,9 +14,9 @@ public class AStar_JPS {
 	private double[] f_score;
 	private QTree tree;
 	private TravelPath path;
-	private boolean used;
 	
 	private class MySortedList extends ArrayList<Point2d>{
+		private static final long serialVersionUID = 1L;
 		@Override
 		public boolean add(Point2d e) {
 			if(this.isEmpty()){
@@ -70,6 +68,10 @@ public class AStar_JPS {
 		
 		path = new TravelPath((long)fromx + 0.5, (long)fromy + 0.5, (long)tox + 0.5, (long)toy + 0.5);
 		
+		openSet.add(path.getFrom());
+		
+		tab_set(g_score, path.getFrom(), 0);
+		
 		//Set<Point2d> closedSet = new HashSet<Point2d>();
 		
 		Point2d currentp;
@@ -77,6 +79,7 @@ public class AStar_JPS {
 		while((currentp = openSet.remove(0)) != null){
 			if(currentp.equals(path.getTo())){
 				backward_path_construct();
+				System.out.println("youhou");
 				return path;
 			}
 			
@@ -95,26 +98,83 @@ public class AStar_JPS {
 		return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
 	}
 	
+	private Directions get_best_direction(Point2d node){
+		double dx = path.getTo().getX() - node.getX();
+		double dy = path.getTo().getY() - node.getY();
+		
+		Directions d;
+		Boolean cw;
+		
+		if(dx > 0){
+			if(dy > 0){
+				d = Directions.SE;
+				cw = dy > dx;
+			} else {
+				d = Directions.NE;
+				cw = dx > -dy;
+			}
+		} else {
+			if(dy > 0){
+				d = Directions.SW;
+				cw = -dx > dy;
+			} else {
+				d = Directions.NW;
+				cw = -dy > -dx;
+			}
+		}
+		
+		return get_best_direction(node, d, cw);
+	}
+	
+	private Directions get_best_direction(Point2d node, Directions d, boolean cw){
+		if(!is_explored(node, d)){
+			return d;
+		} else if(!is_explored(node,Directions.getPerpendicular(d, cw))){
+			return Directions.getPerpendicular(d, cw);
+		} else if(!is_explored(node,Directions.getPerpendicular(d, !cw))){
+			return Directions.getPerpendicular(d, !cw);
+		} else if(!is_explored(node, Directions.getOpposite(d))){
+			return Directions.getOpposite(d);
+		} else {
+			return null;
+		}
+	}
+	
 	private void explore_node(Point2d node){
 		// Find "best", non explored direction
 		Directions d = get_best_direction(node);
+		if(d == null){
+			return;
+		}
 		
 		// Explore this diagonal
 		explore_node(node, d);
 		
 		// If not finished, re-add it to the open set
-		if(!totally_explored(node)){
+		if(!is_totally_explored(node)){
 			this.openSet.add(node);
 		}
 	}
 	
-	private boolean totally_explored(Point2d node){		
+	private boolean is_totally_explored(Point2d node){		
 		for(Directions d : Directions.values()){
-			if(tab_get(ancesters, getDirectedPoint(node, d)) == null){
+			if(!is_explored(node, d)){
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	private boolean is_explored(Point2d node, Directions d){
+		return is_explored(getDirectedPoint(node, d));
+	}
+	
+	private boolean is_explored(Point2d node){
+		return tab_get(ancesters, node) != null;
+	}
+	
+	private boolean is_explored(double x, double y){
+		return tab_get(ancesters, x, y) != null;
 	}
 	
 	private void explore_node(Point2d node, Directions d){
@@ -125,7 +185,9 @@ public class AStar_JPS {
 		
 		if(is_jmp_point(node, d)){
 			// This is a Jump Point, add it to open and stop here
+			tab_set(f_score, node, tab_get(g_score, node) + manhattan_distance(node, path.getTo()));
 			openSet.add(node);
+			return;
 		}
 		
 		boolean ltr = (d == Directions.NE || d == Directions.SE);
@@ -139,8 +201,12 @@ public class AStar_JPS {
 		
 		// Explore diagonally, if needed
 		Point2d diag = getDirectedPoint(node, d);
+		if(diag.getX() < 0 || diag.getX() >= Parameters.sizex || diag.getY() < 0 || diag.getY() >= Parameters.sizey){
+			return;
+		}
 		if(tab_get(ancesters, diag) == null){
 			tab_set(ancesters, diag, d);
+			tab_set(g_score, diag, tab_get(g_score, node) + Math.sqrt(2));
 			explore_node(diag, d);
 		}
 	}
@@ -150,6 +216,9 @@ public class AStar_JPS {
 	}
 	
 	private boolean is_jmp_point(double x, double y, Directions d){
+		if(path.getTo().getX() == x && path.getTo().getY() == y){
+			return true;
+		}
 		switch(d){
 		case E:
 			return ((y-1 >= 0) ? !tree.isTraversable(x-1, y-1) : false) || ((y+1 < Parameters.sizey) ? !tree.isTraversable(x-1, y+1) : false);
@@ -183,27 +252,64 @@ public class AStar_JPS {
 			d = Directions.W;
 		}
 		
-		double x = node.getX();
+		double x = node.getX() + increment;
 		double y = node.getY();
-		double oldgscore = tab_get(g_score, x, y);
+		double oldgscore = tab_get(g_score, node.getX(), y);
 		
-		while(tree.isTraversable(x, y)){
-			// TODO verify that x + increment is still on the map!
-			if(tab_get(ancesters, x+increment, y) == null){
+		while(tree.isTraversable(x - increment, y)){
+			if((0 <= x && x < Parameters.sizex) && !is_explored(x, y)){
 				// If not explored, we continue
-				tab_set(ancesters, x+increment, y, d);
+				tab_set(ancesters, x, y, d);
 				oldgscore++;
-				tab_set(g_score, x+increment, y, oldgscore);
+				tab_set(g_score, x, y, oldgscore);
 				
-				if(is_jmp_point(x+increment,y,d)){
+				if(is_jmp_point(x,y,d)){
 					// This is a Jump Point as one of it's backward neighbors are not traversable and wasn't already explored
-					Point2d newPoint = new Point2d(x+increment, y);
-					tab_set(f_score, x+increment, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
+					Point2d newPoint = new Point2d(x, y);
+					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
 					openSet.add(newPoint);
 					break;
 				}
 				
 				x += increment;
+			} else {
+				// Already explored
+				break;
+			}
+		}
+	}
+	
+	private void explore_node_vertical(Point2d node, boolean utd){
+		int increment;
+		Directions d;
+		if(utd){
+			increment = 1;
+			d = Directions.S;
+		} else {
+			increment = -1;
+			d = Directions.N;
+		}
+		
+		double x = node.getX();
+		double y = node.getY() + increment;
+		double oldgscore = tab_get(g_score, x, node.getY());
+		
+		while(tree.isTraversable(x, y - increment)){
+			if((0 <= y && y < Parameters.sizey) && !is_explored(x, y)){
+				// If not explored, we continue
+				tab_set(ancesters, x, y, d);
+				oldgscore++;
+				tab_set(g_score, x, y, oldgscore);
+				
+				if(is_jmp_point(x,y,d)){
+					// This is a Jump Point as one of it's backward neighbors are not traversable and wasn't already explored
+					Point2d newPoint = new Point2d(x, y);
+					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
+					openSet.add(newPoint);
+					break;
+				}
+				
+				y += increment;
 			} else {
 				// Already explored
 				break;
