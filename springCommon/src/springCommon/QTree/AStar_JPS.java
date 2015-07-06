@@ -1,9 +1,6 @@
 package springCommon.QTree;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.management.RuntimeErrorException;
 
 import springCommon.Parameters;
 import springCommon.Point2d;
@@ -27,7 +24,7 @@ public class AStar_JPS {
 		}
 		private void add(Point2d e, int startIndex, int endIndex){
 			if(startIndex == endIndex){
-				if(tab_get(f_score, e) < tab_get(f_score, this.get(startIndex))){
+				if(tab_get(f_score, e) > tab_get(f_score, this.get(startIndex))){
 					super.add(startIndex, e);
 				} else {
 					super.add(startIndex+1, e);
@@ -35,7 +32,7 @@ public class AStar_JPS {
 			} else {
 				int midIndex = (startIndex + endIndex) / 2;
 				
-				if(tab_get(f_score, e) < tab_get(f_score, this.get(midIndex))){
+				if(tab_get(f_score, e) > tab_get(f_score, this.get(midIndex))){
 					add(e, startIndex, midIndex);
 				} else {
 					add(e, midIndex + 1, endIndex);
@@ -45,6 +42,10 @@ public class AStar_JPS {
 		@Override
 		public void add(int index, Point2d element) {
 			throw new RuntimeException("You can't choose the index");
+		}
+		
+		public Point2d removeBest(){
+			return size() == 0 ? null : this.remove(size()-1);
 		}
 	}
 	private MySortedList openSet;
@@ -76,7 +77,7 @@ public class AStar_JPS {
 		
 		Point2d currentp;
 		
-		while((currentp = openSet.remove(0)) != null){
+		while((currentp = openSet.removeBest()) != null){
 			if(currentp.equals(path.getTo())){
 				backward_path_construct();
 				System.out.println("youhou");
@@ -84,10 +85,6 @@ public class AStar_JPS {
 			}
 			
 			explore_node(currentp);
-			
-			if(openSet.isEmpty()){
-				break;
-			}
 		}
 		
 		System.err.println("exploration ended, no path found");

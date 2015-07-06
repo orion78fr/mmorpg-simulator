@@ -4,14 +4,7 @@ import java.awt.Shape;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.DelayQueue;
 
 import springCommon.Parameters;
 import springCommon.Point2d;
@@ -419,38 +412,4 @@ public class QTree implements Serializable {
 		
 		return l.size() == 0;
 	}
-	
-	/*private static class PathValue {
-		private Directions from;
-		private double g_score;
-		private double f_score;
-		
-		public PathValue(){
-			this(null, Double.MAX_VALUE, Double.MAX_VALUE);
-		}
-		public Directions getFrom() {
-			return from;
-		}
-		public void setFrom(Directions from) {
-			this.from = from;
-		}
-		public double getG_score() {
-			return g_score;
-		}
-		public void setG_score(double g_score) {
-			this.g_score = g_score;
-		}
-		public double getF_score() {
-			return f_score;
-		}
-		public void setF_score(double f_score) {
-			this.f_score = f_score;
-		}
-		public PathValue(Directions from, double g_score, double f_score) {
-			super();
-			this.from = from;
-			this.g_score = g_score;
-			this.f_score = f_score;
-		}
-	}*/
 }
