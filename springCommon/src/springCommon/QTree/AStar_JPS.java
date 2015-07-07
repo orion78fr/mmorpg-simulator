@@ -103,7 +103,7 @@ public class AStar_JPS {
 		double dy = path.getTo().getY() - node.getY();
 		
 		Directions d;
-		Boolean cw;
+		boolean cw;
 		
 		if(dx > 0){
 			if(dy > 0){
