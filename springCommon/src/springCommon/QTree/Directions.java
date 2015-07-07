@@ -36,4 +36,42 @@ public enum Directions{
 			default: return null;
 		}
 	}
+	
+	public static Directions get45deg(Directions d, boolean clockwise){
+		if(d == null){
+			return null;
+		}
+		switch(d){
+			case E:	return clockwise ? SE : NE;
+			case N: return clockwise ? NE : NW;
+			case NE: return clockwise ? E : N;
+			case NW: return clockwise ? N : W;
+			case S: return clockwise ? SW : SE;
+			case SE: return clockwise ? S : E;
+			case SW: return clockwise ? W : S;
+			case W: return clockwise ? NW : SW;
+			default: return null;
+		}
+	}
+	
+	public static Directions get135deg(Directions d, boolean clockwise){
+		return Directions.get45deg(Directions.getOpposite(d), !clockwise);
+	}
+	
+	public static boolean isDiagonal(Directions d){
+		if(d == null){
+			return false;
+		}
+		switch(d){
+			case E:	return false;
+			case N: return false;
+			case NE: return true;
+			case NW: return true;
+			case S: return false;
+			case SE: return true;
+			case SW: return true;
+			case W: return false;
+			default: return false;
+		}
+	}
 }

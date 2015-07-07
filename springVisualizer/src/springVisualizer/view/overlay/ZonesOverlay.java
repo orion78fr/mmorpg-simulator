@@ -58,6 +58,11 @@ public class ZonesOverlay extends AbstractOverlay {
 			path = new AStar_JPS(tree).findPath(fromx, fromy, tox, toy);
 		}
 		
+		if(path == null){
+			System.out.println("No Path Found");
+			return;
+		}
+		
 		long i = 0;
 		
 		int beginx = Dimentions.xToDrawCoords(path.getFrom().getX());

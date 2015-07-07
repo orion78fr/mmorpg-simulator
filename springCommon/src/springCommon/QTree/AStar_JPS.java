@@ -14,6 +14,9 @@ public class AStar_JPS {
 	
 	private class MySortedList extends ArrayList<Point2d>{
 		private static final long serialVersionUID = 1L;
+		public MySortedList() {
+			super((int)(Parameters.sizex * Parameters.sizey));
+		}
 		@Override
 		public boolean add(Point2d e) {
 			if(this.isEmpty()){
@@ -65,6 +68,7 @@ public class AStar_JPS {
 	}
 	
 	public synchronized TravelPath findPath(double fromx, double fromy, double tox, double toy){
+		System.out.println("Start");
 		do_allocs();
 		
 		path = new TravelPath((long)fromx + 0.5, (long)fromy + 0.5, (long)tox + 0.5, (long)toy + 0.5);
@@ -72,8 +76,7 @@ public class AStar_JPS {
 		openSet.add(path.getFrom());
 		
 		tab_set(g_score, path.getFrom(), 0);
-		
-		//Set<Point2d> closedSet = new HashSet<Point2d>();
+		tab_set(f_score, path.getFrom(), manhattan_distance(path.getFrom(), path.getTo()));
 		
 		Point2d currentp;
 		
@@ -133,6 +136,7 @@ public class AStar_JPS {
 		} else if(!is_explored(node, Directions.getOpposite(d))){
 			return Directions.getOpposite(d);
 		} else {
+			System.out.println("C'est ballot " + d.name());
 			return null;
 		}
 	}
@@ -141,8 +145,10 @@ public class AStar_JPS {
 		// Find "best", non explored direction
 		Directions d = get_best_direction(node);
 		if(d == null){
+			System.out.println("OH PUTAIN " + node.toString());
 			return;
 		}
+		System.out.println(d.name() + " " + node.toString());
 		
 		// Explore this diagonal
 		explore_node(node, d);
@@ -167,23 +173,16 @@ public class AStar_JPS {
 	}
 	
 	private boolean is_explored(Point2d node){
-		return tab_get(ancesters, node) != null;
+		return is_explored(node.getX(), node.getY());
 	}
 	
 	private boolean is_explored(double x, double y){
-		return tab_get(ancesters, x, y) != null;
+		return (new Point2d(x,y)).equals(path.getFrom()) || !tree.isTraversable(x, y) || tab_get(ancesters, x, y) != null;
 	}
 	
 	private void explore_node(Point2d node, Directions d){
 		if(!tree.isTraversable(node)){
 			// If not traversable, do nothing!
-			return;
-		}
-		
-		if(is_jmp_point(node, d)){
-			// This is a Jump Point, add it to open and stop here
-			tab_set(f_score, node, tab_get(g_score, node) + manhattan_distance(node, path.getTo()));
-			openSet.add(node);
 			return;
 		}
 		
@@ -201,41 +200,45 @@ public class AStar_JPS {
 		if(diag.getX() < 0 || diag.getX() >= Parameters.sizex || diag.getY() < 0 || diag.getY() >= Parameters.sizey){
 			return;
 		}
-		if(tab_get(ancesters, diag) == null){
+		if(tree.isTraversable(diag) && !is_explored(diag)){
 			tab_set(ancesters, diag, d);
 			tab_set(g_score, diag, tab_get(g_score, node) + Math.sqrt(2));
+			if(is_jmp_point(diag, d)){
+				// This is a Jump Point, add it to open and stop here
+				tab_set(f_score, diag, tab_get(g_score, diag) + manhattan_distance(node, path.getTo()));
+				openSet.add(node);
+				return;
+			}
 			explore_node(diag, d);
 		}
 	}
 	
 	private boolean is_jmp_point(Point2d p, Directions d){
-		return is_jmp_point(p.getX(), p.getY(), d);
+		if(path.getTo().equals(p)){
+			return true;
+		}
+		
+		Point2d full1, full2, empty1, empty2;
+		
+		if(Directions.isDiagonal(d)){
+			empty1 = getDirectedPoint(p, Directions.getPerpendicular(d, true));
+			full1 = getDirectedPoint(p, Directions.get135deg(d, true));
+			
+			empty2 = getDirectedPoint(p, Directions.getPerpendicular(d, false));
+			full2 = getDirectedPoint(p, Directions.get135deg(d, false));
+		} else {
+			full1 = getDirectedPoint(p, Directions.getPerpendicular(d, true));
+			empty1 = getDirectedPoint(p, Directions.get45deg(d, true));
+			
+			full2 = getDirectedPoint(p, Directions.getPerpendicular(d, false));
+			empty2 = getDirectedPoint(p, Directions.get45deg(d, false));
+		}
+		
+		return (!tree.isTraversable(full1) && !is_explored(empty1)) || (!tree.isTraversable(full2) && !is_explored(empty2));
 	}
 	
 	private boolean is_jmp_point(double x, double y, Directions d){
-		if(path.getTo().getX() == x && path.getTo().getY() == y){
-			return true;
-		}
-		switch(d){
-		case E:
-			return ((y-1 >= 0) ? !tree.isTraversable(x-1, y-1) : false) || ((y+1 < Parameters.sizey) ? !tree.isTraversable(x-1, y+1) : false);
-		case N:
-			return ((x-1 >= 0) ? !tree.isTraversable(x-1, y+1) : false) || ((x+1 < Parameters.sizex) ? !tree.isTraversable(x+1, y+1) : false);
-		case NE:
-			return !tree.isTraversable(x-1, y) || !tree.isTraversable(x, y+1);
-		case NW:
-			return !tree.isTraversable(x+1, y) || !tree.isTraversable(x, y+1);
-		case S:
-			return ((x-1 >= 0) ? !tree.isTraversable(x-1, y-1) : false) || ((x+1 < Parameters.sizex) ? !tree.isTraversable(x+1, y-1) : false);
-		case SE:
-			return !tree.isTraversable(x-1, y) || !tree.isTraversable(x, y-1);
-		case SW:
-			return !tree.isTraversable(x+1, y) || !tree.isTraversable(x, y-1);
-		case W:
-			return ((y-1 >= 0) ? !tree.isTraversable(x+1, y-1) : false) || ((y+1 < Parameters.sizey) ? !tree.isTraversable(x+1, y+1) : false);
-		default:
-			throw new RuntimeException("Testing if is jump point without giving a direction!");
-		}
+		return is_jmp_point(new Point2d(x, y), d);
 	}
 	
 	private void explore_node_horizontal(Point2d node, boolean ltr){
