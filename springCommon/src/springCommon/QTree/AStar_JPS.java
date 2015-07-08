@@ -68,29 +68,26 @@ public class AStar_JPS {
 	}
 	
 	public synchronized TravelPath findPath(double fromx, double fromy, double tox, double toy){
-		System.out.println("Start");
 		do_allocs();
 		
 		path = new TravelPath((long)fromx + 0.5, (long)fromy + 0.5, (long)tox + 0.5, (long)toy + 0.5);
 		
-		openSet.add(path.getFrom());
-		
 		tab_set(g_score, path.getFrom(), 0);
 		tab_set(f_score, path.getFrom(), manhattan_distance(path.getFrom(), path.getTo()));
+		
+		openSet.add(path.getFrom());
 		
 		Point2d currentp;
 		
 		while((currentp = openSet.removeBest()) != null){
 			if(currentp.equals(path.getTo())){
 				backward_path_construct();
-				System.out.println("youhou");
 				return path;
 			}
 			
 			explore_node(currentp);
 		}
 		
-		System.err.println("exploration ended, no path found");
 		return null;
 	}
 	
@@ -136,7 +133,6 @@ public class AStar_JPS {
 		} else if(!is_explored(node, Directions.getOpposite(d))){
 			return Directions.getOpposite(d);
 		} else {
-			System.out.println("C'est ballot " + d.name());
 			return null;
 		}
 	}
@@ -145,10 +141,8 @@ public class AStar_JPS {
 		// Find "best", non explored direction
 		Directions d = get_best_direction(node);
 		if(d == null){
-			System.out.println("OH PUTAIN " + node.toString());
 			return;
 		}
-		System.out.println(d.name() + " " + node.toString());
 		
 		// Explore this diagonal
 		explore_node(node, d);
@@ -206,7 +200,7 @@ public class AStar_JPS {
 			if(is_jmp_point(diag, d)){
 				// This is a Jump Point, add it to open and stop here
 				tab_set(f_score, diag, tab_get(g_score, diag) + manhattan_distance(node, path.getTo()));
-				openSet.add(node);
+				openSet.add(diag);
 				return;
 			}
 			explore_node(diag, d);

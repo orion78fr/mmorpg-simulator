@@ -107,11 +107,11 @@ public class ViewCommon {
 		Dimentions.yoffset = MainWindow.bar.getHeight();
 		
 		/* Limits of the zoom factor */
-	    if(Dimentions.zoom > Math.pow(2, Parameters.maxDezoomFactor)){
-			Dimentions.zoom = Math.pow(2, Parameters.maxDezoomFactor);
+	    if(Dimentions.zoom > Math.pow(2, Parameters.maxZoomFactor)){
+			Dimentions.zoom = Math.pow(2, Parameters.maxZoomFactor);
 		}
-	    if(Dimentions.zoom < (1.0 / Math.pow(2, Parameters.maxZoomFactor))){
-			Dimentions.zoom = 1.0 / Math.pow(2, Parameters.maxZoomFactor);
+	    if(Dimentions.zoom < (1.0 / Math.pow(2, Parameters.maxDezoomFactor))){
+			Dimentions.zoom = 1.0 / Math.pow(2, Parameters.maxDezoomFactor);
 		}
 	    
 	    /* Set the view dimention, ceiling for partial pixel */
