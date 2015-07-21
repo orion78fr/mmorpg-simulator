@@ -171,8 +171,6 @@ public class ControlDialog{
 		for(String mm : MainWindow.mouseModes.keySet()){
 			cbMouseMode.addItem(mm);
 		}
-		cbMouseMode.setSelectedIndex(0);
-		mouseModeDesc.setText(MainWindow.mouseModes.get(cbMouseMode.getSelectedItem()).getDescription());
 		cbMouseMode.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -186,6 +184,7 @@ public class ControlDialog{
 				win.pack();
 			}
 		});
+		cbMouseMode.setSelectedIndex(0);
 		win.add(cbMouseMode);
 		win.add(mouseModeDesc);
 		
