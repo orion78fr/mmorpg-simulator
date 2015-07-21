@@ -51,4 +51,9 @@ public class BackgroudOverlay extends AbstractOverlay {
 	public String getDisplayName() {
 		return "Background Image";
 	}
+
+	@Override
+	public OverlayMouseMode[] getMouseModes() {
+		return null;
+	}
 }

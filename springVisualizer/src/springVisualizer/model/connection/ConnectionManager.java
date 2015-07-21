@@ -1,5 +1,5 @@
 package springVisualizer.model.connection;
 
 public interface ConnectionManager {
-	//TODO
+	public void manage(long tickNumber);
 }

@@ -7,10 +7,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,6 +27,7 @@ import javax.swing.event.ChangeListener;
 import springCommon.Parameters;
 import springVisualizer.State;
 import springVisualizer.view.overlay.AbstractOverlay;
+import springVisualizer.view.overlay.OverlayMouseMode;
 
 public class ControlDialog{
 	private static Timer t = null;
@@ -161,9 +165,29 @@ public class ControlDialog{
 		overlays.setAlignmentX(Component.CENTER_ALIGNMENT);
 		win.add(overlays);
 		
-		tmpLabel = new MultiLineJLabel("\nA / E or Ctrl + Wheel : Zoom\nR : Next Step\n\nLeft Click : Add point to polygon\nRight Click : Finish polygon\nMiddle Click : Toggle zone");
-		tmpLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		win.add(tmpLabel);
+		JComboBox<String> cbMouseMode = new JComboBox<String>();
+		MultiLineJLabel mouseModeDesc = new MultiLineJLabel("");
+		mouseModeDesc.setAlignmentX(Component.CENTER_ALIGNMENT);
+		for(String mm : MainWindow.mouseModes.keySet()){
+			cbMouseMode.addItem(mm);
+		}
+		cbMouseMode.setSelectedIndex(0);
+		mouseModeDesc.setText(MainWindow.mouseModes.get(cbMouseMode.getSelectedItem()).getDescription());
+		cbMouseMode.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox<String> cb = (JComboBox<String>)e.getSource();
+				String elem = (String)cb.getSelectedItem();
+				
+				OverlayMouseMode m = MainWindow.mouseModes.get(elem);
+				
+				MainWindow.setMouseMode(m);
+				mouseModeDesc.setText(m.getDescription());
+				win.pack();
+			}
+		});
+		win.add(cbMouseMode);
+		win.add(mouseModeDesc);
 		
 		win.addComponentListener(new ComponentListener() {
 			@Override

@@ -16,7 +16,11 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
@@ -29,6 +33,7 @@ import springVisualizer.State;
 import springVisualizer.view.overlay.AbstractOverlay;
 import springVisualizer.view.overlay.BackgroudOverlay;
 import springVisualizer.view.overlay.HotspotOverlay;
+import springVisualizer.view.overlay.OverlayMouseMode;
 import springVisualizer.view.overlay.PlayerOverlay;
 import springVisualizer.view.overlay.ServerOverlay;
 import springVisualizer.view.overlay.ZonesOverlay;
@@ -164,24 +169,7 @@ public class MainWindow {
 			public void mouseEntered(MouseEvent e) {}
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				double x = Dimentions.xDrawToInternal(e.getX());
-				double y = Dimentions.yDrawToInternal(e.getY());
-				if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
-					//State.hotspots.add(new Hotspot(x, y, 50));
-					if(e.getButton() == MouseEvent.BUTTON1){
-						zones.addPoint(x,y);
-					} else if(e.getButton() == MouseEvent.BUTTON2){
-						//zones.toggle(x,y);
-						zones.setBegin(x,y);
-					} else if(e.getButton() == MouseEvent.BUTTON3){
-						zones.endPoly();
-					} else if(e.getButton() == 4){
-						zones.setBegin(x,y);
-					} else if(e.getButton() == 5){
-						zones.setEnd(x,y);
-					}
-					ViewCommon.needsRefresh = true;
-				}
+				currentMouseMode.mouseClicked(e);
 			}
 		});
         
@@ -258,11 +246,21 @@ public class MainWindow {
 	
 	private static int currentIndex = 1;
 	static List<AbstractOverlay> overlays = new ArrayList<AbstractOverlay>();
+	static Map<String, OverlayMouseMode> mouseModes = new HashMap<String, OverlayMouseMode>();
+	private static OverlayMouseMode currentMouseMode = null;
 	private static void addOverlay(AbstractOverlay overlay) {
 		overlays.add(overlay);
+		if(overlay.getMouseModes() != null){
+			for(OverlayMouseMode m : overlay.getMouseModes()){
+				mouseModes.put(m.getName(), m);
+			}
+		}
 		win.getLayeredPane().add(overlay, new Integer(currentIndex));
 		currentIndex++;
 	}
 
+	public static void setMouseMode(OverlayMouseMode mode){
+		currentMouseMode = mode;
+	}
 	
 }

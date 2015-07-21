@@ -22,7 +22,7 @@ public final class Parameters {
 	
 	/* Configuration of the blue banana model */
 		/** Probability to choose a new hotspot to go to */
-		static final public double bbProbaGoToNewHotspot = 0.05;
+		static final public double bbProbaGoToNewHotspot = 0.01;
 		/** Distance when doing random moves inside hotspot */
 		static final public double bbInHotspotRandomMoveDistance = 10;
 		/** Distance when going to an hotspot */

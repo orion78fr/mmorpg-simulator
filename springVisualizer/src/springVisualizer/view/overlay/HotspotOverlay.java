@@ -3,9 +3,12 @@ package springVisualizer.view.overlay;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
+import java.awt.event.MouseEvent;
 
+import springCommon.Parameters;
 import springVisualizer.State;
 import springVisualizer.model.Hotspot;
+import springVisualizer.view.ViewCommon;
 import springVisualizer.view.ViewCommon.Dimentions;
 
 public class HotspotOverlay extends AbstractOverlay {
@@ -38,5 +41,48 @@ public class HotspotOverlay extends AbstractOverlay {
 	@Override
 	public String getDisplayName() {
 		return "Hotspots";
+	}
+
+	OverlayMouseMode hotspotAdderMouseMode = new OverlayMouseMode() {
+		
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		
+		@Override
+		public void mousePressed(MouseEvent e) {}
+		
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			double x = Dimentions.xDrawToInternal(e.getX());
+			double y = Dimentions.yDrawToInternal(e.getY());
+			
+			if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
+				if(e.getButton() == MouseEvent.BUTTON1){
+					State.addHotspot(x, y, 50);
+					ViewCommon.needsRefresh = true;
+				}
+			}
+		}
+		
+		@Override
+		public String getName() {
+			return "Hotspot";
+		}
+
+		@Override
+		public String getDescription() {
+			return "Left click to add a hotspot";
+		}
+	};
+	
+	@Override
+	public OverlayMouseMode[] getMouseModes() {
+		return new OverlayMouseMode[] {hotspotAdderMouseMode};
 	}
 }

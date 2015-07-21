@@ -20,7 +20,6 @@ import javax.swing.JOptionPane;
 
 import springCommon.QTree.QTree;
 import springVisualizer.State;
-import springVisualizer.view.overlay.ZonesOverlay;
 
 public class MenuBarGenerator {
 	/**
@@ -88,7 +87,7 @@ public class MenuBarGenerator {
                             try {
                             	ObjectInputStream is = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
                             	
-                            	ZonesOverlay.tree = (QTree) is.readObject();
+                            	State.tree = (QTree) is.readObject();
                             	
                             	is.close();
                                 ViewCommon.needsRefresh = true;
@@ -113,7 +112,7 @@ public class MenuBarGenerator {
 	                    try {
 	                    	ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
                             
-	                    	os.writeObject(ZonesOverlay.tree);
+	                    	os.writeObject(State.tree);
 	                    	
 	                    	os.close();
 	                    } catch (Exception ex) {

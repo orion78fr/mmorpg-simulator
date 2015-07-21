@@ -3,6 +3,7 @@ package springVisualizer.view.overlay;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JOptionPane;
 
@@ -11,17 +12,17 @@ import springCommon.Point2d;
 import springCommon.QTree.AStar_JPS;
 import springCommon.QTree.QTree;
 import springCommon.QTree.TravelPath;
+import springVisualizer.State;
 import springVisualizer.util2D.Polygon;
 import springVisualizer.util2D.Polygon.ReentrantPolygonException;
 import springVisualizer.view.MainWindow;
+import springVisualizer.view.ViewCommon;
 import springVisualizer.view.ViewCommon.Dimentions;
 
 public class ZonesOverlay extends AbstractOverlay {
 	private static final long serialVersionUID = 1L;
 	
 	private Polygon currentPoly = new Polygon();
-	public static QTree tree;
-	
 	private Color green, dgreen, red, dred, poly, dpoly;
 	
 	private boolean firstPoint, traversable;
@@ -29,7 +30,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	public ZonesOverlay() {
 		super();
 		
-		tree = new QTree(0, 0, Parameters.sizex, Parameters.sizey, true);
+		State.tree = new QTree(0, 0, Parameters.sizex, Parameters.sizey, true);
 		
 		firstPoint = true;
 		
@@ -43,7 +44,7 @@ public class ZonesOverlay extends AbstractOverlay {
 
 	@Override
 	public void draw(Graphics2D g2d) {
-		drawQTree(g2d, tree);
+		drawQTree(g2d, State.tree);
 		
 		fillShape(g2d, currentPoly.toDrawCoords(), poly, dpoly);
 		
@@ -55,7 +56,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	private TravelPath path = null;
 	void debugDraw(Graphics2D g2d){
 		if(path == null || !path.getFrom().equals(new Point2d((long)fromx + 0.5, (long)fromy + 0.5)) || !path.getTo().equals(new Point2d((long)tox + 0.5, (long)toy + 0.5))){
-			path = new AStar_JPS(tree).findPath(fromx, fromy, tox, toy);
+			path = new AStar_JPS(State.tree).findPath(fromx, fromy, tox, toy);
 		}
 		
 		if(path == null){
@@ -129,7 +130,7 @@ public class ZonesOverlay extends AbstractOverlay {
 	
 	public void addPoint(double x, double y){
 		if(firstPoint){
-			traversable = !tree.getContainingNode(x, y).isTraversable();
+			traversable = !State.tree.getContainingNode(x, y).isTraversable();
 			firstPoint = false;
 		}
 		currentPoly.addPoint((int)x, (int)y);
@@ -139,7 +140,7 @@ public class ZonesOverlay extends AbstractOverlay {
 		try {
 			Polygon.verifyNonReentrant(currentPoly, true);
 			
-			tree.setShape(currentPoly, traversable);
+			State.tree.setShape(currentPoly, traversable);
 			
 			firstPoint = true;
 			
@@ -157,8 +158,16 @@ public class ZonesOverlay extends AbstractOverlay {
 	}
 	
 	public void toggle(double x, double y){
-		//tree.toggleTraversableZone(x, y);
-		System.out.println(tree.isEverythingConnected());
+		State.tree.toggleTraversableZone(x, y);
+		
+	}
+	
+	public void interConnected(){
+		if(State.tree.isEverythingConnected()){
+			JOptionPane.showMessageDialog(MainWindow.win, "Everything is connected", "Success", JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(MainWindow.win, "Non fully inter-connected graph", "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	@Override
@@ -178,6 +187,131 @@ public class ZonesOverlay extends AbstractOverlay {
 		// TODO Debug
 		tox = x;
 		toy = y;
+	}
+	
+	OverlayMouseMode addZoneMouseMode = new OverlayMouseMode() {
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		@Override
+		public void mousePressed(MouseEvent e) {}
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			double x = Dimentions.xDrawToInternal(e.getX());
+			double y = Dimentions.yDrawToInternal(e.getY());
+			
+			if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
+				if(e.getButton() == MouseEvent.BUTTON1){
+					addPoint(x,y);
+				} else if(e.getButton() == MouseEvent.BUTTON3){
+					endPoly();
+				}  else {
+					return;
+				}
+
+				ViewCommon.needsRefresh = true;
+			}
+		}
+		
+		@Override
+		public String getName() {
+			return "Create zones";
+		}
+		@Override
+		public String getDescription() {
+			return "Left click to start a polygon and add a point\nRight click to end the polygon and switch corresponding zone";
+		}
+	};
+	
+	OverlayMouseMode toggleZoneMouseMode = new OverlayMouseMode() {
+		
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		
+		@Override
+		public void mousePressed(MouseEvent e) {}
+		
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			double x = Dimentions.xDrawToInternal(e.getX());
+			double y = Dimentions.yDrawToInternal(e.getY());
+			
+			if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
+				if(e.getButton() == MouseEvent.BUTTON1){
+					toggle(x,y);
+					ViewCommon.needsRefresh = true;
+				} else if(e.getButton() == MouseEvent.BUTTON3){
+					interConnected();
+				}
+			}
+		}
+		
+		@Override
+		public String getName() {
+			return "Toggle zone & connexity";
+		}
+
+		@Override
+		public String getDescription() {
+			return "Left click to toggle a zone\nRight click indicates whether the zones are inter-connected";
+		}
+	};
+	
+	OverlayMouseMode debugPathfindingMouseMode = new OverlayMouseMode() {
+		
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		
+		@Override
+		public void mousePressed(MouseEvent e) {}
+		
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			double x = Dimentions.xDrawToInternal(e.getX());
+			double y = Dimentions.yDrawToInternal(e.getY());
+			
+			if(0 <= x && x <= Parameters.sizex && 0 <= y && y <= Parameters.sizey){
+				if(e.getButton() == MouseEvent.BUTTON1){
+					setBegin(x,y);
+				} else if(e.getButton() == MouseEvent.BUTTON3){
+					setEnd(x,y);
+				} else {
+					return;
+				}
+
+				ViewCommon.needsRefresh = true;
+			}
+		}
+		
+		@Override
+		public String getName() {
+			return "Pathfinding debug";
+		}
+
+		@Override
+		public String getDescription() {
+			return "Left click to set the start\nRight click to set the end";
+		}
+	};
+
+	@Override
+	public OverlayMouseMode[] getMouseModes() {
+		return new OverlayMouseMode[] {addZoneMouseMode, toggleZoneMouseMode, debugPathfindingMouseMode};
 	}
 	
 	

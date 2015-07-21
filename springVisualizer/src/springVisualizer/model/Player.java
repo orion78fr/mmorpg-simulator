@@ -128,6 +128,8 @@ public class Player {
 		this.movement = movement;
 	}
 	public void move(){
-		this.movement.move(this);
+		if(this.connected){
+			this.movement.move(this);
+		}
 	}
 }

@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Random;
 
 import springCommon.Parameters;
+import springCommon.QTree.QTree;
 import springVisualizer.XML.XMLComment;
 import springVisualizer.XML.XMLObj;
 import springVisualizer.model.Hotspot;
 import springVisualizer.model.Player;
+import springVisualizer.model.connection.ConnectionManager;
+import springVisualizer.model.connection.SinusoidalConnectionManager;
 import springVisualizer.model.movement.MovementManager;
 import springVisualizer.model.movement.BBMovementManager;
 import springVisualizer.model.movement.RandomMovementManager;
@@ -29,11 +32,17 @@ public class State {
 	public static Random r = new Random(Parameters.seedMovement);
 	/** The RNG for the color */
 	private static Random rcolor = new Random(1234);
+	/** The tree of accessible zones */
+	public static QTree tree;
 	
 	public static long tickNumber = 0;
 	
+	public static ConnectionManager connectionManager = new SinusoidalConnectionManager(10, 100, 6000);
+	
 	/** Move all players */
 	public static void moveAll(){
+		connectionManager.manage(tickNumber);
+		
 		for(Player p : State.playerList){
 			p.move();
 		}

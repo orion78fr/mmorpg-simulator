@@ -12,8 +12,6 @@ public class BBMovementManager extends AbstractMovementManager {
 	private MovementManager betweenHotspotRandomMovementManager;
 	private MovementManager inHotspotRandomMovementManager;
 	
-	
-	
 	public BBMovementManager(double bbProbaGoToNewHotspot, double bbBetweenHotspotMoveDistance, double bbBetweenHotspotRandomMoveDistance, double bbInHotspotRandomMoveDistance) {
 		super();
 		this.bbProbaGoToNewHotspot = bbProbaGoToNewHotspot;

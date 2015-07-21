@@ -313,12 +313,16 @@ public class AStar_JPS {
 	
 	private void backward_path_construct(){
 		// So now we have found a path, iterate backwards and push it in the path
+		// Only get when direction change
 		Point2d currentp = path.getTo();
-		Directions d;
+		Directions d, olddir = null;
 		
 		while((d = tab_get(ancesters, currentp)) != null){
 			currentp = getDirectedPoint(currentp, Directions.getOpposite(d));
-			path.addPoint(currentp);
+			if(d != olddir){
+				path.addPoint(currentp);
+				olddir = d;
+			}
 		}
 		
 		// Removes the beginning, as it's "from"

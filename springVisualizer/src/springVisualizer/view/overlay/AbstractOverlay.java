@@ -46,4 +46,6 @@ public abstract class AbstractOverlay extends JPanel {
 		this.setBounds(0, Dimentions.yoffset, Dimentions.layoutw, Dimentions.layouth);
 		this.repaint(1000);
 	}
+	
+	public abstract OverlayMouseMode[] getMouseModes();
 }
