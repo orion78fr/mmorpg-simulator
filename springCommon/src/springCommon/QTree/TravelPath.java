@@ -32,8 +32,17 @@ public class TravelPath{
 	}
 	
 	public void addPoint(Point2d p){
-		// Reverse adding
-		path.add(0, p);
+		// No more reverse adding (faster) ...
+		path.add(p);
+	}
+	
+	public Point2d removeNextInPath(){
+		// ... but remove the last (faster too)
+		return this.path.remove(this.path.size() - 1);
+	}
+	
+	public boolean hasIntermediatePoints(){
+		return !this.path.isEmpty();
 	}
 	
 	@Override

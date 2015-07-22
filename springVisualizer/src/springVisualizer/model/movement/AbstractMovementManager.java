@@ -50,10 +50,11 @@ public abstract class AbstractMovementManager implements MovementManager{
 	 * @param distance The distance to move
 	 * @param coords The point to move to
 	 */
-	protected static void moveTowardsPoint(Player p, double distance, Point2d coords){
+	protected static double moveTowardsPoint(Player p, double distance, Point2d coords){
 		double distBetween = p.getPoint().distance(coords);
 		if(distance > distBetween){
 			moveToWithinBouds(p, coords);
+			return distBetween;
 		} else {
 			double x = p.getX();
 			double y = p.getY();
@@ -64,6 +65,7 @@ public abstract class AbstractMovementManager implements MovementManager{
 			y += ratio * (coords.getY() - y);
 			
 			moveToWithinBouds(p, x, y);
+			return distance;
 		}
 	}
 }

@@ -67,6 +67,10 @@ public class AStar_JPS {
 		this.openSet.clear();
 	}
 	
+	public TravelPath findPath(Point2d from, Point2d to){
+		return findPath(from.getX(), from.getY(), to.getX(), to.getY());
+	}
+	
 	public synchronized TravelPath findPath(double fromx, double fromy, double tox, double toy){
 		do_allocs();
 		

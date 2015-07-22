@@ -43,7 +43,9 @@ public class BBMovementManager extends AbstractMovementManager {
 		}
 		
 		if(this.h != null){
-			moveTowardsPoint(p, this.bbBetweenHotspotMoveDistance, h.getPoint());
+			if(moveTowardsPoint(p, this.bbBetweenHotspotMoveDistance, h.getPoint()) < this.bbBetweenHotspotMoveDistance){
+				this.h = null;
+			}
 			this.betweenHotspotRandomMovementManager.move(p);
 		} else {
 			this.inHotspotRandomMovementManager.move(p);
