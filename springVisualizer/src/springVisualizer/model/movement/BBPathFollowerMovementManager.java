@@ -32,10 +32,15 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 	}
 	
 	private Point2d getNextInPath(){
-		if(this.currentPath.hasIntermediatePoints()){
-			return this.currentPath.removeNextInPath();
+		if(this.currentPath != null){
+			if(this.currentPath.hasIntermediatePoints()){
+				return this.currentPath.removeNextInPath();
+			} else {
+				this.currentPath = null;
+				return this.h.getPoint();
+			}
 		} else {
-			return this.h.getPoint();
+			return null;
 		}
 	}
 	
@@ -49,7 +54,7 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 				if(this.currentPath == null){
 					throw new RuntimeException("Your world is not fully connected, a hotspot is in a non reachable zone or the player is in a non reacheable zone (which should not happen)");
 				}
-				this.currentObj = this.getNextInPath();
+				this.currentObj = getNextInPath();
 			}
 		}
 		
@@ -57,7 +62,13 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 		
 		if(this.currentObj != null){
 			while(remainingDistance > 0){
-				remainingDistance -= moveTowardsPoint(p, remainingDistance, h.getPoint());
+				remainingDistance -= moveTowardsPoint(p, remainingDistance, this.currentObj);
+				if(remainingDistance != 0){
+					this.currentObj = getNextInPath();
+					if(this.currentObj == null){
+						// TODO 
+					}
+				}
 			}
 		} else {
 			// TODO move in power law density...
