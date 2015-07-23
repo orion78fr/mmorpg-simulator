@@ -66,7 +66,10 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 				if(remainingDistance != 0){
 					this.currentObj = getNextInPath();
 					if(this.currentObj == null){
-						// TODO 
+						// Get new path inside targetted hotspot in power law
+						double radius;
+						Point2d newObj = new Point2d(0, 0);
+						this.currentPath = new AStar_JPS(State.tree).findPath(p.getPoint(), newObj);
 					}
 				}
 			}
