@@ -20,10 +20,12 @@ public class Hotspot {
 	/** The current color of the hotspot */
 	private Color color;
 	
+	private PowerLawDistributor distribution;
+	
 	public Hotspot(double x, double y, double hotness, Color color) {
 		super();
 		this.p = new Point2d(x,y);
-		this.hotness = hotness;
+		this.setHotness(hotness);
 		this.setColor(color);
 	}
 	public Hotspot(double x, double y, double hotness) {
@@ -53,7 +55,17 @@ public class Hotspot {
 
 	public void setHotness(double hotness) {
 		this.hotness = hotness;
+		computeDistribution();
 	}
+	
+	public void computeDistribution(){
+		this.distribution = new PowerLawDistributor(0, this.hotness, (int)this.hotness);
+	}
+	
+	public void getProbabilisticDistance(double randomN){
+		return this.distribution.getProbabilisticDistance(randomN);
+	}
+	
 	public Color getColor() {
 		return color;
 	}
