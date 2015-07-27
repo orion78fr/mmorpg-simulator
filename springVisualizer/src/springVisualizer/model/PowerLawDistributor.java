@@ -25,7 +25,6 @@ public class PowerLawDistributor {
 		this.numBins = numBins;
 		
 		createBins();
-		compensateExtremes();
 	}
 	
 	private void createBins(){
@@ -36,36 +35,28 @@ public class PowerLawDistributor {
 			double logd = i * Math.log(size) / numBins;
 			double d = Math.exp(logd);
 			double logn = alpha * (Math.log(size) - logd);
-			double n = Math.exp(logn) / Math.pow(size, alpha);
+			double n = Math.exp(logn);
 			
 			tmp.add(new Proba(d, n));
 		}
 		
-		// Diff the result to get probability of interval
-		for(int i = 1; i<tmp.size(); i++){
-			this.bins.add(new Proba(tmp.get(i-1).d, tmp.get(i-1).n - tmp.get(i).n));
-		}
-	}
-	
-	public void compensateExtremes(){
-		double error = getExtremesError();
+		double minn = tmp.get(tmp.size() - 1).n,
+				maxn = tmp.get(0).n,
+				mind = tmp.get(0).d,
+				maxd = tmp.get(tmp.size() - 2).d;
 		
-		// Correct extreme part of the plot not calculates (infinite parts), can have some floating point approximation errors
-		this.bins.get(0).n += error;
-	}
-	
-	public double getExtremesError(){
-		double result = 0;
-		for(Proba p : this.bins){
-			result += p.n;
-			
-			System.out.println(p.d + ";" + p.n);
+		// Scale to ignore infinite parts of the power law
+		for(int i = 1; i<tmp.size(); i++){
+			this.bins.add(new Proba(((tmp.get(i-1).d - mind) / (maxd-mind)) * size, (tmp.get(i).n - minn) / (maxn - minn)));
 		}
-		return 1-result;
 	}
 	
-	public Object getProbabilisticDistance(double randomN) {
-		// TODO Auto-generated method stub
-		return null;
+	public double getProbabilisticDistance(double randomN) {
+		for(Proba p : this.bins){
+			if(randomN >= p.n){
+				return p.d;
+			}
+		}
+		return -1;
 	}
 }

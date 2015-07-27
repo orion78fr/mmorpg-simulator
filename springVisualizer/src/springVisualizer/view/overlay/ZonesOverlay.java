@@ -71,7 +71,9 @@ public class ZonesOverlay extends AbstractOverlay {
 		
 		int endx, endy;
 		
-		for(Point2d p : path.getPath()){
+		for(int j = path.getPath().size() - 1 ; j >= 0 ; j--){
+		//for(Point2d p : path.getPath()){
+			Point2d p = path.getPath().get(j);
 			endx = Dimentions.xToDrawCoords(p.getX());
 			endy = Dimentions.yToDrawCoords(p.getY());
 			
@@ -181,12 +183,16 @@ public class ZonesOverlay extends AbstractOverlay {
 		// TODO Debug
 		fromx = x;
 		fromy = y;
+		
+		System.out.println("from : " + x + " " + y);
 	}
 
 	public void setEnd(double x, double y) {
 		// TODO Debug
 		tox = x;
 		toy = y;
+		
+		System.out.println("to : " + x + " " + y);
 	}
 	
 	OverlayMouseMode addZoneMouseMode = new OverlayMouseMode() {

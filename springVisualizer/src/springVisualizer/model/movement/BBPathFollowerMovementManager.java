@@ -14,14 +14,14 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 	private Point2d currentObj = null;
 	private double bbProbaGoToNewHotspot;
 	private double bbBetweenHotspotMoveDistance;
+	private double bbInHotspotRandomMoveDistance;
 
 	
 	public BBPathFollowerMovementManager(double bbProbaGoToNewHotspot, double bbBetweenHotspotMoveDistance, double bbBetweenHotspotRandomMoveDistance, double bbInHotspotRandomMoveDistance) {
 		super();
 		this.bbProbaGoToNewHotspot = bbProbaGoToNewHotspot;
 		this.bbBetweenHotspotMoveDistance = bbBetweenHotspotMoveDistance;
-		
-		
+		this.bbInHotspotRandomMoveDistance = bbInHotspotRandomMoveDistance;
 	}
 	
 	public BBPathFollowerMovementManager() {
@@ -44,32 +44,44 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 		}
 	}
 	
+	static AStar_JPS jps = new AStar_JPS(State.tree);
+	
 	@Override
 	public void move(Player p) {
+		while(!State.tree.isTraversable(p.getPoint())){
+			p.setX(State.r.nextDouble() * Parameters.sizex);
+			p.setY(State.r.nextDouble() * Parameters.sizey);
+		}
 		// Pick a new hotspot to go to
 		if(State.r.nextDouble() < this.bbProbaGoToNewHotspot){
 			if(State.hotspots.size() != 0){
 				this.h = State.pickRandomHotspotWithHotness();
-				this.currentPath = new AStar_JPS(State.tree).findPath(p.getPoint(), this.h.getPoint());
+				this.currentPath = jps.findPath(p.getPoint(), this.h.getPoint());
 				if(this.currentPath == null){
+					System.out.println(p.getId() + " " + p.getX() + " " + p.getY() + " " + this.h.getPoint());
+					
 					throw new RuntimeException("Your world is not fully connected, a hotspot is in a non reachable zone or the player is in a non reacheable zone (which should not happen)");
 				}
 				this.currentObj = getNextInPath();
 			}
 		}
 		
-		double remainingDistance = this.bbBetweenHotspotMoveDistance;
-		
 		if(this.currentObj != null){
+			//double remainingDistance = this.currentPath.getTo().equals(this.h) ? this.bbBetweenHotspotMoveDistance : this.bbInHotspotRandomMoveDistance;
+			double remainingDistance = this.bbBetweenHotspotMoveDistance;
 			while(remainingDistance > 0){
 				remainingDistance -= moveTowardsPoint(p, remainingDistance, this.currentObj);
 				if(remainingDistance != 0){
 					this.currentObj = getNextInPath();
-					if(this.currentObj == null){
+					while(this.currentObj == null){
 						// Get new path inside targetted hotspot in power law
-						double radius;
-						Point2d newObj = new Point2d(0, 0);
+						double radius = this.h.getProbabilisticDistance(State.r.nextDouble());
+						double angle = State.r.nextDouble() * 2 * Math.PI;
+						double x = this.h.getX() + radius * Math.cos(angle);
+						double y = this.h.getY() + radius * Math.sin(angle);
+						Point2d newObj = new Point2d(x, y);
 						this.currentPath = new AStar_JPS(State.tree).findPath(p.getPoint(), newObj);
+						this.currentObj = getNextInPath();
 					}
 				}
 			}

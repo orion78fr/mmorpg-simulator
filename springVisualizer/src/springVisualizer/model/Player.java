@@ -5,6 +5,7 @@ import java.awt.Color;
 import springCommon.Point2d;
 import springVisualizer.MovementLogger;
 import springVisualizer.model.movement.BBMovementManager;
+import springVisualizer.model.movement.BBPathFollowerMovementManager;
 import springVisualizer.model.movement.MovementManager;
 
 public class Player {
@@ -47,7 +48,7 @@ public class Player {
 	 * @param y The y coordinate
 	 */
 	public Player(double x, double y) {
-		this(x, y, new BBMovementManager(), defaultColor);
+		this(x, y, new BBPathFollowerMovementManager(), defaultColor);
 	}
 	
 	/**
@@ -57,7 +58,7 @@ public class Player {
 	 * @param color The color
 	 */
 	public Player(double x, double y, Color color) {
-		this(x, y, new BBMovementManager(), color);
+		this(x, y, new BBPathFollowerMovementManager(), color);
 	}
 	
 	public Player(double x, double y, MovementManager movement){

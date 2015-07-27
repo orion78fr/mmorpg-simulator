@@ -59,10 +59,10 @@ public class Hotspot {
 	}
 	
 	public void computeDistribution(){
-		this.distribution = new PowerLawDistributor(0, this.hotness, (int)this.hotness);
+		this.distribution = new PowerLawDistributor(1, this.hotness, (int)this.hotness);
 	}
 	
-	public void getProbabilisticDistance(double randomN){
+	public double getProbabilisticDistance(double randomN){
 		return this.distribution.getProbabilisticDistance(randomN);
 	}
 	

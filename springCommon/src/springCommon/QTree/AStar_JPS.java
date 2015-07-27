@@ -150,11 +150,6 @@ public class AStar_JPS {
 		
 		// Explore this diagonal
 		explore_node(node, d);
-		
-		// If not finished, re-add it to the open set
-		if(!is_totally_explored(node)){
-			this.openSet.add(node);
-		}
 	}
 	
 	private boolean is_totally_explored(Point2d node){		
@@ -187,11 +182,14 @@ public class AStar_JPS {
 		boolean ltr = (d == Directions.NE || d == Directions.SE);
 		boolean utd = (d == Directions.SE || d == Directions.SW);
 		
-		// Explore horizontally
-		explore_node_horizontal(node, ltr);
-		
-		// Explore vertically
-		explore_node_vertical(node, utd);
+		// Explore horizontally and vertically
+		if(explore_node_horizontal(node, ltr) || explore_node_vertical(node, utd)){
+			// If not finished, re-add it to the open set
+			if(!is_totally_explored(node)){
+				this.openSet.add(node);
+			}
+			return;
+		}
 		
 		// Explore diagonally, if needed
 		Point2d diag = getDirectedPoint(node, d);
@@ -205,9 +203,16 @@ public class AStar_JPS {
 				// This is a Jump Point, add it to open and stop here
 				tab_set(f_score, diag, tab_get(g_score, diag) + manhattan_distance(node, path.getTo()));
 				openSet.add(diag);
+
+				// If not finished, re-add it to the open set
+				if(!is_totally_explored(node)){
+					this.openSet.add(node);
+				}
 				return;
 			}
 			explore_node(diag, d);
+			
+			
 		}
 	}
 	
@@ -239,7 +244,7 @@ public class AStar_JPS {
 		return is_jmp_point(new Point2d(x, y), d);
 	}
 	
-	private void explore_node_horizontal(Point2d node, boolean ltr){
+	private boolean explore_node_horizontal(Point2d node, boolean ltr){
 		int increment;
 		Directions d;
 		if(ltr){
@@ -266,7 +271,7 @@ public class AStar_JPS {
 					Point2d newPoint = new Point2d(x, y);
 					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
 					openSet.add(newPoint);
-					break;
+					return true;
 				}
 				
 				x += increment;
@@ -275,9 +280,10 @@ public class AStar_JPS {
 				break;
 			}
 		}
+		return false;
 	}
 	
-	private void explore_node_vertical(Point2d node, boolean utd){
+	private boolean explore_node_vertical(Point2d node, boolean utd){
 		int increment;
 		Directions d;
 		if(utd){
@@ -304,7 +310,7 @@ public class AStar_JPS {
 					Point2d newPoint = new Point2d(x, y);
 					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
 					openSet.add(newPoint);
-					break;
+					return true;
 				}
 				
 				y += increment;
@@ -313,24 +319,24 @@ public class AStar_JPS {
 				break;
 			}
 		}
+		return false;
 	}
 	
 	private void backward_path_construct(){
 		// So now we have found a path, iterate backwards and push it in the path
-		// Only get when direction change
+		// Only add when direction change
 		Point2d currentp = path.getTo();
 		Directions d, olddir = null;
 		
 		while((d = tab_get(ancesters, currentp)) != null){
-			currentp = getDirectedPoint(currentp, Directions.getOpposite(d));
 			if(d != olddir){
-				path.addPoint(currentp);
+				if(!currentp.equals(path.getFrom())){
+					path.addPoint(currentp);
+				}
 				olddir = d;
 			}
+			currentp = getDirectedPoint(currentp, Directions.getOpposite(d));
 		}
-		
-		// Removes the beginning, as it's "from"
-		path.getPath().remove(0);
 	}
 	
 	private static <T> T tab_get(T[] tab, Point2d p){
