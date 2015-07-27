@@ -17,7 +17,7 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 	private double bbInHotspotRandomMoveDistance;
 
 	
-	public BBPathFollowerMovementManager(double bbProbaGoToNewHotspot, double bbBetweenHotspotMoveDistance, double bbBetweenHotspotRandomMoveDistance, double bbInHotspotRandomMoveDistance) {
+	public BBPathFollowerMovementManager(double bbProbaGoToNewHotspot, double bbBetweenHotspotMoveDistance, double bbInHotspotRandomMoveDistance) {
 		super();
 		this.bbProbaGoToNewHotspot = bbProbaGoToNewHotspot;
 		this.bbBetweenHotspotMoveDistance = bbBetweenHotspotMoveDistance;
@@ -27,7 +27,6 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 	public BBPathFollowerMovementManager() {
 		this(Parameters.bbProbaGoToNewHotspot, 
 				Parameters.bbBetweenHotspotMoveDistance,
-				Parameters.bbBetweenHotspotRandomMoveDistance,
 				Parameters.bbInHotspotRandomMoveDistance);
 	}
 	
@@ -58,17 +57,17 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 				this.h = State.pickRandomHotspotWithHotness();
 				this.currentPath = jps.findPath(p.getPoint(), this.h.getPoint());
 				if(this.currentPath == null){
-					System.out.println(p.getId() + " " + p.getX() + " " + p.getY() + " " + this.h.getPoint());
-					
 					throw new RuntimeException("Your world is not fully connected, a hotspot is in a non reachable zone or the player is in a non reacheable zone (which should not happen)");
 				}
 				this.currentObj = getNextInPath();
 			}
 		}
 		
+		boolean firstMove = true;
+		
 		if(this.currentObj != null){
-			//double remainingDistance = this.currentPath.getTo().equals(this.h) ? this.bbBetweenHotspotMoveDistance : this.bbInHotspotRandomMoveDistance;
-			double remainingDistance = this.bbBetweenHotspotMoveDistance;
+			double remainingDistance = (this.currentPath != null && this.currentPath.getTo().equals(this.h)) ? this.bbBetweenHotspotMoveDistance : this.bbInHotspotRandomMoveDistance;
+			//double remainingDistance = this.bbBetweenHotspotMoveDistance;
 			while(remainingDistance > 0){
 				remainingDistance -= moveTowardsPoint(p, remainingDistance, this.currentObj);
 				if(remainingDistance != 0){
@@ -80,14 +79,18 @@ public class BBPathFollowerMovementManager extends AbstractMovementManager {
 						double x = this.h.getX() + radius * Math.cos(angle);
 						double y = this.h.getY() + radius * Math.sin(angle);
 						Point2d newObj = new Point2d(x, y);
-						this.currentPath = new AStar_JPS(State.tree).findPath(p.getPoint(), newObj);
-						this.currentObj = getNextInPath();
+						if(State.tree.isTraversable(newObj)){
+							this.currentPath = jps.findPath(p.getPoint(), newObj);
+							this.currentObj = getNextInPath();
+						}
+					}
+					if(firstMove){
+						firstMove = false;
+					} else {
+						remainingDistance = 0;
 					}
 				}
 			}
-		} else {
-			// TODO move in power law density...
-			//this.inHotspotRandomMovementManager.move(p);
 		}
 	}
 

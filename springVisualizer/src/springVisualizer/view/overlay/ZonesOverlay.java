@@ -72,7 +72,6 @@ public class ZonesOverlay extends AbstractOverlay {
 		int endx, endy;
 		
 		for(int j = path.getPath().size() - 1 ; j >= 0 ; j--){
-		//for(Point2d p : path.getPath()){
 			Point2d p = path.getPath().get(j);
 			endx = Dimentions.xToDrawCoords(p.getX());
 			endy = Dimentions.yToDrawCoords(p.getY());

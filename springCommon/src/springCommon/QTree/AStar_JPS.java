@@ -9,7 +9,7 @@ public class AStar_JPS {
 	private Directions[] ancesters;
 	private double[] g_score;
 	private double[] f_score;
-	private QTree tree;
+	private boolean[] tree;
 	private TravelPath path;
 	
 	private class MySortedList extends ArrayList<Point2d>{
@@ -55,11 +55,12 @@ public class AStar_JPS {
 	
 	public AStar_JPS(QTree tree) {
 		super();
-		this.tree = tree;
+		this.tree = tree.qTreeTraversableToArray();
 		this.openSet = new MySortedList();
 	}
 	
 	private void do_allocs(){
+		//TODO méthode par arraycopy
 		int size =  (int) (Parameters.sizex * Parameters.sizey);
 		this.ancesters = new Directions[size];
 		this.g_score = new double[size];
@@ -150,6 +151,11 @@ public class AStar_JPS {
 		
 		// Explore this diagonal
 		explore_node(node, d);
+		
+		// If not finished, re-add it to the open set
+		if(!is_totally_explored(node)){
+			this.openSet.add(node);
+		}
 	}
 	
 	private boolean is_totally_explored(Point2d node){		
@@ -170,11 +176,11 @@ public class AStar_JPS {
 	}
 	
 	private boolean is_explored(double x, double y){
-		return (new Point2d(x,y)).equals(path.getFrom()) || !tree.isTraversable(x, y) || tab_get(ancesters, x, y) != null;
+		return (new Point2d(x,y)).equals(path.getFrom()) || !tab_get(tree, x, y) || tab_get(ancesters, x, y) != null;
 	}
 	
 	private void explore_node(Point2d node, Directions d){
-		if(!tree.isTraversable(node)){
+		if(!tab_get(tree, node)){
 			// If not traversable, do nothing!
 			return;
 		}
@@ -184,10 +190,6 @@ public class AStar_JPS {
 		
 		// Explore horizontally and vertically
 		if(explore_node_horizontal(node, ltr) || explore_node_vertical(node, utd)){
-			// If not finished, re-add it to the open set
-			if(!is_totally_explored(node)){
-				this.openSet.add(node);
-			}
 			return;
 		}
 		
@@ -196,23 +198,16 @@ public class AStar_JPS {
 		if(diag.getX() < 0 || diag.getX() >= Parameters.sizex || diag.getY() < 0 || diag.getY() >= Parameters.sizey){
 			return;
 		}
-		if(tree.isTraversable(diag) && !is_explored(diag)){
+		if(tab_get(tree, diag) && !is_explored(diag)){
 			tab_set(ancesters, diag, d);
 			tab_set(g_score, diag, tab_get(g_score, node) + Math.sqrt(2));
 			if(is_jmp_point(diag, d)){
 				// This is a Jump Point, add it to open and stop here
 				tab_set(f_score, diag, tab_get(g_score, diag) + manhattan_distance(node, path.getTo()));
 				openSet.add(diag);
-
-				// If not finished, re-add it to the open set
-				if(!is_totally_explored(node)){
-					this.openSet.add(node);
-				}
 				return;
 			}
 			explore_node(diag, d);
-			
-			
 		}
 	}
 	
@@ -237,7 +232,7 @@ public class AStar_JPS {
 			empty2 = getDirectedPoint(p, Directions.get45deg(d, false));
 		}
 		
-		return (!tree.isTraversable(full1) && !is_explored(empty1)) || (!tree.isTraversable(full2) && !is_explored(empty2));
+		return (!tab_get(tree, full1) && !is_explored(empty1)) || (!tab_get(tree, full2) && !is_explored(empty2));
 	}
 	
 	private boolean is_jmp_point(double x, double y, Directions d){
@@ -259,7 +254,7 @@ public class AStar_JPS {
 		double y = node.getY();
 		double oldgscore = tab_get(g_score, node.getX(), y);
 		
-		while(tree.isTraversable(x - increment, y)){
+		while(tab_get(tree, x - increment, y)){
 			if((0 <= x && x < Parameters.sizex) && !is_explored(x, y)){
 				// If not explored, we continue
 				tab_set(ancesters, x, y, d);
@@ -271,7 +266,7 @@ public class AStar_JPS {
 					Point2d newPoint = new Point2d(x, y);
 					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
 					openSet.add(newPoint);
-					return true;
+					return path.getTo().equals(newPoint);
 				}
 				
 				x += increment;
@@ -298,7 +293,7 @@ public class AStar_JPS {
 		double y = node.getY() + increment;
 		double oldgscore = tab_get(g_score, x, node.getY());
 		
-		while(tree.isTraversable(x, y - increment)){
+		while(tab_get(tree, x, y - increment)){
 			if((0 <= y && y < Parameters.sizey) && !is_explored(x, y)){
 				// If not explored, we continue
 				tab_set(ancesters, x, y, d);
@@ -310,7 +305,7 @@ public class AStar_JPS {
 					Point2d newPoint = new Point2d(x, y);
 					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
 					openSet.add(newPoint);
-					return true;
+					return path.getTo().equals(newPoint);
 				}
 				
 				y += increment;
@@ -345,11 +340,17 @@ public class AStar_JPS {
 	private static double tab_get(double[] tab, Point2d p){
 		return tab_get(tab, p.getX(), p.getY());
 	}
+	private static boolean tab_get(boolean[] tab, Point2d p){
+		return tab_get(tab, p.getX(), p.getY());
+	}
 	
 	private static <T> T tab_get(T[] tab, double x, double y){
 		return tab[(int)x * (int)Parameters.sizex + (int) y];
 	}
 	private static double tab_get(double[] tab, double x, double y){
+		return tab[(int)x * (int)Parameters.sizex + (int) y];
+	}
+	private static boolean tab_get(boolean[] tab, double x, double y){
 		return tab[(int)x * (int)Parameters.sizex + (int) y];
 	}
 	
@@ -359,11 +360,17 @@ public class AStar_JPS {
 	private static void tab_set(double[] tab, Point2d p, double value){
 		tab_set(tab, p.getX(), p.getY(), value);
 	}
+	private static void tab_set(boolean[] tab, Point2d p, boolean value){
+		tab_set(tab, p.getX(), p.getY(), value);
+	}
 	
 	private static <T> void tab_set(T[] tab, double x, double y, T value){
 		tab[(int)x * (int)Parameters.sizex + (int) y] = value;
 	}
 	private static void tab_set(double[] tab, double x, double y, double value){
+		tab[(int)x * (int)Parameters.sizex + (int) y] = value;
+	}
+	private static void tab_set(boolean[] tab, double x, double y, boolean value){
 		tab[(int)x * (int)Parameters.sizex + (int) y] = value;
 	}
 	

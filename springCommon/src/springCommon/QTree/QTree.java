@@ -4,6 +4,7 @@ import java.awt.Shape;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import springCommon.Parameters;
@@ -379,8 +380,7 @@ public class QTree implements Serializable {
 		
 		boolean firstTraversable = true;
 		
-		List<QTree> l = new ArrayList<QTree>();
-		l.addAll(this.getAllLeaves());
+		List<QTree> l = this.getAllLeaves();
 
 		ArrayDeque<QTree> queue = new ArrayDeque<QTree>();
 		QTree current = this.getContainingNode(0, 0);
@@ -411,5 +411,22 @@ public class QTree implements Serializable {
 		}
 		
 		return l.size() == 0;
+	}
+	
+	public boolean[] qTreeTraversableToArray(){
+		boolean[] result = new boolean[(int) (Parameters.sizex * Parameters.sizey)];
+		List<QTree> l = this.getAllLeaves();
+		for(QTree t : l){
+			if(t.isTraversable()){
+				double x = t.x;
+				double y = t.y;
+				double w = t.width;
+				double h = t.height;
+				for(int i = 0; i < w; i++){
+					Arrays.fill(result, ((int)x+i) * (int)Parameters.sizex + (int)y, ((int)x+i) * (int)Parameters.sizex + (int)y + (int)h, true);
+				}
+			}
+		}
+		return result;
 	}
 }
