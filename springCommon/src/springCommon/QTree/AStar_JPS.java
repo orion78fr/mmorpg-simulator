@@ -57,14 +57,26 @@ public class AStar_JPS {
 		super();
 		this.tree = tree.qTreeTraversableToArray();
 		this.openSet = new MySortedList();
+
+		int size =  (int) (Parameters.sizex * Parameters.sizey);
+		this.g_score = new double[size];
+		this.f_score = new double[size];
+		this.ancesters = new Directions[size];
 	}
 	
 	private void do_allocs(){
-		//TODO méthode par arraycopy
-		int size =  (int) (Parameters.sizex * Parameters.sizey);
-		this.ancesters = new Directions[size];
-		this.g_score = new double[size];
-		this.f_score = new double[size];
+		// Arraycopy method faster than just new
+		int size =  g_score.length;
+		
+		g_score[0] = 0;
+		ancesters[0] = null;
+
+		for (int i = 1; i < size; i += i) {
+			System.arraycopy(g_score, 0, g_score, i, ((size - i) < i) ? (size - i) : i);
+			System.arraycopy(ancesters, 0, ancesters, i, ((size - i) < i) ? (size - i) : i);
+		}
+		System.arraycopy(g_score, 0, f_score, 0, size);
+		
 		this.openSet.clear();
 	}
 	
