@@ -10,9 +10,9 @@ public final class Parameters {
 	static final public int seedMovement = 1234;
 	
 	/** Internal x size of the map, stretched when displayed */
-	static final public double sizex = 2048;
+	static final public int sizex = 2048;
 	/** Internal y size of the map, stretched when displayed */
-	static final public double sizey = 2048;
+	static final public int sizey = 2048;
 	
 	/* Moving defaults */
 		/** Standard random move distance */

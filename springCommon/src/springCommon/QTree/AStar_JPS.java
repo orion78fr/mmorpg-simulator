@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import springCommon.Parameters;
 import springCommon.Point2d;
+import static springCommon.QTree.TableUtils.*;
 
 public class AStar_JPS {
 	private Directions[] ancesters;
@@ -12,20 +13,20 @@ public class AStar_JPS {
 	private boolean[] tree;
 	private TravelPath path;
 	
-	private class MySortedList extends ArrayList<Point2d>{
+	private class MySortedList extends ArrayList<Integer>{
 		private static final long serialVersionUID = 1L;
 		public MySortedList() {
 			super((int)(Parameters.sizex * Parameters.sizey));
 		}
 		@Override
-		public boolean add(Point2d e) {
+		public boolean add(Integer e) {
 			if(this.isEmpty()){
 				super.add(0,e);
 			}
 			this.add(e, 0, this.size()-1);
 			return true;
 		}
-		private void add(Point2d e, int startIndex, int endIndex){
+		private void add(Integer e, int startIndex, int endIndex){
 			if(startIndex == endIndex){
 				if(tab_get(f_score, e) > tab_get(f_score, this.get(startIndex))){
 					super.add(startIndex, e);
@@ -43,11 +44,11 @@ public class AStar_JPS {
 			}
 		}
 		@Override
-		public void add(int index, Point2d element) {
+		public void add(int index, Integer element) {
 			throw new RuntimeException("You can't choose the index");
 		}
 		
-		public Point2d removeBest(){
+		public Integer removeBest(){
 			return size() == 0 ? null : this.remove(size()-1);
 		}
 	}
@@ -87,17 +88,19 @@ public class AStar_JPS {
 	public synchronized TravelPath findPath(double fromx, double fromy, double tox, double toy){
 		do_allocs();
 		
-		path = new TravelPath((long)fromx + 0.5, (long)fromy + 0.5, (long)tox + 0.5, (long)toy + 0.5);
+		path = new TravelPath((int)fromx, (int)fromy, (int)tox, (int)toy);
 		
-		tab_set(g_score, path.getFrom(), 0);
-		tab_set(f_score, path.getFrom(), manhattan_distance(path.getFrom(), path.getTo()));
+		int from = (int)fromx * Parameters.sizey + (int)fromy;
 		
-		openSet.add(path.getFrom());
+		tab_set(g_score, from, 0);
+		tab_set(f_score, from, manhattan_distance(path.getFrom(), path.getTo()));
 		
-		Point2d currentp;
+		openSet.add(from);
+		
+		Integer currentp;
 		
 		while((currentp = openSet.removeBest()) != null){
-			if(currentp.equals(path.getTo())){
+			if((new Point2d(currentp)).equals(path.getTo())){
 				backward_path_construct();
 				return path;
 			}
@@ -109,12 +112,23 @@ public class AStar_JPS {
 	}
 	
 	private static double manhattan_distance(Point2d a, Point2d b){
-		return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
+		return manhattan_distance((int)a.getX(), (int)a.getY(), (int)b.getX(), (int)b.getY());
 	}
 	
-	private Directions get_best_direction(Point2d node){
-		double dx = path.getTo().getX() - node.getX();
-		double dy = path.getTo().getY() - node.getY();
+	private static double manhattan_distance(int a, int b){
+		return manhattan_distance(a/Parameters.sizey,
+								a%Parameters.sizey,
+								b/Parameters.sizey,
+								b%Parameters.sizey);
+	}
+	
+	private static double manhattan_distance(int xa, int ya, int xb, int yb){
+		return Math.abs(xa - xb) + Math.abs(ya - yb);
+	}
+	
+	private Directions get_best_direction(int node){
+		double dx = path.getTo().getX() - node/Parameters.sizey;
+		double dy = path.getTo().getY() - node%Parameters.sizey;
 		
 		Directions d;
 		boolean cw;
@@ -140,7 +154,7 @@ public class AStar_JPS {
 		return get_best_direction(node, d, cw);
 	}
 	
-	private Directions get_best_direction(Point2d node, Directions d, boolean cw){
+	private Directions get_best_direction(int node, Directions d, boolean cw){
 		if(!is_explored(node, d)){
 			return d;
 		} else if(!is_explored(node,Directions.getPerpendicular(d, cw))){
@@ -154,7 +168,7 @@ public class AStar_JPS {
 		}
 	}
 	
-	private void explore_node(Point2d node){
+	private void explore_node(int node){
 		// Find "best", non explored direction
 		Directions d = get_best_direction(node);
 		if(d == null){
@@ -170,7 +184,7 @@ public class AStar_JPS {
 		}
 	}
 	
-	private boolean is_totally_explored(Point2d node){		
+	private boolean is_totally_explored(int node){		
 		for(Directions d : Directions.values()){
 			if(!is_explored(node, d)){
 				return false;
@@ -179,19 +193,19 @@ public class AStar_JPS {
 		return true;
 	}
 	
-	private boolean is_explored(Point2d node, Directions d){
+	private boolean is_explored(int node, Directions d){
 		return is_explored(getDirectedPoint(node, d));
 	}
 	
-	private boolean is_explored(Point2d node){
-		return is_explored(node.getX(), node.getY());
+	private boolean is_explored(int node){
+		return (new Point2d(node)).equals(path.getFrom()) || !tab_get(tree, node) || tab_get(ancesters, node) != null;
 	}
 	
 	private boolean is_explored(double x, double y){
-		return (new Point2d(x,y)).equals(path.getFrom()) || !tab_get(tree, x, y) || tab_get(ancesters, x, y) != null;
+		return is_explored((int)x * Parameters.sizey + (int)y);
 	}
 	
-	private void explore_node(Point2d node, Directions d){
+	private void explore_node(int node, Directions d){
 		if(!tab_get(tree, node)){
 			// If not traversable, do nothing!
 			return;
@@ -206,16 +220,17 @@ public class AStar_JPS {
 		}
 		
 		// Explore diagonally, if needed
-		Point2d diag = getDirectedPoint(node, d);
-		if(diag.getX() < 0 || diag.getX() >= Parameters.sizex || diag.getY() < 0 || diag.getY() >= Parameters.sizey){
+		if(ltr ? node/Parameters.sizey+1 >= Parameters.sizex : node/Parameters.sizey-1 < 0 ||
+				utd ? node%Parameters.sizey+1 >= Parameters.sizey : node%Parameters.sizey-1 < 0){
 			return;
 		}
+		int diag = getDirectedPoint(node, d);
 		if(tab_get(tree, diag) && !is_explored(diag)){
 			tab_set(ancesters, diag, d);
 			tab_set(g_score, diag, tab_get(g_score, node) + Math.sqrt(2));
 			if(is_jmp_point(diag, d)){
 				// This is a Jump Point, add it to open and stop here
-				tab_set(f_score, diag, tab_get(g_score, diag) + manhattan_distance(node, path.getTo()));
+				tab_set(f_score, diag, tab_get(g_score, diag) + manhattan_distance(new Point2d(node), path.getTo()));
 				openSet.add(diag);
 				return;
 			}
@@ -223,12 +238,12 @@ public class AStar_JPS {
 		}
 	}
 	
-	private boolean is_jmp_point(Point2d p, Directions d){
-		if(path.getTo().equals(p)){
+	private boolean is_jmp_point(int p, Directions d){
+		if(path.getTo().equals(new Point2d(p))){
 			return true;
 		}
 		
-		Point2d full1, full2, empty1, empty2;
+		int full1, full2, empty1, empty2;
 		
 		if(Directions.isDiagonal(d)){
 			empty1 = getDirectedPoint(p, Directions.getPerpendicular(d, true));
@@ -248,10 +263,10 @@ public class AStar_JPS {
 	}
 	
 	private boolean is_jmp_point(double x, double y, Directions d){
-		return is_jmp_point(new Point2d(x, y), d);
+		return is_jmp_point((int)x * Parameters.sizey + (int)y, d);
 	}
 	
-	private boolean explore_node_horizontal(Point2d node, boolean ltr){
+	private boolean explore_node_horizontal(int node, boolean ltr){
 		int increment;
 		Directions d;
 		if(ltr){
@@ -262,9 +277,9 @@ public class AStar_JPS {
 			d = Directions.W;
 		}
 		
-		double x = node.getX() + increment;
-		double y = node.getY();
-		double oldgscore = tab_get(g_score, node.getX(), y);
+		int x = node/Parameters.sizey + increment;
+		int y = node%Parameters.sizey;
+		double oldgscore = tab_get(g_score, node/Parameters.sizey, y);
 		
 		while(tab_get(tree, x - increment, y)){
 			if((0 <= x && x < Parameters.sizex) && !is_explored(x, y)){
@@ -277,7 +292,7 @@ public class AStar_JPS {
 					// This is a Jump Point as one of it's backward neighbors are not traversable and wasn't already explored
 					Point2d newPoint = new Point2d(x, y);
 					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
-					openSet.add(newPoint);
+					openSet.add(x*Parameters.sizey + y);
 					return path.getTo().equals(newPoint);
 				}
 				
@@ -290,7 +305,7 @@ public class AStar_JPS {
 		return false;
 	}
 	
-	private boolean explore_node_vertical(Point2d node, boolean utd){
+	private boolean explore_node_vertical(int node, boolean utd){
 		int increment;
 		Directions d;
 		if(utd){
@@ -301,9 +316,9 @@ public class AStar_JPS {
 			d = Directions.N;
 		}
 		
-		double x = node.getX();
-		double y = node.getY() + increment;
-		double oldgscore = tab_get(g_score, x, node.getY());
+		int x = node/Parameters.sizey;
+		int y = node%Parameters.sizey + increment;
+		double oldgscore = tab_get(g_score, x, node%Parameters.sizey);
 		
 		while(tab_get(tree, x, y - increment)){
 			if((0 <= y && y < Parameters.sizey) && !is_explored(x, y)){
@@ -316,7 +331,7 @@ public class AStar_JPS {
 					// This is a Jump Point as one of it's backward neighbors are not traversable and wasn't already explored
 					Point2d newPoint = new Point2d(x, y);
 					tab_set(f_score, x, y, oldgscore + manhattan_distance(newPoint, path.getTo()));
-					openSet.add(newPoint);
+					openSet.add(x * Parameters.sizey + y);
 					return path.getTo().equals(newPoint);
 				}
 				
@@ -332,13 +347,14 @@ public class AStar_JPS {
 	private void backward_path_construct(){
 		// So now we have found a path, iterate backwards and push it in the path
 		// Only add when direction change
-		Point2d currentp = path.getTo();
+		int currentp = path.getTo().intValue();
+		int from = path.getFrom().intValue();
 		Directions d, olddir = null;
 		
 		while((d = tab_get(ancesters, currentp)) != null){
 			if(d != olddir){
-				if(!currentp.equals(path.getFrom())){
-					path.addPoint(currentp);
+				if(currentp != from){
+					path.addPoint(new Point2d(currentp));
 				}
 				olddir = d;
 			}
@@ -346,68 +362,26 @@ public class AStar_JPS {
 		}
 	}
 	
-	private static <T> T tab_get(T[] tab, Point2d p){
-		return tab_get(tab, p.getX(), p.getY());
-	}
-	private static double tab_get(double[] tab, Point2d p){
-		return tab_get(tab, p.getX(), p.getY());
-	}
-	private static boolean tab_get(boolean[] tab, Point2d p){
-		return tab_get(tab, p.getX(), p.getY());
-	}
-	
-	private static <T> T tab_get(T[] tab, double x, double y){
-		return tab[(int)x * (int)Parameters.sizex + (int) y];
-	}
-	private static double tab_get(double[] tab, double x, double y){
-		return tab[(int)x * (int)Parameters.sizex + (int) y];
-	}
-	private static boolean tab_get(boolean[] tab, double x, double y){
-		return tab[(int)x * (int)Parameters.sizex + (int) y];
-	}
-	
-	private static <T> void tab_set(T[] tab, Point2d p, T value){
-		tab_set(tab, p.getX(), p.getY(), value);
-	}
-	private static void tab_set(double[] tab, Point2d p, double value){
-		tab_set(tab, p.getX(), p.getY(), value);
-	}
-	private static void tab_set(boolean[] tab, Point2d p, boolean value){
-		tab_set(tab, p.getX(), p.getY(), value);
-	}
-	
-	private static <T> void tab_set(T[] tab, double x, double y, T value){
-		tab[(int)x * (int)Parameters.sizex + (int) y] = value;
-	}
-	private static void tab_set(double[] tab, double x, double y, double value){
-		tab[(int)x * (int)Parameters.sizex + (int) y] = value;
-	}
-	private static void tab_set(boolean[] tab, double x, double y, boolean value){
-		tab[(int)x * (int)Parameters.sizex + (int) y] = value;
-	}
-	
-	private static Point2d getDirectedPoint(Point2d p, Directions d){
-		double x = p.getX();
-		double y = p.getY();
+	private static int getDirectedPoint(int p, Directions d){
 		switch(d){
 		case E:
-			return new Point2d(x+1,y);
+			return p+Parameters.sizey;
 		case N:
-			return new Point2d(x,y-1);
+			return p-1;
 		case NE:
-			return new Point2d(x+1,y-1);
+			return p+Parameters.sizey-1;
 		case NW:
-			return new Point2d(x-1,y-1);
+			return p-Parameters.sizey-1;
 		case S:
-			return new Point2d(x,y+1);
+			return p+1;
 		case SE:
-			return new Point2d(x+1,y+1);
+			return p+Parameters.sizey+1;
 		case SW:
-			return new Point2d(x-1,y+1);
+			return p-Parameters.sizey+1;
 		case W:
-			return new Point2d(x-1,y);
+			return p-Parameters.sizey;
 		default:
-			return null;
+			return -1;
 		}
 	}
 }

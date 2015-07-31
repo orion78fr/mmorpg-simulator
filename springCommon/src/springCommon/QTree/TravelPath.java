@@ -10,7 +10,7 @@ public class TravelPath{
 	private Point2d from, to;
 	private List<Point2d> path = new ArrayList<Point2d>();
 	
-	public TravelPath(double fromx, double fromy, double tox, double toy) {
+	public TravelPath(int fromx, int fromy, int tox, int toy) {
 		this.from = new Point2d(fromx, fromy);
 		this.to = new Point2d(tox, toy);
 	}

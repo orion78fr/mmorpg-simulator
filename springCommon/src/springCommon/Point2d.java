@@ -3,6 +3,10 @@ package springCommon;
 import java.awt.geom.Point2D;
 
 public class Point2d extends Point2D.Double {
+	public Point2d(int node) {
+		this(node/Parameters.sizey, node%Parameters.sizey);
+	}
+	
 	public Point2d(double x, double y) {
 		super(x,y);
 	}
@@ -26,5 +30,9 @@ public class Point2d extends Point2D.Double {
 
 	public boolean isInside() {
 		return this.x >= 0 && this.x < Parameters.sizex && this.y >= 0 && this.y < Parameters.sizey;
+	}
+	
+	public int intValue(){
+		return (int)x * Parameters.sizey + (int)y;
 	}
 }
