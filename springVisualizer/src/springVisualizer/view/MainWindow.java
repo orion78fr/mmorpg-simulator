@@ -16,7 +16,6 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
-import springCommon.Parameters;
 import springVisualizer.MovementLogger;
 import springVisualizer.State;
 import springVisualizer.view.overlay.AbstractOverlay;

@@ -414,7 +414,7 @@ public class QTree implements Serializable {
 	}
 	
 	public boolean[] qTreeTraversableToArray(){
-		boolean[] result = new boolean[(int) (Parameters.sizex * Parameters.sizey)];
+		boolean[] result = new boolean[Parameters.sizex * Parameters.sizey];
 		List<QTree> l = this.getAllLeaves();
 		for(QTree t : l){
 			if(t.isTraversable()){
@@ -423,7 +423,7 @@ public class QTree implements Serializable {
 				double w = t.width;
 				double h = t.height;
 				for(int i = 0; i < w; i++){
-					Arrays.fill(result, ((int)x+i) * (int)Parameters.sizex + (int)y, ((int)x+i) * (int)Parameters.sizex + (int)y + (int)h, true);
+					Arrays.fill(result, ((int)x+i) * Parameters.sizex + (int)y, ((int)x+i) * Parameters.sizex + (int)y + (int)h, true);
 				}
 			}
 		}

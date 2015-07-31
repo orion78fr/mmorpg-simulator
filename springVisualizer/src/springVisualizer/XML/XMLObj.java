@@ -81,7 +81,7 @@ public class XMLObj{
 			sb.append("/>");
 		}
 	}
-	protected void appendWithTabs(StringBuffer sb, int nbTab, String content){
+	protected static void appendWithTabs(StringBuffer sb, int nbTab, String content){
 		for(int i = 0; i < nbTab; i++){
 			sb.append("\t");
 		}

@@ -16,7 +16,7 @@ public class AStar_JPS {
 	private class MySortedList extends ArrayList<Integer>{
 		private static final long serialVersionUID = 1L;
 		public MySortedList() {
-			super((int)(Parameters.sizex * Parameters.sizey));
+			super(Parameters.sizex * Parameters.sizey);
 		}
 		@Override
 		public boolean add(Integer e) {
@@ -59,7 +59,7 @@ public class AStar_JPS {
 		this.tree = tree.qTreeTraversableToArray();
 		this.openSet = new MySortedList();
 
-		int size =  (int) (Parameters.sizex * Parameters.sizey);
+		int size =  Parameters.sizex * Parameters.sizey;
 		this.g_score = new double[size];
 		this.f_score = new double[size];
 		this.ancesters = new Directions[size];

@@ -15,13 +15,13 @@ public class TableUtils {
 	}
 	
 	public static <T> T tab_get(T[] tab, double x, double y){
-		return tab_get(tab, (int)x * (int)Parameters.sizey + (int) y);
+		return tab_get(tab, (int)x * Parameters.sizey + (int) y);
 	}
 	public static double tab_get(double[] tab, double x, double y){
-		return tab_get(tab, (int)x * (int)Parameters.sizey + (int) y);
+		return tab_get(tab, (int)x * Parameters.sizey + (int) y);
 	}
 	public static boolean tab_get(boolean[] tab, double x, double y){
-		return tab_get(tab, (int)x * (int)Parameters.sizey + (int) y);
+		return tab_get(tab, (int)x * Parameters.sizey + (int) y);
 	}
 	
 	public static <T> T tab_get(T[] tab, int p){
@@ -45,13 +45,13 @@ public class TableUtils {
 	}
 	
 	public static <T> void tab_set(T[] tab, double x, double y, T value){
-		tab_set(tab, (int)x * (int)Parameters.sizey + (int) y, value);
+		tab_set(tab, (int)x * Parameters.sizey + (int) y, value);
 	}
 	public static void tab_set(double[] tab, double x, double y, double value){
-		tab_set(tab, (int)x * (int)Parameters.sizey + (int) y, value);
+		tab_set(tab, (int)x * Parameters.sizey + (int) y, value);
 	}
 	public static void tab_set(boolean[] tab, double x, double y, boolean value){
-		tab_set(tab, (int)x * (int)Parameters.sizey+ (int) y, value);
+		tab_set(tab, (int)x * Parameters.sizey+ (int) y, value);
 	}
 	
 	public static <T> void tab_set(T[] tab, int p, T value){

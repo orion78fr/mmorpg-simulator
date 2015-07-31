@@ -7,8 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -174,8 +172,7 @@ public class ControlDialog{
 		cbMouseMode.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JComboBox<String> cb = (JComboBox<String>)e.getSource();
-				String elem = (String)cb.getSelectedItem();
+				String elem = (String)cbMouseMode.getSelectedItem();
 				
 				OverlayMouseMode m = MainWindow.mouseModes.get(elem);
 				
