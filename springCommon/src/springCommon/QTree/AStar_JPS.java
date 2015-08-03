@@ -11,6 +11,7 @@ public class AStar_JPS {
 	private double[] g_score;
 	private double[] f_score;
 	private boolean[] tree;
+	private boolean[] potential_jump_point;
 	private TravelPath path;
 	
 	private class MySortedList extends ArrayList<Integer>{
@@ -57,6 +58,7 @@ public class AStar_JPS {
 	public AStar_JPS(QTree tree) {
 		super();
 		this.tree = tree.qTreeTraversableToArray();
+		this.potential_jump_point = tree.qTreePotentialJumpPoints(this.tree);
 		this.openSet = new MySortedList();
 
 		int size =  Parameters.sizex * Parameters.sizey;
@@ -241,6 +243,9 @@ public class AStar_JPS {
 	private boolean is_jmp_point(int p, Directions d){
 		if(path.getTo().equals(new Point2d(p))){
 			return true;
+		}
+		if(!this.potential_jump_point[p]){
+			return false;
 		}
 		
 		int full1, full2, empty1, empty2;

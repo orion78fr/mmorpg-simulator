@@ -429,4 +429,24 @@ public class QTree implements Serializable {
 		}
 		return result;
 	}
+
+	public static boolean[] qTreePotentialJumpPoints(boolean[] tree) {
+		boolean[] result = new boolean[tree.length];
+		
+		for(int i = 0; i < tree.length; i++){
+			if(tree[i] && !(
+					tree[i+Parameters.sizey] &&
+					tree[i-1] &&
+					tree[i+Parameters.sizey-1] &&
+					tree[i-Parameters.sizey-1] &&
+					tree[i+1] &&
+					tree[i+Parameters.sizey+1] &&
+					tree[i-Parameters.sizey+1] &&
+					tree[i-Parameters.sizey])){
+				result[i] = true;
+			}
+		}
+		
+		return result;
+	}
 }

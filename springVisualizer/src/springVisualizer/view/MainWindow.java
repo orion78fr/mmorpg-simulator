@@ -60,7 +60,6 @@ public class MainWindow {
 	static boolean barRefresh = true;
 	
 	static BackgroudOverlay background;
-	static private ZonesOverlay zones;
 	static JLabel fakeLabel;
 	
 	public static void refresh(){
@@ -86,7 +85,7 @@ public class MainWindow {
         
         
         addOverlay(background = new BackgroudOverlay());
-        addOverlay(zones = new ZonesOverlay());
+        addOverlay(new ZonesOverlay());
         addOverlay(new ServerOverlay());
         addOverlay(new HotspotOverlay());
         addOverlay(new PlayerOverlay());
