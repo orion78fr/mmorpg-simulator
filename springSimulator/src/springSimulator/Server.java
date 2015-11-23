@@ -11,8 +11,8 @@ import springSimulator.utils.Logger;
 import springSimulator.utils.MessageType;
 import springSimulator.utils.MessageWaiter;
 import springSimulator.utils.MessageState;
-import springSimulator.utils.SimException;
-import springSimulator.utils.SimUtils;
+import springSimulator.utils.SimUtilsOld;
+import springSimulator.utils.SimUtils.SimException;
 
 public class Server extends Process {
 	List<String> clientMailBox = new ArrayList<String>();
@@ -44,7 +44,7 @@ public class Server extends Process {
 
 			nextTick += 1 / tickrate;
 			
-			l.addAll(SimUtils.ireceiveAllUntil(this.getHost().getName(), nextTick, 500));
+			l.addAll(SimUtilsOld.ireceiveAllUntil(this.getHost().getName(), nextTick, 500));
 			
 			/* Treatment of messages */
 			for(int j = 0; j < l.size();){
@@ -90,7 +90,7 @@ public class Server extends Process {
 			}
 			
 			for(String c : clientMailBox){
-				SimUtils.isend(c, 100, MessageType.MSG_WORLD_UPDATE, null);
+				SimUtilsOld.isend(c, 100, MessageType.MSG_WORLD_UPDATE, null);
 			}
 			
 			
@@ -98,7 +98,7 @@ public class Server extends Process {
 		}
 		
 		try {
-			SimUtils.waitFor(5);
+			SimUtilsOld.waitFor(5);
 		} catch (SimException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

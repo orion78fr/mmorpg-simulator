@@ -49,7 +49,7 @@ public class MessageWaiter{
 	public Message getMessage() {
 		if(this.message == null){
 			if(this.state == MessageState.SUCCESS){
-				this.message = SimUtils.getMessageById(this.comm.getTask().getId());
+				this.message = SimUtilsOld.getMessageById(this.comm.getTask().getId());
 			}
 		}
 		return message;

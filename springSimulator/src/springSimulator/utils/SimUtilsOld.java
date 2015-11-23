@@ -13,13 +13,15 @@ import org.simgrid.msg.TaskCancelledException;
 import org.simgrid.msg.TimeoutException;
 import org.simgrid.msg.TransferFailureException;
 
+import springSimulator.utils.SimUtils.SimException;
+
 /**
  * Utility class for the simulator.<br />
  * It's main purpose is to hide simgrid behind (wrapper) in case of a simulator change is needed.
  * 
  * @author Guillaume Turchini
  */
-public class SimUtils {
+public class SimUtilsOld {
 	private static HashMap<Long, Message> messages = new HashMap<Long, Message>();
 	 
 	public static double getTime(){
@@ -43,7 +45,7 @@ public class SimUtils {
 	 * @throws SimException
 	 */
 	public static void waitUntil(double simTime) throws SimException{
-		SimUtils.waitFor(simTime - Msg.getClock());
+		SimUtilsOld.waitFor(simTime - Msg.getClock());
 	}
 	
 	/**
@@ -178,12 +180,12 @@ public class SimUtils {
 	public static List<MessageWaiter> ireceiveAllUntil(String name, double time, long pollFreq){
 		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
 		try {
-			while(SimUtils.getTime() < time){
+			while(SimUtilsOld.getTime() < time){
 				MessageWaiter w;
-				while((w = SimUtils.ireceive(name)) != null){
+				while((w = SimUtilsOld.ireceive(name)) != null){
 					l.add(w);
 				}
-				SimUtils.waitFor(1.0 / pollFreq);
+				SimUtilsOld.waitFor(1.0 / pollFreq);
 			}
 		} catch (SimException e) {
 			// TODO Auto-generated catch block

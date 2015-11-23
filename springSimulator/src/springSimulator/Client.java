@@ -13,8 +13,8 @@ import springCommon.Point2d;
 import springSimulator.utils.Logger;
 import springSimulator.utils.Message;
 import springSimulator.utils.MessageType;
-import springSimulator.utils.SimException;
-import springSimulator.utils.SimUtils;
+import springSimulator.utils.SimUtilsOld;
+import springSimulator.utils.SimUtils.SimException;
 
 public class Client extends Process {
 	public Client(Host host, String name, String[]args) {
@@ -40,7 +40,7 @@ public class Client extends Process {
 			while((str = reader.readLine()) != null){
 				String[] splitStr = str.split(";");
 				try {
-					SimUtils.waitUntil(Integer.parseInt(splitStr[0]) * (1 / tickrate));
+					SimUtilsOld.waitUntil(Integer.parseInt(splitStr[0]) * (1 / tickrate));
 				} catch (NumberFormatException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -52,13 +52,13 @@ public class Client extends Process {
 				/* Send to the server the action */
 				switch(LogType.fromString(splitStr[1])){
 				case connect:
-					SimUtils.isend(this.currentServer, 200, MessageType.MSG_CONNECT, this.getHost().getName()/*new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3]))*/);
+					SimUtilsOld.isend(this.currentServer, 200, MessageType.MSG_CONNECT, this.getHost().getName()/*new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3]))*/);
 					break;
 				case move:
-					SimUtils.isend(this.currentServer, 50, MessageType.MSG_MOVE, new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3])));
+					SimUtilsOld.isend(this.currentServer, 50, MessageType.MSG_MOVE, new Point2d(Double.parseDouble(splitStr[2]), Double.parseDouble(splitStr[3])));
 					break;
 				case disconnect:
-					SimUtils.isend(this.currentServer, 10, MessageType.MSG_DISCONNECT, this.getHost().getName());
+					SimUtilsOld.isend(this.currentServer, 10, MessageType.MSG_DISCONNECT, this.getHost().getName());
 					break;
 				default:
 					System.out.println("Unknown command " + splitStr[1] + " : ignored!");
@@ -66,7 +66,7 @@ public class Client extends Process {
 				}
 				
 				try {
-					Message m = SimUtils.receive(this.getHost().getName());
+					Message m = SimUtilsOld.receive(this.getHost().getName());
 					Logger.logInfo("Message : (" + m.getType() + "," + m.getContent() + ")");// Traitement du message
 				} catch (SimException e) {
 					// TODO Auto-generated catch block
@@ -77,7 +77,7 @@ public class Client extends Process {
 			Logger.logInfo("Disconnected and no more moves!");
 			
 			try {
-				SimUtils.waitFor(5);
+				SimUtilsOld.waitFor(5);
 			} catch (SimException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
