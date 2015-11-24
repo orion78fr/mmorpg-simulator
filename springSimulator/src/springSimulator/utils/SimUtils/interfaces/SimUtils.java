@@ -1,5 +1,7 @@
 package springSimulator.utils.SimUtils.interfaces;
 
+import java.util.List;
+
 public interface SimUtils {
 	public void init();
 	
@@ -14,6 +16,9 @@ public interface SimUtils {
 	public SimMessage receive();
 	public SimMessage receive(double timeout);
 	public SimComm ireceive();
+	
+	public List<SimComm> ireceiveAllUntil(double time);
+	public List<SimComm> ireceiveAllFor(double time);
 	
 	public void send(SimHost host, SimMessage message);
 	public void send(SimHost host, SimMessage message, double timeout);
