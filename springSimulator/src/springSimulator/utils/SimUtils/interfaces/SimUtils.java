@@ -16,5 +16,6 @@ public interface SimUtils {
 	public SimComm ireceive();
 	
 	public void send(SimHost host, SimMessage message);
+	public void send(SimHost host, SimMessage message, double timeout);
 	public SimComm isend(SimHost host, SimMessage message);
 }

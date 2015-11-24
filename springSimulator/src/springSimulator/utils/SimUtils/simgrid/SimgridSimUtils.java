@@ -1,6 +1,10 @@
 package springSimulator.utils.SimUtils.simgrid;
 
+import org.simgrid.msg.Host;
+import org.simgrid.msg.HostFailureException;
 import org.simgrid.msg.Msg;
+import org.simgrid.msg.Task;
+import org.simgrid.msg.TaskCancelledException;
 
 import springSimulator.utils.SimUtils.Sim;
 import springSimulator.utils.SimUtils.interfaces.SimComm;
@@ -23,32 +27,39 @@ public class SimgridSimUtils implements SimUtils {
 
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
-		// Init all async mailboxes ?
+		SimgridSimHost.init();
+		// TODO Init all async mailboxes ?
 	}
 
 	@Override
 	public void compute(double time) {
-		// TODO Auto-generated method stub
-		
+		if(time < 0) {
+			// TODO traitement erreur
+		}
+		try {
+			new Task("compute", getCurrentHost().getSpeed() * time, 0).execute();
+		} catch (HostFailureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TaskCancelledException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void computeUntil(double time) {
-		// TODO Auto-generated method stub
-		
+		compute(time - getCurrentTime());
 	}
 
 	@Override
 	public SimHost getHostByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return SimgridSimHost.getHostByName(name);
 	}
 
 	@Override
 	public SimHost getCurrentHost() {
-		// TODO Auto-generated method stub
-		return null;
+		return SimgridSimHost.getCurrentHost();
 	}
 
 	@Override
@@ -71,6 +82,12 @@ public class SimgridSimUtils implements SimUtils {
 
 	@Override
 	public void send(SimHost host, SimMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void send(SimHost host, SimMessage message, double timeout) {
 		// TODO Auto-generated method stub
 		
 	}
