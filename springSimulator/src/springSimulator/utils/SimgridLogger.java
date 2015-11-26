@@ -2,7 +2,7 @@ package springSimulator.utils;
 
 import org.simgrid.msg.Msg;
 
-public class Logger {
+public class SimgridLogger {
 	private static LogLevel currentLogLevel = LogLevel.DEBUG;
 	
 	private enum LogLevel{

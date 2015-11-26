@@ -10,9 +10,7 @@ import org.simgrid.msg.Process;
 
 import springCommon.LogType;
 import springCommon.Point2d;
-import springSimulator.utils.Logger;
-import springSimulator.utils.Message;
-import springSimulator.utils.MessageType;
+import springSimulator.utils.SimgridLogger;
 import springSimulator.utils.SimUtilsOld;
 import springSimulator.utils.SimUtils.SimException;
 
@@ -67,14 +65,14 @@ public class Client extends Process {
 				
 				try {
 					Message m = SimUtilsOld.receive(this.getHost().getName());
-					Logger.logInfo("Message : (" + m.getType() + "," + m.getContent() + ")");// Traitement du message
+					SimgridLogger.logInfo("Message : (" + m.getType() + "," + m.getContent() + ")");// Traitement du message
 				} catch (SimException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 			
-			Logger.logInfo("Disconnected and no more moves!");
+			SimgridLogger.logInfo("Disconnected and no more moves!");
 			
 			try {
 				SimUtilsOld.waitFor(5);

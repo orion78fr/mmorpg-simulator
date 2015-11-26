@@ -1,11 +1,13 @@
 package springSimulator.utils.SimUtils.simgrid;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.simgrid.msg.Comm;
 import org.simgrid.msg.HostFailureException;
 import org.simgrid.msg.Msg;
+import org.simgrid.msg.NativeException;
 import org.simgrid.msg.Task;
 import org.simgrid.msg.TaskCancelledException;
 import org.simgrid.msg.TimeoutException;
@@ -22,6 +24,7 @@ public class SimgridSimUtils implements SimUtils {
 	}
 	
 	static{
+		System.out.println("Simgrid simulation engine loaded");
 		Sim.setSu(new SimgridSimUtils());
 	}
 	
@@ -37,24 +40,15 @@ public class SimgridSimUtils implements SimUtils {
 	}
 
 	@Override
-	public void compute(double time) {
-		if(time < 0) {
-			// TODO traitement erreur
-		}
-		try {
-			new Task("compute", getCurrentHost().getSpeed() * time, 0).execute();
-		} catch (HostFailureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TaskCancelledException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void waitFor(double time) {
+		if(time > 0) {
+			compute(getCurrentHost().getSpeed() * time);
 		}
 	}
 
 	@Override
-	public void computeUntil(double time) {
-		compute(time - getCurrentTime());
+	public void waitUntil(double time) {
+		waitFor(time - getCurrentTime());
 	}
 
 	@Override
@@ -69,20 +63,7 @@ public class SimgridSimUtils implements SimUtils {
 
 	@Override
 	public SimMessage receive() {
-		try {
-			Task t = Task.receive(getCurrentHost().getName());
-			return retreiveMessageFromTask(t);
-		} catch (TransferFailureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HostFailureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		return receive(-1);
 	}
 
 	@Override
@@ -113,25 +94,12 @@ public class SimgridSimUtils implements SimUtils {
 
 	@Override
 	public void send(SimHost host, SimMessage message) {
-		Task t = new Task("send", 0, 0);
-		storeMessageWithTask(t, message);
-		try {
-			t.send(host.getName());
-		} catch (TransferFailureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HostFailureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+		send(host, message, -1);
 	}
 	
 	@Override
 	public void send(SimHost host, SimMessage message, double timeout) {
-		Task t = new Task("send", 0, 0);
+		Task t = new Task("send", 0, message.getSize());
 		storeMessageWithTask(t, message);
 		try {
 			t.send(host.getName(), timeout);
@@ -142,6 +110,9 @@ public class SimgridSimUtils implements SimUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
@@ -162,23 +133,50 @@ public class SimgridSimUtils implements SimUtils {
 		while(messageMap.containsKey(currentMessageId)){
 			currentMessageId++;
 		}
-		t.setComputeDuration(currentMessageId);
+		t.setFlopsAmount(currentMessageId);
 		messageMap.put(currentMessageId, message);
 	}
 	@SuppressWarnings("boxing")
 	private SimMessage retreiveMessageFromTask(Task t){
-		return messageMap.remove(t.getComputeDuration());
+		return messageMap.remove(t.getFlopsAmount());
 	}
 
 	@Override
 	public List<SimComm> ireceiveAllUntil(double time) {
-		// TODO Auto-generated method stub
-		return null;
+		return ireceiveAllFor(time - getCurrentTime());
 	}
 
 	@Override
 	public List<SimComm> ireceiveAllFor(double time) {
-		// TODO Auto-generated method stub
-		return null;
+		waitFor(time);
+		SimComm w;
+		List<SimComm> l = new ArrayList<SimComm>();
+		while((w = ireceive()) != null){
+			l.add(w);
+		}
+		return l;
+	}
+
+	@Override
+	public void compute(double flops) {
+		try {
+			new Task("compute", flops, 0).execute();
+		} catch (HostFailureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TaskCancelledException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public SimMessage receiveUntil(double time) {
+		return receive(time - getCurrentTime());
+	}
+
+	@Override
+	public void sendUntil(SimHost host, SimMessage message, double time) {
+		send(host, message, time - getCurrentTime());
 	}
 }

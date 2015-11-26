@@ -1,4 +1,4 @@
-package springSimulator.utils;
+package springSimulator;
 
 public enum MessageType {
 	MSG_CONNECT,

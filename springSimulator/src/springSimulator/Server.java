@@ -7,8 +7,7 @@ import org.simgrid.msg.Host;
 import org.simgrid.msg.Process;
 
 import springCommon.Point2d;
-import springSimulator.utils.Logger;
-import springSimulator.utils.MessageType;
+import springSimulator.utils.SimgridLogger;
 import springSimulator.utils.MessageWaiter;
 import springSimulator.utils.MessageState;
 import springSimulator.utils.SimUtilsOld;
@@ -24,11 +23,11 @@ public class Server extends Process {
 	@Override
 	public void main(String[] args) {
 		if(!this.getHost().getName().equals("server_0")){
-			Logger.logWarning("Master 0 test only, stopping...");
+			SimgridLogger.logWarning("Master 0 test only, stopping...");
 			return;
 		}
 		if (args.length < 1) {
-			Logger.logCritical("Args for Master : <tickrate>");
+			SimgridLogger.logCritical("Args for Master : <tickrate>");
 			System.exit(1);
 		}
 		
@@ -40,7 +39,7 @@ public class Server extends Process {
 		int emptyTick = 0;
 		
 		while(true){
-			Logger.logVerbose("Tick begin!");
+			SimgridLogger.logVerbose("Tick begin!");
 
 			nextTick += 1 / tickrate;
 			
@@ -57,16 +56,16 @@ public class Server extends Process {
 					if(w.getState() == MessageState.SUCCESS){
 						switch(w.getMessage().getType()){
 						case MSG_CONNECT:
-							Logger.logInfo(w.getMessage().getContent().toString() + " connected !");
+							SimgridLogger.logInfo(w.getMessage().getContent().toString() + " connected !");
 							clientMailBox.add(w.getMessage().getContent().toString());
 							break;
 						case MSG_DISCONNECT:
-							Logger.logInfo(w.getMessage().getContent().toString() + " disconnected !");
+							SimgridLogger.logInfo(w.getMessage().getContent().toString() + " disconnected !");
 							clientMailBox.remove(w.getMessage().getContent().toString());
 							break;
 						case MSG_MOVE:
 							Point2d p = (Point2d) w.getMessage().getContent();
-							Logger.logInfo("Someone moved to (" + p.getX() + ", " + p.getY());// Traitement du message
+							SimgridLogger.logInfo("Someone moved to (" + p.getX() + ", " + p.getY());// Traitement du message
 							break;
 						case MSG_WORLD_UPDATE:
 							break;
@@ -74,7 +73,7 @@ public class Server extends Process {
 							break;
 						}
 					} else {
-						Logger.logWarning("A message crashed!");
+						SimgridLogger.logWarning("A message crashed!");
 					}
 				}
 			}
@@ -94,7 +93,7 @@ public class Server extends Process {
 			}
 			
 			
-			Logger.logDebug("Tick end.");
+			SimgridLogger.logDebug("Tick end.");
 		}
 		
 		try {
@@ -103,6 +102,6 @@ public class Server extends Process {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Logger.logInfo("Simulation Ended");
+		SimgridLogger.logInfo("Simulation Ended");
 	}
 }
