@@ -8,10 +8,9 @@ import org.simgrid.msg.Process;
 
 import springCommon.Point2d;
 import springSimulator.utils.SimgridLogger;
-import springSimulator.utils.MessageWaiter;
-import springSimulator.utils.MessageState;
-import springSimulator.utils.SimUtilsOld;
-import springSimulator.utils.SimUtils.SimException;
+import springSimulator.utils.SimUtils.Sim;
+import springSimulator.utils.SimUtils.SimMessageState;
+import springSimulator.utils.SimUtils.interfaces.SimComm;
 
 public class Server extends Process {
 	List<String> clientMailBox = new ArrayList<String>();
@@ -35,7 +34,7 @@ public class Server extends Process {
 		
 		double nextTick = 1/tickrate;
 		
-		List<MessageWaiter> l = new ArrayList<MessageWaiter>();
+		List<SimComm> l = new ArrayList<SimComm>();
 		int emptyTick = 0;
 		
 		while(true){
@@ -43,18 +42,18 @@ public class Server extends Process {
 
 			nextTick += 1 / tickrate;
 			
-			l.addAll(SimUtilsOld.ireceiveAllUntil(this.getHost().getName(), nextTick, 500));
+			l.addAll(Sim.ireceiveAllUntil(nextTick));
 			
 			/* Treatment of messages */
 			for(int j = 0; j < l.size();){
-				if(l.get(j).getState() == MessageState.PENDING){
+				if(l.get(j).getState() == SimMessageState.PENDING){
 					/* Do nothing */
 					j++;
 				} else {
 					/* Remove received and buggy messages */
-					MessageWaiter w = l.remove(j);
-					if(w.getState() == MessageState.SUCCESS){
-						switch(w.getMessage().getType()){
+					SimComm w = l.remove(j);
+					if(w.getState() == SimMessageState.SUCCESS){
+						switch(((Message)(w.getMessage())).getType()){
 						case MSG_CONNECT:
 							SimgridLogger.logInfo(w.getMessage().getContent().toString() + " connected !");
 							clientMailBox.add(w.getMessage().getContent().toString());
@@ -89,19 +88,14 @@ public class Server extends Process {
 			}
 			
 			for(String c : clientMailBox){
-				SimUtilsOld.isend(c, 100, MessageType.MSG_WORLD_UPDATE, null);
+				Sim.isend(Sim.getHostByName(c), new Message(MessageType.MSG_WORLD_UPDATE, null, 100));
 			}
 			
 			
 			SimgridLogger.logDebug("Tick end.");
 		}
 		
-		try {
-			SimUtilsOld.waitFor(5);
-		} catch (SimException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Sim.waitFor(5);
 		SimgridLogger.logInfo("Simulation Ended");
 	}
 }
