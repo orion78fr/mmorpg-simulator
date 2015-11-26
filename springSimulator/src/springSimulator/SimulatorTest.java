@@ -2,6 +2,8 @@ package springSimulator;
 
 import org.simgrid.msg.Msg;
 
+import springSimulator.utils.SimUtils.Sim;
+
 public class SimulatorTest {
 	public static void main(String[] args) {
 		/*
@@ -16,7 +18,9 @@ public class SimulatorTest {
 		/* Construct the platform and deploy the application */
 		Msg.createEnvironment(platf);
 		Msg.deployApplication(deploy);
-
+		
+		Sim.init();
+		
 		/* Execute the simulation */
 		Msg.run();
 	}

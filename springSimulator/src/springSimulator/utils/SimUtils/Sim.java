@@ -40,7 +40,7 @@ public class Sim {
 	}
 	
 	public static void setSu(SimUtils su){
-		if(su != null){
+		if(Sim.su != null){
 			// TODO Exception?
 			System.err.println("Multiple simulation engine loaded, exiting...");
 			System.exit(-1);

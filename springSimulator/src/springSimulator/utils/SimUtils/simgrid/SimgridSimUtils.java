@@ -88,6 +88,9 @@ public class SimgridSimUtils implements SimUtils {
 	@Override
 	public SimComm ireceive() {
 		Comm c = Task.irecv(getCurrentHost().getName());
+		if(c == null){
+			return null;
+		}
 		SimMessage m = retreiveMessageFromTask(c.getTask());
 		return new SimgridSimComm(c, m);
 	}
