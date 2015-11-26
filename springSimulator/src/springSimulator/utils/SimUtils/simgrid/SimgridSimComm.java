@@ -6,7 +6,6 @@ import org.simgrid.msg.TimeoutException;
 import org.simgrid.msg.TransferFailureException;
 
 import springSimulator.utils.SimUtils.SimMessageState;
-import springSimulator.utils.SimUtils.exception.SimException;
 import springSimulator.utils.SimUtils.interfaces.SimComm;
 import springSimulator.utils.SimUtils.interfaces.SimMessage;
 
@@ -14,13 +13,13 @@ public class SimgridSimComm implements SimComm {
 	private Comm c;
 	private SimMessage m;
 	private SimMessageState s;
-	private SimException e;
+	//private SimException e;
 	
 	protected SimgridSimComm(Comm c, SimMessage m) {
 		this.c = c;
 		this.m = m;
 		this.s = SimMessageState.PENDING;
-		this.e = null;
+		//this.e = null;
 	}
 	
 	@Override
