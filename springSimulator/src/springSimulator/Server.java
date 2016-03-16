@@ -19,8 +19,13 @@ public class Server extends Process {
 		super(host,name,args);
 	}
 	
+	private void init(){
+		Host.setAsyncMailbox(this.getHost().getName());
+	}
+	
 	@Override
 	public void main(String[] args) {
+		this.init();
 		if(!this.getHost().getName().equals("server_0")){
 			SimgridLogger.logWarning("Master 0 test only, stopping...");
 			return;
