@@ -24,6 +24,9 @@ public class SimgridSimComm implements SimComm {
 	
 	@Override
 	public SimMessage getMessage() {
+		if(this.m == null && this.s == SimMessageState.SUCCESS){
+			this.m = SimgridSimUtils.retreiveMessageFromTask(c.getTask());
+		}
 		return this.m;
 	}
 

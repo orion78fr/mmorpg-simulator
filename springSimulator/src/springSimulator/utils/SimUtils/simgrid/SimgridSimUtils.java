@@ -87,12 +87,11 @@ public class SimgridSimUtils implements SimUtils {
 
 	@Override
 	public SimComm ireceive() {
-		Comm c = Task.irecv(getCurrentHost().getName());
-		if(c == null){
+		if(Task.listen(getCurrentHost().getName())){
 			return null;
 		}
-		SimMessage m = retreiveMessageFromTask(c.getTask());
-		return new SimgridSimComm(c, m);
+		Comm c = Task.irecv(getCurrentHost().getName());
+		return new SimgridSimComm(c, null);
 	}
 
 	@Override
@@ -128,10 +127,10 @@ public class SimgridSimUtils implements SimUtils {
 		return new SimgridSimComm(t.isend(host.getName()), message);
 	}
 	
-	private int currentMessageId = 0;
-	private HashMap<Integer, SimMessage> messageMap = new HashMap<Integer, SimMessage>();
+	private static int currentMessageId = 0;
+	private static HashMap<Integer, SimMessage> messageMap = new HashMap<Integer, SimMessage>();
 	@SuppressWarnings("boxing")
-	private void storeMessageWithTask(Task t, SimMessage message){
+	private static void storeMessageWithTask(Task t, SimMessage message){
 		// TODO Deal with boxing / unboxing ?
 		while(messageMap.containsKey(currentMessageId)){
 			currentMessageId++;
@@ -140,7 +139,7 @@ public class SimgridSimUtils implements SimUtils {
 		messageMap.put(currentMessageId, message);
 	}
 	@SuppressWarnings("boxing")
-	private SimMessage retreiveMessageFromTask(Task t){
+	protected static SimMessage retreiveMessageFromTask(Task t){
 		return messageMap.remove(t.getFlopsAmount());
 	}
 
