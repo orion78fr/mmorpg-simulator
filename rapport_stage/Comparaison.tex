@@ -1,0 +1,191 @@
+\section{Comparaison des architectures}
+
+\subsection{Métriques}
+
+Pour comparer les architectures et les confronter à notre solution, nous allons avoir besoin de métriques quantifiables.
+Nous avons sélectionné un certain nombre de métriques présentées dans la suite de cette partie.
+Il faut remarquer que, comme notre objectif est de réunir tous les joueurs, cela pourrait entraîner de nouvelles possibilités et des comportements différents des joueurs.
+Comme l'architecture que nous proposons n'est pas encore utilisée, des métriques insignifiantes pour les architectures existantes pourraient se révéler importantes durant la suite du stage.
+
+\paragraph{Latence input-résultat\\}
+Le facteur déterminant de la jouabilité d'un jeu est la latence entre l'action d'un joueur et le résultat qui s'affiche pour lui à l'écran, surtout dans les jeux d'action rapide type jeu de tir à la première personne~\cite{latency_can_kill}~\cite{latency_and_player_actions_in_online_games}.
+Le temps que l'information reçue s'affiche à l'écran n'est pas facilement mesurable et négligeable (60 images par seconde étant affichées à l'écran du joueur).
+On considère alors comme latence le temps entre l'émission de l'action du joueur au serveur et la réception d'une mise a jour du monde contenant un acquittement de cette action.
+Pour réduire les effets de la latence, le client approxime bien souvent les effets de l'action du joueur et rectifie en cas de divergence lors de la réception suivante de l'état du jeu si nécessaire.
+Cependant cette rectification entraîne un phénomène de retour en arrière nuisible à l'immersion du joueur.
+
+\paragraph{Tickrate\\}
+Le ``tick'' correspond à un tour de la boucle de simulation de l'état du jeu (récupérer les action des joueurs, les traiter, mettre à jour l'état des objets et renvoyer le nouvel état aux joueurs).
+Plus il y a de tick de jeu par seconde (``tickrate''), plus le jeu semblera fluide car les mises à jour de l'état seront plus fréquentes.
+Le tickrate est la plupart du temps une donnée fixe car un tick simule une durée fixe d'évolution de l'état du jeu.
+Il faut donc éviter des phénomènes de dilatation du temps avec un tickrate qui varie.
+Le tickrate a une influence sur la latence input-résultat car le traitement des actions des joueurs est traité pendant chaque tick et le résultat renvoyé à la fin.
+Pour éviter de surcharger les clients, le serveur n'est pas obligé d'envoyer à chaque tick un nouvel état du jeu car le client peut effectuer une extrapolation entre les deux états du jeu.
+Cela évite de surcharger le réseau avec des modifications mineures.
+
+\paragraph{Charge CPU\\}
+La majeure partie de la charge CPU du serveur de jeu n'est pas de calculer les nouveaux états des objets constituant le monde du jeu (traiter les actions des joueurs) car leur portée est limitée et les modifications simples mais de vérifier que ces actions sont autorisées pour éviter la triche.
+Cette ressource est le plus souvent le facteur limitant d'un serveur de jeu vidéo, le serveur n'arrivant plus à traiter les requêtes d'actions des joueurs à temps pour garder une expérience de jeu fluide (faisant diminuer le tickrate).
+La charge CPU sera mesurée comme le nombre d'opérations à exécuter par seconde, cette mesure ne variant pas avec le modèle de CPU considéré.
+
+\paragraph{Charge Réseau\\}
+La charge réseau est une métrique significative car elle est souvent un des facteurs limitants pour le serveur.
+En effet, en transposant le problème à d'autres domaines tels que l'hébergement de site internet, le serveur a très peu de charge CPU mais est limité par sa capacité à transférer les pages aux clients.
+Il faut aussi remarquer que la bande passante des connexions ADSL des utilisateurs est souvent faible (surtout en upload).
+Il faut donc limiter les interactions pour éviter de saturer le réseau des clients pouvant être utilisé pour d'autres domaines plus prioritaires (voix sur IP, télévision par internet...).
+Il faut également faire attention à ne pas saturer les connexions inter-serveurs pour que les mises à jour de l'état du jeu puissent se faire.
+On différenciera alors vitesse de téléchargement (download) et envoi (upload) pour les machines du serveur et les clients.
+
+\paragraph{Charge Mémoire\\}
+La mémoire n'est souvent pas la ressource limitante d'un serveur de jeu vidéo, les entités gérées ayant la majeure partie du temps une emprunte mémoire mineure (coordonnées et états).
+Cependant, dans des machines ayant peu de mémoire (par exemple des VM dans le cloud), cela peut devenir un problème.
+De plus, si il y a pression mémoire, le système devra ``swapper'' des pages mémoires sur le disque qui est un périphérique très lent comparé à la RAM.
+Cela arrive par exemple dans le cas des environnement où le serveur de jeu n'est pas le seul programme à s'exécuter sur la machine.
+Cette métrique sera donc pour nous une métrique mineure mais sera tout de même surveillée dans notre solution pour vérifier que cela ne soit pas un facteur la limitant.
+
+\paragraph{Coûts\\}
+Héberger son propre serveur de jeu, surtout dans le cas du jeu massivement multijoueur, est cher.
+Pour assurer la disponibilité de l'architecture, il faut munir ses machines de multiples entrées électriques et réseau en cas de défaillance.
+Dans le cas de multiples machines, il faut également fournir entre autre choses des solutions de refroidissement.
+Cela nécessite de la maintenance et une infrastructure qui coûte cher.
+C'est pourquoi de nombreuses entreprises se tournent désormais vers le cloud qui offre cette disponibilité.
+Cependant, louer des VM dans le cloud, bien que facturées à la minute, peut coûter cher selon l'utilisation que l'on en fait.
+Il faut donc faire attention à la manière dont est utilisé le cloud où les coûts pourraient être plus importants que l'hébergement de serveur de type client-serveur.
+Il faut également remarquer que le coût des architectures pair-à-pair est nul car c'est la puissance de calcul et le réseau des joueurs qui sont utilisés.
+Dans le cloud, c'est le ``temps-machine'' qui est facturé (nombre de machine $*$ temps d'utilisation) ainsi que l'utilisation du réseau (volume de données échangées).
+Il faut également remarquer que dans le cloud un réduction est offerte lors de l'utilisation d'une VM une certaine proportion du temps du mois.
+Par exemple, une VM utilisée 50\% du mois coûtera moins cher que deux VMs utilisées 25\% du mois.
+
+\subsection{Comparaison}
+\paragraph{Game as a Service\\}
+La majeure partie du temps, le GaaS n'héberge pas la partie serveur du jeu mais uniquement les vues à distribuer au client.
+L'infrastructure peut disposer d'une latence inférieure et d'une bande passante supérieure à la connexion d'un particulier, mais cette architecture génère beaucoup plus de trafic internet à cause du flux continu de vidéo.
+Cela nécessite donc une connexion meilleure pour le joueur comparé à une architecture client-serveur classique qui ne partage que les mises à jour des données logiques du jeu (pour World of Warcraft une dizaine de kbps~\cite{mmorpg_network_performance_session_patterns_and_latency_requirements_analysis}).
+
+\paragraph{Pair-à-Pair\\}
+De nombreux éditeurs sont réticents à propos de l'utilisation de l'architecture Pair-à-Pair.
+Ceci est probablement dû au modèle économique que ce type d'architecture entraîne.
+En effet, tout le serveur de jeu se situe dans le code du client ce qui fait qu'il est plus facile pour des personnes de créer un monde de jeu parallèle en modifiant le code du client.
+Un jeu massivement multijoueurs avec abonnement n'est donc pas envisageable dans cette architecture car les joueurs peuvent partir sur le monde parallèle et ne plus payer.
+De plus, cette architecture entraîne beaucoup plus de développement car le développeur du jeu ne peut pas avoir confiance envers le joueur hébergeant une partie du monde, le joueur pouvant se déconnecter brutalement ou vouloir tricher par exemple.
+Cela entraîne donc le développement de plusieurs techniques telles que des mécanismes de réputation ou des mécanismes de stockage du monde persistant sous forme de table de hachage distribuée (DHT).
+Il y a de nombreux problèmes de latence dans ce type d'architectures dues à l'absence d'autorité centrale qui entraîne de la synchronisation.
+Cette architecture n'est donc pas adaptée aux jeux vidéos rapides (\textit{fast paced game}) comme les jeux de tir à la première personne.
+
+\paragraph{Client-Serveur\\}
+La solution majoritairement utilisée actuellement par les éditeurs de MMOG est une solution client-serveur.
+Un solution avec une seule machine n'est pas envisageable car la machine sera rapidement saturé, il faut donc opter pour une solution multi-serveurs.
+Cependant, cette architecture ne peut pas passer à l'échelle indéfiniment.
+Une machine ne pouvant gérer qu'un nombre fini de joueurs, un nombre fini de machines ne peut gérer qu'un nombre fini de joueurs, le nombre de machines n'évoluant pas ou étant limité par l'infrastructure utilisée.
+De plus, cela entraîne un unique point de défaillance du jeu car une coupure d'électricité ou d'internet entraîne une coupure du jeu.
+Un très gros avantage de ces architectures est au niveau de la distribution des mises à jour du jeu pour les clients.
+Comme les clients ne font que recevoir l'état du jeu, toute la logique se situe dans le serveur.
+Une mise à jour peut donc être faite uniquement du côté serveur sans mettre à jour le côté client.
+
+\paragraph{Hybride\\}
+L'architecture hybride semble un bon compromis entre le Pair-à-Pair et le client-serveur.
+Cependant, les Super Peers ou machines de type client-serveur amènent des points de défaillance du jeu dans l'architecture Pair-à-Pair.
+De plus, cela suppose qu'il y ait des pairs avec des capacités supérieures qui soient connectés, ce qui peut ne pas être le cas, particulièrement si le MMOG est sur plateformes mobile (téléphones, consoles portables...).
+Il faut également remarquer qu'en effectuant une fusion des deux architectures précédentes pour combler les points faibles d'une des architectures, on amène des points négatifs d'une des autres architectures.
+
+\newpage
+\subsection{Tableau récapitulatif}
+\vspace{1cm}
+\begin{center}
+	\begin{tabular}{|>{\centering\arraybackslash}m{0.24\textwidth}|*{3}{>{\centering\arraybackslash}m{0.20\textwidth}|}}
+		\hline
+		
+		~&
+		Client-Serveur\linebreak(machine unique)&
+		Client-Serveur\linebreak(multi-serveur)&
+		Pair-à-Pair\\
+		
+		\hline
+		
+		Division du monde&
+		Triviale&
+		Moyenne\linebreak(Facile si statique)&
+		Difficile\linebreak(dynamique dans le nombre d'hôtes)\\
+		
+		\hline
+		
+		Cohérence du monde&
+		Facile&
+		Moyenne\linebreak(verrous)&
+		Difficile\linebreak(consensus byzantin)\\
+		
+		\hline
+		
+		Tolérance aux fautes&
+		Aucune&
+		Oui si réplication\linebreak(si le cluster est hors ligne, rien n'est disponible)&
+		Oui si réplication\linebreak(sinon perte du monde)\\
+		
+		\hline
+		
+		Gestion de la triche&
+		Facile\linebreak(centralisée)&
+		Facile\linebreak(centralisée)&
+		Difficile\linebreak(byzantin)\\
+		
+		\hhline{|*{4}{=|}}
+		
+		Charge CPU&
+		\'Elevée&
+		Réduite&
+		Chez le client\\
+		
+		\hline
+		
+		Charge Réseau&
+		Normale&
+		Séparée entre les serveur + Communications internes&
+		\'Elevée\linebreak(surtout pour les connexions des particuliers)\\
+		
+		\hline
+		
+		Complexité de développement&
+		Facile&
+		Moyenne&
+		Complexe\\
+		
+		\hline
+		
+		Coûts&
+		Normal&
+		\'Elevé\linebreak(sur-dimensionnement)&
+		Nulle\\
+		
+		\hline
+
+    Latence&
+		Normale&
+		Normale&
+		\'Elevée\linebreak(connexion mauvaise des particuliers et lenteur des prises de décisions)\\
+		
+		\hline
+	\end{tabular}
+\end{center}
+\vspace{0.8cm}
+
+\subsection{Notre solution : le cloud}
+On peut remarquer dans le tableau récapitulatif que la méthode la plus avantageuse se situe au niveau de l'architecture Client-Serveur.
+Cependant, l'architecture Pair-à-Pair a l'avantage d'être très tolérante aux fautes et de distribuer les charges CPU et Réseau.
+
+Dans ce rapport, nous proposons une autre solution qui n'a pas encore été adoptée par les grands éditeurs de jeux vidéo.
+En effet, pour adresser le problème du nombre limité de machines dans une architecture client serveur, on se propose d'utiliser des VM dans le cloud qui, si hébergées chez de grands fournisseurs du type Google Cloud~\cite{google_cloud} ou Amazon EC2~\cite{amazon_ec2}, sont virtuellement en nombre infini (les fournisseurs de ces services ayant des très grands datacenters à travers le monde).
+Les fournisseurs de ces services garantissent une certaine qualité de service telle que la disponibilité (aux alentours des 99\% dans la majeure partie des services grâce à de nombreuses alimentation électriques et onduleurs ainsi que plusieurs fournisseurs d'accès à internet).
+
+L'architecture cloud permet, en théorie, de passer à l'échelle indéfiniment car il suffit de faire apparaître de nouvelles VM en cas de surcharge du serveur de jeu.
+Pour ce faire, cette architecture utilise les mêmes types de partitionnement que les autres architectures vues dans la partie précédente.
+Chaque VM est donc responsable d'une certaine partie du monde qui évolue en fonction de la charge de celle-ci.
+
+Cependant, on peut remarquer que pour limiter le nombre de joueurs dans une même zone, la majeure partie des jeux utilisent le sharding pour limiter le nombre de joueurs sur un même serveur.
+On remarque donc que, bien que tous les joueurs jouent au même jeu, les joueurs ne jouent pas forcément ensemble.
+Dans ce stage, nous allons nous intéresser à la consolidation de cet univers virtuel et nous n'allons donc pas utiliser le sharding.
+
+Il faut cependant remarquer que louer des VMs dans le cloud peut coûter très cher, surtout si ces VMs se retrouvent sous-utilisées et nombreuses.
+En effet, la location de ce genre de machine se faisant à la minute, il est utile de bien dimensionner les VMs pour optimiser l'argent dépensé dans le serveur de jeu.
+Il faut également remarquer que de nombreux services réduisent le prix des machines si elles sont utilisées plus qu'un certain pourcentage dans le mois.
+Il faudra donc faire en sorte que l'architecture utilise un nombre réduit de VMs pour ainsi en optimiser le coût.
+

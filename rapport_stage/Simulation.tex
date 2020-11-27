@@ -1,0 +1,43 @@
+\section{Simulation}
+Pour nous permettre d'expérimenter ces architectures nous allons adopter une approche par simulation.
+La simulation présente de nombreux avantages, notamment le fait de pouvoir accélérer le temps.
+La simulation étant déterministe, on peut par ailleurs rejouer des scénarios qu'il serait impossible de rejouer par expérimentations sur plateformes réelles (perturbations dans le réseau, par exemple latence).
+De plus, la simulation peut s'exécuter sur des machines moins puissantes que celles simulées.
+Enfin, la simulation est automatisable et permet d'éviter d'avoir à réunir des personnes réelles jouant au jeu pour tester les algorithmes qui seront implémentés dans le système contrairement à de l'expérimentation.
+
+Comme la simulation est compliquée à réaliser, nous allons nous baser sur un c\oe{}ur de simulation déjà existant et développer notre solution par dessus.
+Nous n'aurons donc pas à simuler le temps qui s'écoule, le réseau et le CPU dans la simulation mais juste à développer un outil permettant de tester des algorithmes et de mesurer leur efficacité en utilisant les métriques citées plus haut.
+Pour permettre au simulateur d'être utilisé pour une grande variété de jeux, il sera également nécessaire de fournir une couche d'abstraction sur laquelle le simulateur se basera.
+
+\subsection{Choix du simulateur}
+De nombreux simulateurs existent mais utilisent différents niveaux d'approximation.
+Une simulation trop fidèle demanderait beaucoup de ressources et s'exécuterait très lentement.
+Inversement, une simulation trop peu fidèle entraînerait des incohérences au niveau des résultats et certains effets de bord ne seraient plus visible (congestion TCP, effet de trafics croisés...).
+Trouver un bon compromis est donc important pour effectuer notre simulation.
+
+Comme la réduction de l'encombrement réseau est important dans notre architecture, il faut que le réseau soit simulé de façon correcte et sans trop d'approximations.
+Un simulateur tel que PeerSim~\cite{peersim} n'est donc pas pertinent car il n'y a aucune gestion du débit des connexions.
+En effet, dans ce type de simulateur, un client peut recevoir plus de paquets que sa connexion ne pourrait le supporter par exemple.
+
+Une autre partie importante du simulateur est la capacité à gérer les architectures de type cloud, c'est à dire gérer un nombre de serveurs dynamique (et théoriquement infini) de machines virtuelles.
+Dans certains clouds, la puissance des VMs peuvent également varier au cours du temps, les VMs pouvant être relocalisées ou redimensionnées pendant l'exécution.
+
+Nous avons décidé d'utiliser Simgrid~\cite{simgrid} qui est un simulateur permettant de simuler de nombreuses architectures, dont le cloud en fournissant une interface de type libvirt pour gérer les VM.
+Il dispose aussi d'une interface de type POSIX ou MPI pour le développement des applications simulées.
+Simgrid utilise une simulation rapide mais réaliste du réseau, modélisant par exemple les effets de bords de TCP.
+Simgrid possède des outils de visualisation graphique permettant de voir l'évolution des ressources.
+Un module permet également de surveiller les modifications des données de l'application et de générer des traces utilisables pour nos propres outils de visualisation.
+
+\subsection{Simulation des joueurs}
+Dans notre simulation, le mouvement des joueurs et leur nombre influent grandement sur la gestion des VMs dans le cloud et l'efficacité des algorithmes s'y rattachant.
+Pour plus de réalisme, il faudra donc que notre simulateur soit capable d'exécuter des traces de déplacement de personnes déjà existantes.
+Cela permet d'avoir une idée du comportement sur un cas d'utilisation réel du système.
+
+Cependant, se baser uniquement sur des traces existantes entraîne un biais dans la simulation.
+En effet, peu de simulations différentes sont possibles et il faut remarquer que ces traces correspondent à une exécution bien précise et pourrait ne pas mettre en avant des comportements particuliers ou, à l'inverse, ne représenter qu'un comportement ponctuel et particulier des joueurs.
+Pour nous permettre de faire des expérimentations plus variées, il faut générer des traces réalistes de joueurs qui pourront être rejouées pour comparer les algorithmes.
+L'intérêt est de pouvoir faire varier les paramètres de déplacement pour tester les limites du système.
+De plus, due à la limitation du passage à l'échelle des architectures existantes, le nombre de joueurs des traces existantes est faible comparé à l'échelle requise par nos expérimentations.
+
+Le stage s'est donc naturellement orienté d'abord vers la génération de ces traces qui sont un travail préliminaire pour la simulation de l'architecture de serveur, la répartition sur les serveurs étant fortement dépendante de la répartition des joueurs.
+

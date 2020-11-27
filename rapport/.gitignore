@@ -1,0 +1,14 @@
+*.dvi
+*.log
+*.bak
+*.aux
+*.bbl
+*.blg
+*.idx
+*.ps
+*.eps
+*.pdf
+*.toc
+*.out
+*~
+*.tcp

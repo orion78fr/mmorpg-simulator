@@ -1,0 +1,67 @@
+# SpringVisualizer
+
+
+Player (x,y)
+ `- MovementManager // to move the player each tick
+     `- .move(Player)
+          ||
+	  \/
+	RandomMovementManager
+	 `- radius
+	BBMovementManager // A blue banana like model with little randomisation
+	 |- probaToNewHotspot
+	 |- betweenHotspotMoveDistance
+	 |- betweenHotspotRandomMoveDistance
+	 `- inHotspotRandomMoveDistance
+	   Pseudo-code:
+	   {
+		if(probaToNewHotspot){
+		    target = getNewHotspot(); // Takes into account the "hotness" of a hotspot
+		}
+		if(target != null){
+	            moveTowards(target, betweenHotspotMoveDistance); // If target distance is less than betweenHotspotMoveDistance, nullify the target for the next tick
+		    moveRandom(betweenHotspotRandomMoveDistance);
+		} else {
+		    moveRandom(inHotspotRandomMoveDistance);
+		}
+	    }
+
+
+
+
+# SpringSimulator
+
+
+Server
+ |- Shape (Polygon?, start with a Rectangle to simplify at start)
+ |   ∀ (i,j) ∈ Server², i ≠ j ⇒ Shape(i) ∩ Shape(j) = ∅
+ |- PublishSubscribe (knowing the shape of neighbors)
+ |- TransferManager
+ |   `- handle the transfer of zones between servers
+ |- InterestManager
+ |   `- manages the interest management
+ |   	 |- useful for replication
+ |	 |- know which player is interested in which data
+ |	 `- need to take into account the message for sharing
+ `- ServerManager
+     `- VM spawner, take into account the price model
+
+Client
+ |- Reads the input of SpringVisualizer
+ |- Sends the move to the responsible server
+ `- Take a response from the server
+
+Mesurements:
+ |- Latency : server is sending a logical clock to the client (number of message received from clients) to know if the message is received
+ |- Tickrate : fixed at the start of the simulation
+ |- CPU : treatment time / tick time
+ |- Memory : number of objects
+ |- Network : used download & upload
+ |- Failures
+ `- Cost : pricing model imported from cloud providers
+     |- Server hours
+     `- Network usage
+
+Strategies:
+ |- Basic threshold : if larger than a max, spawn a VM, if we can merge, stop one
+ `- Extrapolation : predict if the server will be overcharged or if it's just a temporary overcharge

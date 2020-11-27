@@ -1,0 +1,15 @@
+\section{Conclusion}
+L'objectif visé par une architecture de serveur de jeu massivement multijoueurs dans le cloud est de réunir tous les joueurs d'un même jeu dans un même monde simulé sans bordures pour permettre une immersion plus grande dans le jeu, contrairement à la séparation en groupes distincts (\textit{Sharding}) effectué habituellement.
+Il faut cependant remarquer que le sujet dépasse du cadre du stage, qui est un travail préliminaire pour la recherche dans le domaine.
+Un sujet de thèse, que j'effectuerai a la fin de ce stage, a donc été créé pour effectuer la recherche sur des algorithmes efficaces de répartition et de provisionnement entre les machines.
+Il faudra également comparer l'efficacité ces algorithmes aux autres architectures existantes pour vérifier que cette architecture fonctionne mieux et coûte moins cher.
+
+La séparation en zones de l'ensemble du monde de jeu est donc nécessaire pour éviter le \textit{Sharding}, chaque serveur étant responsable d'une zone.
+La séparation étant dynamique et dépendant de la densité en joueurs, elle est donc fortement dépendante de la répartition des joueurs.
+Nous avons donc eu besoin d'un générateur de traces réalistes de mouvements de joueurs (SpringVisualizer) pour tester les différents algorithmes de répartition.
+Les traces générées par SpringVisualizer nous permettrons de tester ces algorithmes, à la fois dans des cas ``normaux'', mais aussi dans des cas extrêmes.
+SpringSimulator utilise donc ces traces pour simuler l'architecture des serveurs et les clients.
+L'objectif de la thèse est de fournir un middleware pour la gestion de serveurs de jeu dans le Cloud, comme RTF~\cite{rtf_middleware_development} le fait pour les environnements multi-serveurs.
+La gestion des fautes (franches ou byzantines) sera envisagée dans la suite de la thèse.
+Le simulateur Simgrid~\cite{simgrid}, bien qu'efficace, manque peut-être encore de fonctionnalités pouvant servir à l'élaboration de ce simulateur.
+Il pourra donc être nécessaire durant la thèse d'effectuer des ajouts à Simgrid.

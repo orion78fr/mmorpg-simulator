@@ -1,0 +1,124 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{eurosym}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage[a4paper,left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[linktoc=all,pdfpagemode=UseNone,breaklinks]{hyperref}
+\def\UrlBreaks{\do\/\do-}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{hhline}
+\usepackage[justification=centering,margin=2cm]{caption}
+\usepackage{subcaption}
+\usepackage{rotating}
+
+\edef\restoreparindent{\parindent=\the\parindent\relax}
+\usepackage[parfill]{parskip}
+\restoreparindent
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\newcommand{\intervalle}[4]{\mathopen{#1}#2\,;#3\mathclose{#4}}
+
+\usepackage{ragged2e}
+
+%\newenvironment{desc}{\textit\bgroup}{\egroup} % Description des parties visibles (en italique)
+\newenvironment{desc}{\comment}{\endcomment} % Description des parties invisible
+
+% Redéfinie les sections pour leur donner une indentation
+\makeatletter
+\renewcommand{\section}{\newpage\@startsection{section}{1}{\z@}
+  {-3.5ex \@plus -1ex \@minus -.2ex}
+  {2.3ex \@plus.2ex}
+  {\normalfont\Large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{5ex}
+  {-3.25ex\@plus -1ex \@minus -.2ex}
+  {1.5ex \@plus .2ex}
+  {\normalfont\large\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{10ex}
+  {-3.25ex\@plus -1ex \@minus -.2ex}
+  {1.5ex \@plus .2ex}
+  {\normalfont\normalsize\bfseries}}
+
+\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\z@}
+  {1.25ex \@plus 1ex \@minus .2ex}
+  {-1em}
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+% Renumérote les sections en I 1 a
+\renewcommand{\thesection}{\Roman{section}.}
+\renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\thesubsection\alph{subsubsection}.}
+
+\begin{document}
+
+\pagenumbering{gobble}
+\begin{titlepage}
+	\newcommand{\hsp}{\hspace{20pt}}
+	\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+  \begin{sffamily}
+  \begin{center}
+
+		\begin{tabular}{p{0.35\textwidth} p{0.65\textwidth}}
+			\begin{center}\vspace{0pt} \includegraphics[width=0.25\textwidth]{logo-lip6.png}\end{center} &
+			\begin{center}\vspace{0pt} \includegraphics[width=0.55\textwidth]{logo-upmc.png}\end{center}
+		\end{tabular}
+		
+	
+		~\\[2cm]
+
+    
+
+    % Title
+    \HRule \\[0.4cm]
+    { \huge \bfseries Provisionnement dynamique de serveurs de jeux massivement multijoueurs\\[0.4cm] }
+
+    \HRule \\[3cm]
+		
+		\textsc{\LARGE Stage Master 2\ieme{} année}\\[0.5cm]
+
+    \textsc{\Large Rapport de stage}\\[4cm]
+
+    % Author and supervisor
+    \begin{minipage}{0.4\textwidth}
+      \begin{flushleft} \large
+        Guillaume \textsc{Turchini}\\[0.5cm]
+				\textbf{\emph{Rapporteur :}} Julien~\textsc{Sopena}
+      \end{flushleft}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+      \begin{flushright} \large
+				\textbf{\emph{Tuteurs :}} Maha~\textsc{Abdallah} Olivier~\textsc{Marin} \\Sébastien~\textsc{Monnet}
+      \end{flushright}
+    \end{minipage}
+
+    \vfill
+
+    % Bottom of the page
+    {\large Mars - Août 2015}
+
+  \end{center}
+  \end{sffamily}
+\end{titlepage}
+
+
+\tableofcontents
+
+\input{Introduction}
+\input{Partitionnement}
+\input{Architectures}
+\input{Comparaison}
+\input{Simulation}
+
+\input{orga}
+
+\input{Conclusion}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

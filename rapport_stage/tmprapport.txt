@@ -1,0 +1,56 @@
+Séparation du programme en 3 parties:
+	   - SpringCommon = librairie en commun
+	   - SpringVisualiser = visualisation et génération de traces
+	   - SpringSimulator = simulation de l'architecture serveur et des clients à l'aide de simgrid.
+
+SV génère les traces pour SS
+SS rend le résultat pour le visionner dans SV
+
+Visualiser :
+
+ConnectionManager
+	manage(int ticknumber)
+	`-> connecte ou déconnecte les joueurs
+	    sinusoidale croissante
+	
+MovementManager
+	move(Player p)
+	`-> déplace le joueur
+	    suit les chemins générés par pathfinding et power law autour des hotspots
+
+AbstractOverlay
+Affiche des overlays :
+	   - Background image pour mieux visualiser
+	   - Traversabilité des zones
+	   - Joueurs
+	   - Hotspots
+	   - Zones serveur (lorsqu'on rejoue une trace simulée)
+
+Au début, map carrée toute bête. Déplacement ligne droite entre les hotspots.
+Cependant, c'est pas réaliste, il y a des obstacles.
+
+Création des QTree pour stocker les séparations (traversable ou pas).
+
+Du coup, plus de chemin en ligne droite possible -> nécessité de pathfinding.
+
+A* -> Bon en complexité.
+
+Algo: ...
+
+Récup le g_score le plus bas :
+
+      - naif : recherche de plus petit élément : insertion O(1), récupération O(n)
+      - liste triée : insertion O(log(n)), récupération O(1) en théorie.
+
+Cependant remove(0) en java sur arraylist très lent (récup élément puis arraycopy en O(n) d'un cran vers la gauche), détecté grâce au profiling.
+Du coup, tri à l'envers et remove(list.size() - 1) -> récup en O(1) et insertion identique.
+
+
+Utilisation JPS pour améliorer les perfs.
+(Explication JPS avec schémas)
+Utilise la symétrie des op pour éviter des calculs, opérations JPS plus longues mais moins de points à réellement explorer.
+
+Amélioration en cachant le résultat de traversabilité et en cherchant les pts susceptibles d'être jump point (ceux à la frontière avec les limites)
+
+plotter vitesse génération en f(nombre joueurs)
+

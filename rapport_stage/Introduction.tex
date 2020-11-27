@@ -1,0 +1,31 @@
+\section{Introduction}
+\pagenumbering{arabic}
+\`A l'origine, les jeux en ligne permettaient à un nombre limité de joueurs (usuellement 16 voir 64) de se rencontrer dans des parties relativement courtes.
+De nos jours, de plus en plus de jeux massivement multijoueurs en ligne (MMOG) permettent à des milliers de joueurs de se rencontrer dans un univers persistant.
+Le genre a été popularisé à la fin des années 1990 par la sortie de MMORPG (jeux de rôle massivement multijoueurs en ligne) tels que ``Ultima Online''~\cite{ultima_online}, ``Lineage''~\cite{lineage} ou ``Everquest''~\cite{everquest}.
+En 2004, Blizzard Entertainment a sorti ``World of Warcraft'' (WOW)~\cite{wow} qui a eu immédiatement un grand succès et qui continue aujourd'hui à être un des plus grands MMORPG avec encore près de 10 millions d'utilisateurs dans le monde fin 2014~\cite{wow_player_num}.
+
+Les serveurs de ces jeux doivent servir un très grand nombre de joueurs connectés (habituellement plus de 1000 joueurs) en leur délivrant une vue cohérente tout en gardant une expérience de jeu agréable, ce qui signifie avoir des temps de réponse acceptables la plupart du temps~\cite{latency_can_kill}.
+Un serveur ne peut gérer qu'un nombre fini de joueurs car il est limité par sa puissance.
+Il est donc nécessaire de partitionner le serveur.
+L'intérêt de cette capacité à tenir la charge induite par de nombreux joueurs est important au lancement d'un jeu car le succès d'un jeu se fait bien souvent par la première expérience des joueurs.
+Il est donc nécessaire d'avoir suffisamment de marge au niveau du nombre de joueurs côté serveur pour ne pas être surchargé.
+La solution utilisée par les industriels est donc de surdimensionner l'architecture serveur.
+Cependant il faut faire attention à ne pas surdimensionner l'architecture sous peine de dépenser tous les profits du jeu.
+
+Les jeux fortement anticipés ne supportent souvent pas le pic de charge induit par le nombre de joueur voulant se connecter au lancement du jeu.
+De même, si de nombreux joueurs décident de se réunir à un même endroit, où l'architecture n'est pas prévue pour en supporter autant, le serveur de jeu crash.
+Certains jeux supportent ce grand nombre de joueurs par le design du jeu.
+Par exemple, Dragon Quest X, qui peut supporter aux environs de 300 000 joueurs concurrents, réduis les interactions possibles entre les joueurs.
+Les groupes sont composés de 4 joueurs maximum et il n'est que possible d'encourager les autres groupes de joueurs.
+Cela réduit la contrainte de temps nécessaire au transfert de l'information des joueurs, l'interaction n'étant pas critique.
+Par la suite, ce rapport s'intéresse donc aux jeux ayant un grand nombre de joueurs et une forte interaction entre eux, imposant des temps de réponses stricts.
+
+Dans la suite de ce rapport, nous appellerons ``serveur'' l'entité hébergeant le monde du jeu dans sa globalité.
+Les serveurs des jeux s'exécutent soit directement sur une ou plusieurs ``machine(s)'' physique(s), soit sur des ``machines virtuelles'' (VM) hébergées dans un cloud.
+
+Nous détaillerons dans la partie II de ce rapport les différentes méthodes de partitionnement qui sont utilisées actuellement pour répondre aux problèmes de passage à l'échelle.
+Dans la partie III, nous présenterons les différentes architectures pour héberger les serveurs de jeu se basant sur ces partitionnements.
+Ensuite, nous verrons en partie IV les métriques permettant de comparer ces architectures à notre solution.
+Nous présenterons dans la partie V la simulation de l'architecture.
+Enfin, nous conclurons dans la partie VI sur les enjeux à venir et les algorithmes à tester.
